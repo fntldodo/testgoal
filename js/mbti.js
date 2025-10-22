@@ -59,12 +59,21 @@ function render(){
 choices.forEach(btn=>{
   btn.addEventListener("click", ()=>{
     const raw = Number(btn.dataset.score); // 0~3
-    // 되돌리기 대비 현재 문항 기록 저장
-    ans[idx] = raw;
-    applyScore(Q[idx].t, Q[idx].p, raw);
-    nextStep();
+
+    // 선택 피드백: 기존 선택 제거 후 새로 강조
+    choices.forEach(c => c.classList.remove("selected"));
+    btn.classList.add("selected");
+
+    // 잠깐 강조 유지 후 다음 문항으로 이동
+    setTimeout(()=>{
+      ans[idx] = raw;
+      applyScore(Q[idx].t, Q[idx].p, raw);
+      choices.forEach(c => c.classList.remove("selected"));
+      nextStep();
+    }, 250);
   });
 });
+
 
 // 이전으로
 prevBtn.addEventListener("click", ()=>{
