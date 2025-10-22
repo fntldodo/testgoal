@@ -16,16 +16,24 @@
       <span>몽실몽실 심리테스트</span>
     </div>
     <p class="subtitle">불안한 마음이 찾아올 때, 몽실이의 포근한 품으로 안겨보세요 ☁️</p>
-    <button class="cta" id="startAll">테스트 보러 가기</button>
+<!-- ✅ 카테고리 가로 캐러셀 (버튼 아래) -->
+<button class="cta" id="startAll">테스트 보러 가기</button>
 
-    <div class="scroll-tests">
-      <button class="test-chip" data-link="mbti">MBTI</button>
-      <button class="test-chip" data-link="personality">성격 테스트</button>
-      <button class="test-chip" data-link="love">연애 스타일</button>
-      <button class="test-chip" data-link="independence">자립심</button>
-      <button class="test-chip" data-link="animal">동물 테스트</button>
-      <button class="test-chip" data-link="plant">식물 테스트</button>
-    </div>
+<div class="scroll-wrap" aria-label="테스트 카테고리">
+  <button class="nav-btn prev" aria-label="이전">&#10094;</button>
+
+  <div class="scroll-tests" id="scrollTests" role="listbox">
+    <button class="test-chip" data-link="mbti"   role="option">MBTI</button>
+    <button class="test-chip" data-link="personality">성격 테스트</button>
+    <button class="test-chip" data-link="love">연애 스타일</button>
+    <button class="test-chip" data-link="independence">자립심</button>
+    <button class="test-chip" data-link="animal">동물 테스트</button>
+    <button class="test-chip" data-link="plant">식물 테스트</button>
+  </div>
+
+  <button class="nav-btn next" aria-label="다음">&#10095;</button>
+</div>
+
   </header>
 
   <main>
