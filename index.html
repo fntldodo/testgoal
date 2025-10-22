@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ko">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,9 +20,28 @@
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .logo span{background:linear-gradient(90deg,#78cfc2,#bcefe7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .subtitle{font-size:clamp(15px,2vw,18px);color:var(--text-soft);margin-top:16px}
-  .cta{margin-top:28px;padding:14px 24px;border:none;border-radius:20px;background:var(--mint-500);color:#0e3431;font-weight:700;cursor:pointer;transition:.3s ease}
-  .cta:hover{background:var(--mint-600)}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;width:min(1200px,94vw);margin:40px auto 80px} .card{background:linear-gradient(180deg,#fff,var(--mint-100));border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-card);border:1px solid var(--mint-200);transition:transform .2s,box-shadow .2s} .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.07)} .chip{display:inline-block;background:var(--mint-400);color:#1f3b39;font-size:12px;padding:6px 10px;border-radius:999px;margin-bottom:10px} .anim{height:150px;display:flex;align-items:center;justify-content:center} .card h3{font-family:"Pretendard Variable","Noto Sans KR",sans-serif;font-weight:800;font-size:18px;margin:10px 0 4px} .desc{font-size:14px;color:var(--text-soft);margin-bottom:8px} .start{display:inline-block;padding:8px 14px;border-radius:12px;background:var(--mint-500);color:#0d2f2b;font-weight:800;border:none;cursor:pointer} .start:hover{background:var(--mint-600)} footer{text-align:center;color:var(--text-soft);padding:40px 0} </style>
 
+  /* ✅ 6가지 테스트 카테고리 가로 스크롤 */
+  .scroll-tests{display:flex;overflow-x:auto;gap:12px;padding:20px 10px;margin:20px auto;width:min(700px,90vw);scroll-snap-type:x mandatory;}
+  .scroll-tests::-webkit-scrollbar{height:6px}
+  .scroll-tests::-webkit-scrollbar-thumb{background:var(--mint-300);border-radius:4px}
+  .test-chip{flex:0 0 auto;scroll-snap-align:center;padding:10px 18px;border-radius:20px;background:var(--mint-200);font-weight:600;font-size:15px;color:#2f3c3a;white-space:nowrap;transition:background .2s;}
+  .test-chip:hover{background:var(--mint-400)}
+
+  .cta{margin-top:20px;padding:14px 24px;border:none;border-radius:20px;background:var(--mint-500);color:#0e3431;font-weight:700;cursor:pointer;transition:.3s ease}
+  .cta:hover{background:var(--mint-600)}
+
+  main{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;width:min(1200px,94vw);margin:40px auto 80px}
+  .card{background:linear-gradient(180deg,#fff,var(--mint-100));border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-card);border:1px solid var(--mint-200);transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.07)}
+  .chip{display:inline-block;background:var(--mint-400);color:#1f3b39;font-size:12px;padding:6px 10px;border-radius:999px;margin-bottom:10px}
+  .anim{height:150px;display:flex;align-items:center;justify-content:center}
+  .card h3{font-weight:800;font-size:18px;margin:10px 0 4px}
+  .desc{font-size:14px;color:var(--text-soft);margin-bottom:8px}
+  .start{display:inline-block;padding:8px 14px;border-radius:12px;background:var(--mint-500);color:#0d2f2b;font-weight:800;border:none;cursor:pointer}
+  .start:hover{background:var(--mint-600)}
+  footer{text-align:center;color:var(--text-soft);padding:40px 0}
+</style>
 </head>
 <body>
   <header>
@@ -30,61 +50,78 @@
       <span>몽실몽실 심리테스트</span>
     </div>
     <p class="subtitle">불안한 마음이 찾아올 때, 몽실이의 포근한 품으로 안겨보세요 ☁️</p>
-    <button class="cta" id="startAll">테스트 보러 가기</button>
-  </header>  <main>
-    <!-- 1. MBTI -->
+
+    <div class="test-chip">성격 테스트</div>
+      <div class="test-chip">연애 스타일</div>
+      <div class="test-chip">자립심</div>
+      <div class="test-chip">동물 테스트</div>
+      <div class="test-chip">식물 테스트</div>
+    </div>
+
+    <button class="cta" id="startAll">테스트 보러 가기<\/button>
+
+    <!-- 작고 부드러운 가로 스크롤 섹션 (버튼 아래) -->
+    <div class=\"scroll-tests\">
+      <div class=\"test-chip\">MBTI<\/div>
+      <div class=\"test-chip\">성격 테스트<\/div>
+      <div class=\"test-chip\">연애 스타일<\/div>
+      <div class=\"test-chip\">자립심<\/div>
+      <div class=\"test-chip\">동물 테스트<\/div>
+      <div class=\"test-chip\">식물 테스트<\/div>
+    <\/div>
+  </header>
+
+  <main>
     <article class="card" data-key="mbti">
       <span class="chip">MBTI</span>
       <div class="anim"><lottie-player src="https://assets9.lottiefiles.com/packages/lf20_kxsd2ytq.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
       <h3>MBTI 빠른 테스트</h3>
       <p class="desc">약 12문항 • 2~3분</p>
       <button class="start">시작하기 →</button>
-    </article><!-- 2. 성격 테스트 -->
-<article class="card" data-key="personality">
-  <span class="chip">성격</span>
-  <div class="anim"><lottie-player src="https://assets1.lottiefiles.com/packages/lf20_rsahe7bh.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
-  <h3>성격 성향 미니 체크</h3>
-  <p class="desc">한 문항씩 부드럽게 진행</p>
-  <button class="start">시작하기 →</button>
-</article>
+    </article>
 
-<!-- 3. 연애 스타일 -->
-<article class="card" data-key="love">
-  <span class="chip">연애</span>
-  <div class="anim"><lottie-player src="https://assets1.lottiefiles.com/packages/lf20_ozr2vmsv.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
-  <h3>연애 스타일 밸런스</h3>
-  <p class="desc">부담 없이 패턴 확인</p>
-  <button class="start">시작하기 →</button>
-</article>
+    <article class="card" data-key="personality">
+      <span class="chip">성격</span>
+      <div class="anim"><lottie-player src="https://assets1.lottiefiles.com/packages/lf20_rsahe7bh.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
+      <h3>성격 성향 미니 체크</h3>
+      <p class="desc">한 문항씩 부드럽게 진행</p>
+      <button class="start">시작하기 →</button>
+    </article>
 
-<!-- 4. 자립심 -->
-<article class="card" data-key="independence">
-  <span class="chip">자립심</span>
-  <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_uwRkQn.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
-  <h3>자립 지수 체크</h3>
-  <p class="desc">하루 루틴/결정 방식으로 측정</p>
-  <button class="start">시작하기 →</button>
-</article>
+    <article class="card" data-key="love">
+      <span class="chip">연애</span>
+      <div class="anim"><lottie-player src="https://assets1.lottiefiles.com/packages/lf20_ozr2vmsv.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
+      <h3>연애 스타일 밸런스</h3>
+      <p class="desc">부담 없이 패턴 확인</p>
+      <button class="start">시작하기 →</button>
+    </article>
 
-<!-- 5. 동물에 비유 -->
-<article class="card" data-key="animal">
-  <span class="chip">동물</span>
-  <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_R8zK6Y.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
-  <h3>나는 어떤 동물?</h3>
-  <p class="desc">직관적인 문항으로 재미있게</p>
-  <button class="start">시작하기 →</button>
-</article>
+    <article class="card" data-key="independence">
+      <span class="chip">자립심</span>
+      <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_uwRkQn.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
+      <h3>자립 지수 체크</h3>
+      <p class="desc">하루 루틴/결정 방식으로 측정</p>
+      <button class="start">시작하기 →</button>
+    </article>
 
-<!-- 6. 식물에 비유 -->
-<article class="card" data-key="plant">
-  <span class="chip">식물</span>
-  <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_v1yudlrx.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
-  <h3>나는 어떤 식물?</h3>
-  <p class="desc">파스텔 감성의 결과 카드</p>
-  <button class="start">시작하기 →</button>
-</article>
+    <article class="card" data-key="animal">
+      <span class="chip">동물</span>
+      <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_R8zK6Y.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
+      <h3>나는 어떤 동물?</h3>
+      <p class="desc">직관적인 문항으로 재미있게</p>
+      <button class="start">시작하기 →</button>
+    </article>
 
-  </main>  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
+    <article class="card" data-key="plant">
+      <span class="chip">식물</span>
+      <div class="anim"><lottie-player src="https://assets2.lottiefiles.com/packages/lf20_v1yudlrx.json" background="transparent" speed="1" loop autoplay style="width:160px;height:160px"></lottie-player></div>
+      <h3>나는 어떤 식물?</h3>
+      <p class="desc">파스텔 감성의 결과 카드</p>
+      <button class="start">시작하기 →</button>
+    </article>
+  </main>
+
+  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 <script>
   const grid=document.querySelector('main');
   grid.addEventListener('click',e=>{
