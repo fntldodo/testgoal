@@ -52,3 +52,15 @@ main{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2
 .start{display:inline-block;padding:8px 14px;border-radius:12px;background:var(--mint-500);color:#0d2f2b;font-weight:800;border:none;cursor:pointer}
 .start:hover{background:var(--mint-600)}
 footer{text-align:center;color:var(--text-soft);padding:40px 0}
+
+/* ===== MBTI 선택 버튼 피드백 ===== */
+.choice.selected {
+  background: var(--mint-500) !important;
+  color: #0d2f2b;
+  border-color: var(--mint-600);
+  transform: scale(1.02);
+}
+.choice.selected.ghost {
+  background: var(--mint-400) !important;
+  color: #0d2f2b;
+}
