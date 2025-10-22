@@ -25,3 +25,38 @@ main{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2
 .start{display:inline-block;padding:8px 14px;border-radius:12px;background:var(--mint-500);color:#0d2f2b;font-weight:800;border:none;cursor:pointer}
 .start:hover{background:var(--mint-600)}
 footer{text-align:center;color:var(--text-soft);padding:40px 0}
+/* ===== 가로 캐러셀 래퍼 + 화살표 버튼 ===== */
+.scroll-wrap{
+  display:flex; align-items:center; justify-content:center;
+  gap:8px; width:min(560px, 92vw); margin:10px auto 0;
+}
+.nav-btn{
+  flex:0 0 auto;
+  width:34px; height:34px; border:none; border-radius:50%;
+  background:var(--mint-300); color:#1f3b39; font-size:18px; line-height:34px;
+  cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+.nav-btn:hover{ background:var(--mint-400); }
+
+/* ===== 가로 스크롤 리스트 ===== */
+.scroll-tests{
+  display:flex; align-items:center; gap:8px;
+  overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+  padding:10px 8px; border-radius:16px;
+  background:var(--mint-100);
+  width:100%;
+}
+.scroll-tests::-webkit-scrollbar{ height:4px; }
+.scroll-tests::-webkit-scrollbar-thumb{ background:var(--mint-300); border-radius:3px; }
+
+/* ===== 칩(아이템) ===== */
+.test-chip{
+  flex:0 0 auto; scroll-snap-align:center;
+  background:#fff; border:1px solid var(--mint-300);
+  color:#2f3c3a; border-radius:16px; padding:6px 14px;
+  font-weight:600; font-size:13px; white-space:nowrap;
+  box-shadow:0 2px 5px rgba(0,0,0,.05);
+  transition:background .2s, transform .15s, border-color .2s;
+}
+.test-chip:hover{ background:var(--mint-200); transform:translateY(-1px); }
+
