@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MBTI 빠른 테스트 - 몽실몽실</title>
+  <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="../assets/mongsil.png" alt="몽실이 캐릭터">
+      <span>MBTI 빠른 테스트</span>
+    </div>
+    <p class="subtitle">12문항 · 2~3분 · 중립 없이 빠르게</p>
+  </header>
+  <main class="test">
+    <div class="meta">
+      <div id="stepLabel">1 / X</div>
+      <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
+    </div>
+    <section class="card-q" id="card">
+      <p class="q-text" id="qText">질문 로딩 중…</p>
+      <div class="choices" id="choiceWrap"></div>
+      <div class="navs">
+        <button id="prev" class="start ghost">← 이전</button>
+        <button id="skip" class="start ghost">건너뛰기</button>
+      </div>
+      <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
+    </section>
+    <section id="result" style="display:none"></section>
+    <div style="text-align:center;margin:24px 0 8px">
+      <a class="start" href="../index.html">메인으로 돌아가기</a>
+    </div>
+  </main>
+  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
+  <script src="../js/mbti.js"></script>
+</body>
+</html>
