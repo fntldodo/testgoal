@@ -10,31 +10,43 @@
 <body>
   <header>
     <div class="logo">
-      <img src="./assets/KakaoTalk_20251020_233535446.png" alt="몽실이 캐릭터">
+      <!-- tests 폴더 안이므로 ../assets 로 수정 -->
+      <img src="../assets/KakaoTalk_20251020_233535446.png"
+           alt="몽실이 캐릭터"
+           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
       <span>나는 어떤 동물?</span>
     </div>
     <p class="subtitle">16문항 · 감성 기반 직관 테스트 · 캐릭터 카드</p>
   </header>
+
   <main class="test">
     <div class="meta">
       <div id="stepLabel">1 / X</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
+
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
+
       <div class="navs">
-        <button id="prev" class="start ghost">← 이전</button>
-        <button id="skip" class="start ghost">건너뛰기</button>
+        <button id="prev" class="start ghost" type="button">← 이전</button>
+        <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
+
       <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
     </section>
+
     <section id="result" style="display:none"></section>
+
     <div style="text-align:center;margin:24px 0 8px">
       <a class="start" href="../index.html">메인으로 돌아가기</a>
     </div>
   </main>
+
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
-  <script src="../js/animal.js"></script>
+
+  <!-- DOM 파싱 후 실행 보장 -->
+  <script src="../js/animal.js" defer></script>
 </body>
 </html>
