@@ -14,7 +14,6 @@
 <body>
   <header>
     <div class="logo">
-      <!-- 로고 이미지: mongsil.png가 없으면 KakaoTalk 파일로 대체 -->
       <img src="./assets/mongsil.png"
            alt="몽실이 캐릭터"
            onerror="this.onerror=null; this.src='./assets/KakaoTalk_20251020_233535446.png'">
@@ -33,7 +32,7 @@
         <button class="test-chip" data-link="love" role="option">연애 스타일</button>
         <button class="test-chip" data-link="independence" role="option">자립심</button>
         <button class="test-chip" data-link="animal" role="option">동물 테스트</button>
-        <button class="test-chip" data-link="plant" role="option">식물 테스트</button>
+        <button class="test-chip" data-link="plant" role="option">감정 vs 논리</button>
       </div>
       <button class="nav-btn next" aria-label="다음">&#10095;</button>
     </div>
@@ -44,10 +43,9 @@
     <article class="card" data-key="mbti">
       <span class="chip">MBTI</span>
       <div class="anim">
-        <lottie-player class="lp" background="transparent" speed="1" loop autoplay
-          style="width:160px;height:160px"
-          data-lottie="https://assets9.lottiefiles.com/packages/lf20_kxsd2ytq.json"></lottie-player>
-        <img class="anim-fallback" src="./assets/mbti.png" alt="MBTI" style="display:none;width:160px;height:160px" />
+        <img src="./assets/MBTI.png"
+             alt="MBTI 테스트"
+             style="width:160px;height:160px;object-fit:contain" loading="lazy">
       </div>
       <h3>MBTI 빠른 테스트</h3>
       <p class="desc">12문항 · 2~3분 · 중립 없이 빠르게</p>
@@ -110,14 +108,13 @@
       <button class="start">시작하기 →</button>
     </article>
 
-    <!-- ⑥ 식물 -->
+    <!-- ⑥ 감정 vs 논리 -->
     <article class="card" data-key="plant">
-      <span class="chip">식물</span>
+      <span class="chip">감정 vs 논리</span>
       <div class="anim">
-        <lottie-player class="lp" background="transparent" speed="1" loop autoplay
-          style="width:160px;height:160px"
-          data-lottie="https://assets2.lottiefiles.com/packages/lf20_v1yudlrx.json"></lottie-player>
-        <img class="anim-fallback" src="./assets/plant.png" alt="식물" style="display:none;width:160px;height:160px" />
+        <img src="./assets/BRAIN.png"
+             alt="감정 vs 논리 밸런스"
+             style="width:160px;height:160px;object-fit:contain" loading="lazy">
       </div>
       <h3>감정 vs 논리 밸런스</h3>
       <p class="desc">카드형 결과 · 15문항</p>
