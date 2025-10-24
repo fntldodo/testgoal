@@ -36,3 +36,34 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('touchmove', e=> move(e.touches[0].pageX), {passive:true});
   window.addEventListener('touchend', end);
 })();
+// --- Lottie 로더(403/오류 시 PNG 자동 대체) ---
+(function () {
+  const boxes = document.querySelectorAll('.anim');
+  boxes.forEach(box => {
+    const player = box.querySelector('lottie-player.lp');
+    const fallback = box.querySelector('.anim-fallback');
+    if (!player) { if (fallback) fallback.style.display = 'block'; return; }
+    const url = player.getAttribute('data-lottie');
+    if (!url) { player.remove(); if (fallback) fallback.style.display = 'block'; return; }
+
+    // JSON을 먼저 가져와 CORS/403 확인 → 성공 시 src 설정
+    fetch(url, { mode: 'cors' })
+      .then(res => {
+        if (!res.ok) throw new Error('Lottie blocked: ' + res.status);
+        player.setAttribute('src', url);
+      })
+      .catch(() => {
+        // 실패 → PNG로 대체
+        player.remove();
+        if (fallback) fallback.style.display = 'block';
+      });
+
+    // 혹시 무응답 대비 타임아웃(2.5초)도 PNG로 대체
+    setTimeout(() => {
+      if (player.isConnected && !player.getAttribute('src')) {
+        try { player.remove(); } catch (e) {}
+        if (fallback) fallback.style.display = 'block';
+      }
+    }, 2500);
+  });
+})();
