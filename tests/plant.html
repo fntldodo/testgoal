@@ -6,35 +6,66 @@
   <title>감정 vs 논리 밸런스 - 몽실몽실</title>
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* 프리뷰 띠 */
+    .plant-preview {
+      display:flex; gap:12px; align-items:center; justify-content:center;
+      width:min(680px, 92vw); margin: 10px auto 0; padding:10px 14px;
+      background: var(--mint-100); border:1px solid var(--mint-200);
+      border-radius: 16px;
+    }
+    .plant-preview img { width:42px; height:42px; object-fit:contain }
+    .plant-preview b { font-weight:800; }
+    .plant-preview small{ color:var(--text-soft) }
+  </style>
 </head>
 <body>
   <header>
     <div class="logo">
-    <img src="assets/KakaoTalk_20251020_233535446.png" ... >
+      <img src="../assets/KakaoTalk_20251020_233535446.png"
+           alt="몽실이 캐릭터"
+           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
       <span>감정 vs 논리 밸런스</span>
     </div>
-    <p class="subtitle">15문항 · 식물 캐릭터 카드 결과</p>
+    <p class="subtitle">15문항 · 감정(Emotion) ↔ 논리(Logic) · 균형(Harmony)</p>
+
+    <!-- 식물 프리뷰: 첫 화면에서 식물 감성 보여주기 -->
+    <div class="plant-preview">
+      <img src="../assets/plants/preview.png" alt="식물 프리뷰"
+           onerror="this.onerror=null; this.src='../assets/plant.png'">
+      <div>
+        <div><b>몽실 가드닝 🌿</b> <small>— 오늘의 나는 어떤 식물일까요?</small></div>
+        <small>감정은 햇빛, 논리는 뿌리, 균형은 줄기처럼 — 나만의 자라는 방식이 있어요.</small>
+      </div>
+    </div>
   </header>
+
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / X</div>
+      <div id="stepLabel">1 / 15</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
+
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
       <div class="navs">
-        <button id="prev" class="start ghost">← 이전</button>
-        <button id="skip" class="start ghost">건너뛰기</button>
+        <button id="prev" class="start ghost" type="button">← 이전</button>
+        <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
       <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
     </section>
+
+    <!-- 결과 -->
     <section id="result" style="display:none"></section>
+
     <div style="text-align:center;margin:24px 0 8px">
       <a class="start" href="../index.html">메인으로 돌아가기</a>
     </div>
   </main>
+
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
-  <script src="../js/plant.js"></script>
+
+  <script src="../js/plant.js?v=1" defer></script>
 </body>
 </html>
