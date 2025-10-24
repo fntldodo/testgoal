@@ -10,7 +10,6 @@
 <body>
   <header>
     <div class="logo">
-      <!-- tests 폴더 안이므로 ../assets 로 수정 -->
       <img src="../assets/KakaoTalk_20251020_233535446.png"
            alt="몽실이 캐릭터"
            onerror="this.onerror=null; this.src='../assets/mongsil.png'">
@@ -21,22 +20,21 @@
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / X</div>
+      <div id="stepLabel">1 / 16</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
-
       <div class="navs">
         <button id="prev" class="start ghost" type="button">← 이전</button>
         <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-
       <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
     </section>
 
+    <!-- 결과 -->
     <section id="result" style="display:none"></section>
 
     <div style="text-align:center;margin:24px 0 8px">
@@ -46,7 +44,6 @@
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- DOM 파싱 후 실행 보장 -->
   <script src="../js/animal.js" defer></script>
 </body>
 </html>
