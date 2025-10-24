@@ -61,3 +61,4 @@ main.test{max-width:780px;margin:32px auto;padding:0 16px}
 .radar-legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:13px}
 .legend-dot{width:10px;height:10px;border-radius:50%;background:var(--mint-500);border:1px solid var(--mint-600)}
+.anim img { display:block; width:160px; height:160px; object-fit:contain; }
