@@ -1,4 +1,6 @@
-// === Animal Test (항상 동물 결과) ===
+// === Animal Test (항상 동물 결과 버전) ===
+console.log('animal.js v4 loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
   // 16문항 (A:활동성, N:새로움, C:공감, S:신중)
   const Q = [
@@ -42,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // --- UI 렌더 ---
+  // ---------- 질문 렌더 ----------
   function render(){
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
     barFill.style.width   = `${(idx/Q.length)*100}%`;
@@ -101,9 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
     next();
   });
 
-  // --- 결과 산출: 항상 동물 ---
+  // ---------- 결과 산출 (항상 동물) ----------
   // 상위 2축 조합 → 동물
-  const MAP = { 
+  const MAP = {
     'AN':'FOX',      // 여우
     'AC':'OTTER',    // 수달
     'AS':'CAT',      // 고양이
@@ -165,13 +167,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const pairs = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
     const top1 = pairs[0][0];
     const top2 = pairs[1][0];
-    const key  = [top1, top2].sort().join(''); // 항상 알파벳 순
-    return MAP[key] || 'FOX'; // 혹시 모를 예외의 기본값
+    const key  = [top1, top2].sort().join(''); // 알파벳 순
+    return MAP[key] || 'FOX'; // 혹시 모를 예외 기본값
   }
 
   function meters(sc){
-    // 최대치: 각 축 4문항 × 최고점 3 = 12 → 백분율 환산
-    const maxPerAxis = 4 * 3;
+    // 각 축 최대치: 4문항 × 3점 = 12 → 백분율
+    const maxPerAxis = 12;
     return ['A','N','C','S'].map(k=>{
       const name = {A:'활동성', N:'새로움', C:'공감', S:'신중'}[k];
       const pct  = Math.round(sc[k] / maxPerAxis * 100);
