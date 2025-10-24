@@ -1,4 +1,5 @@
-
+<script>
+// === Animal Test with Character Images ===
 const Q = [
   {k:'A', q:'즉흥적인 외출/모임 제안이 설렌다.'},
   {k:'A', q:'몸을 움직이는 활동(산책/운동)을 즐긴다.'},
@@ -17,6 +18,7 @@ const Q = [
   {k:'S', q:'한 번에 많은 변화를 주는 건 부담스럽다.'},
   {k:'S', q:'루틴과 규칙이 있으면 마음이 편하다.'}
 ];
+
 let idx=0; const score={A:0,N:0,C:0,S:0}; const ans=[];
 const stepLabel=document.getElementById('stepLabel');
 const barFill=document.getElementById('barFill');
@@ -26,6 +28,7 @@ const card=document.getElementById('card');
 const resultBox=document.getElementById('result');
 const prevBtn=document.getElementById('prev');
 const skipBtn=document.getElementById('skip');
+
 function render(){
   stepLabel.textContent = `${idx+1} / ${Q.length}`;
   barFill.style.width   = `${(idx/Q.length)*100}%`;
@@ -52,12 +55,60 @@ function recalcTo(endIdx){
   score.A=score.N=score.C=score.S=0;
   for(let i=0;i<endIdx;i++){ const v=ans[i] ?? 0; score[Q[i].k] += v; }
 }
+
+function pickType(sc){
+  const pairs = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+  const top1 = pairs[0][0], top2 = pairs[1][0];
+  const key  = [top1, top2].sort().join('');
+  const spread = Math.max(sc.A, sc.N, sc.C, sc.S) - Math.min(sc.A, sc.N, sc.C, sc.S);
+  if(spread <= 3) return 'BALANCE';
+  return MAP[key] || 'BALANCE';
+}
+
+const MAP = { 'AN':'FOX', 'AC':'OTTER', 'AS':'CAT', 'CN':'DOLPHIN', 'CS':'PENGUIN', 'NS':'OWL' };
+
+const IMG = {
+  FOX:       '../assets/animals/fox.png',
+  OTTER:     '../assets/animals/otter.png',
+  CAT:       '../assets/animals/cat.png',
+  DOLPHIN:   '../assets/animals/dolphin.png',
+  PENGUIN:   '../assets/animals/penguin.png',
+  OWL:       '../assets/animals/owl.png',
+  BALANCE:   '../assets/animals/balance.png'
+};
+
+const COPY = {
+  FOX:     { title:'🦊 여우형',    quote:'“일단 해보고 배우자!”', desc:'기민하고 재치 있는 도전자! 새로운 판을 여는 데 주저 없음.', tips:['체크포인트 3단계','즉흥 플랜에 안전장치 하나'] },
+  OTTER:   { title:'🦦 수달형',    quote:'“같이 하면 더 재밌지!”', desc:'즐거움을 나누는 팀플레이어. 친화력 만점, 분위기 메이커!', tips:['연락 리듬 정하기','휴식 신호 공유'] },
+  CAT:     { title:'🐱 고양이형',  quote:'“거리는 내가 정해. 정성은 진심으로.”', desc:'자율성과 집중력이 강점. 필요할 때 번개같이 움직여요.', tips:['자유 시간 확보','50-10 타이머'] },
+  DOLPHIN: { title:'🐬 돌고래형',  quote:'“센스와 배려의 콜라보!”', desc:'영리하고 감각적. 공감과 창의성의 조합으로 흐름을 바꿔요.', tips:['아이디어 1가지 바로 실행','조용한 충전 타임'] },
+  PENGUIN: { title:'🐧 펭귄형',    quote:'“천천히, 하지만 함께.”', desc:'의리 있고 성실한 협력가. 함께 가는 길을 좋아해요.', tips:['규칙 + 예외 규칙','내 감정도 중요!'] },
+  OWL:     { title:'🦉 부엉이형',  quote:'“빨리보다 정확하게.”', desc:'차분한 통찰가. 새로움도 구조 안에서 섬세하게 다루죠.', tips:['탐색 시간 제한','작은 단위 실행'] },
+  BALANCE: { title:'☁️ 균형몽실형', quote:'“필요한 때 필요한 얼굴.”', desc:'네 가지 성향이 고른 균형형. 상황별 모드 전환이 강점!', tips:['강점 지도 업데이트','기분/몸/일 리듬 한눈에'] }
+};
+
+function meters(sc){
+  return ['A','N','C','S'].map(k=>{
+    const name = {A:'활동성', N:'새로움', C:'공감', S:'신중'}[k];
+    const pct  = Math.round(sc[k] / (4*3) * 100);
+    return `<div style="text-align:left;margin:6px 0">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${name}</span><span>${pct}%</span>
+        </div>
+        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
+          <span style="display:block;height:100%;width:${pct}%;background:var(--mint-500)"></span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function finish(){
   card.style.display = 'none'; barFill.style.width = '100%';
-  const type = pickType(score); const info = ANIMALS[type];
+  const type = pickType(score); const info = COPY[type];
+  const img  = IMG[type];
   const html = `<div class="result-card">
       <div class="result-hero">
-        <img src="../assets/animal.png" alt="동물 아이콘">
+        <img src="${img}" alt="${info.title}" onerror="this.src='../assets/animals/balance.png'">
         <div>
           <div class="result-title">${info.title}</div>
           <div class="result-desc">${info.quote}</div>
@@ -73,36 +124,6 @@ function finish(){
     </div>`;
   resultBox.innerHTML = html; resultBox.style.display = 'block';
 }
-function pickType(sc){
-  const pairs = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
-  const top1 = pairs[0][0], top2 = pairs[1][0];
-  const key  = [top1, top2].sort().join('');
-  const spread = Math.max(sc.A, sc.N, sc.C, sc.S) - Math.min(sc.A, sc.N, sc.C, sc.S);
-  if(spread <= 3) return 'BALANCE';
-  return MAP[key] || 'BALANCE';
-}
-const MAP = { 'AN':'FOX', 'AC':'OTTER', 'AS':'CAT', 'CN':'DOLPHIN', 'CS':'PENGUIN', 'NS':'OWL' };
-const ANIMALS = {
-  FOX:     { title:'🦊 여우형',    desc:'기민하고 재치 있는 도전자! 새로운 판을 여는 데 주저 없음.', quote:'“일단 해보고 배우자!”', tips:['체크포인트 3단계','즉흥 플랜에 안전장치 하나'] },
-  OTTER:   { title:'🦦 수달형',    desc:'즐거움을 나누는 팀플레이어. 친화력 만점, 분위기 메이커!', quote:'“같이 하면 더 재밌지!”', tips:['연락 리듬 정하기','휴식 신호 공유'] },
-  CAT:     { title:'🐱 고양이형',  desc:'자율성과 집중력이 강점. 필요할 때 번개같이 움직여요.', quote:'“거리는 내가 정해. 정성은 진심으로.”', tips:['자유 시간 확보','50-10 타이머'] },
-  DOLPHIN: { title:'🐬 돌고래형',  desc:'영리하고 감각적. 공감과 창의성의 조합으로 흐름을 바꿔요.', quote:'“센스와 배려의 콜라보!”', tips:['아이디어 1가지 바로 실행','조용한 충전 타임'] },
-  PENGUIN: { title:'🐧 펭귄형',    desc:'의리 있고 성실한 협력가. 함께 가는 길을 좋아해요.', quote:'“천천히, 하지만 함께.”', tips:['규칙 + 예외 규칙','내 감정도 중요!'] },
-  OWL:     { title:'🦉 부엉이형',  desc:'차분한 통찰가. 새로움도 구조 안에서 섬세하게 다루죠.', quote:'“빨리보다 정확하게.”', tips:['탐색 시간 제한','작은 단위 실행'] },
-  BALANCE: { title:'☁️ 균형몽실형', desc:'네 가지 성향이 고른 균형형. 상황별 모드 전환이 강점!', quote:'“필요한 때 필요한 얼굴.”', tips:['강점 지도 업데이트','기분/몸/일 리듬 한눈에'] }
-};
-function meters(sc){
-  return ['A','N','C','S'].map(k=>{
-    const name = {A:'활동성', N:'새로움', C:'공감', S:'신중'}[k];
-    const pct  = Math.round(sc[k] / (4*3) * 100);
-    return `<div style="text-align:left;margin:6px 0">
-        <div style="display:flex;justify-content:space-between;font-weight:700">
-          <span>${name}</span><span>${pct}%</span>
-        </div>
-        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
-          <span style="display:block;height:100%;width:${pct}%;background:var(--mint-500)"></span>
-        </div>
-      </div>`;
-  }).join('');
-}
+
 render();
+</script>
