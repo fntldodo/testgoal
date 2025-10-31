@@ -1,6 +1,6 @@
 /* ============================
- * 몽실이의 연애 스타일 테스트 (완전본)
- * - 응답 시간 기반 가중치 적용
+ * 몽실이의 연애 스타일 테스트 (선택우선/시간보조 버전)
+ * - 선택 점수가 최우선, 응답 시간은 ±20% 내에서만 보정
  * - 동점/근소차(<=2) BALANCE 처리
  * - 이전/건너뛰기/되돌아가기 지원
  * ============================ */
@@ -25,7 +25,7 @@ const QUESTIONS = [
 
 let idx = 0;
 const score = {E:0, S:0, C:0, I:0};
-const ans   = [];      // 선택 점수(0~3)
+const ans   = [];      // 각 문항 선택값(0~3)
 const times = [];      // 각 문항 응답 시간(초)
 let startTime = Date.now();
 
@@ -59,12 +59,12 @@ function render(){
     });
   }
 
-  // 클릭 핸들러
+  // 선택 핸들러
   Array.from(wrap.children).forEach(btn=>{
     btn.addEventListener('click', ()=>{
       Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
       btn.classList.add('selected');
-      setTimeout(()=>choose(Number(btn.dataset.s)), 180);
+      setTimeout(()=>choose(Number(btn.dataset.s)), 160);
     });
   });
 
@@ -80,13 +80,17 @@ function choose(s){
   const weight = getWeight(elapsed, QUESTIONS[idx].k);
   ans[idx] = s;
 
-  // 되돌아왔을 수도 있으니 재계산 루틴 사용
-  // 현재 idx 까지를 재합산
+  // 🔑 핵심: 선택 점수 우선, 시간은 ±20% 보정만
+  // adjusted = s + s*(weight-1)*0.2  → weight=0.7이면 -6%, 1.2면 +4% 수준
+  const adjusted = s + (s * (weight - 1) * 0.2);
+
+  // 되돌아오기 고려: 현재까지 재계산
   score.E = score.S = score.C = score.I = 0;
   for (let i=0; i<=idx; i++) {
-    const v = ans[i] ?? 0;
-    const w = (i===idx) ? weight : getWeight(times[i] ?? 0, QUESTIONS[i].k);
-    score[QUESTIONS[i].k] += v * w;
+    const sv = ans[i] ?? 0;
+    const w  = (i===idx) ? weight : getWeight(times[i] ?? 0, QUESTIONS[i].k);
+    const adj = sv + (sv * (w - 1) * 0.2);
+    score[QUESTIONS[i].k] += adj;
   }
 
   next();
@@ -115,23 +119,24 @@ skipBtn?.addEventListener('click', ()=>{
 function recalcTo(pos){
   score.E = score.S = score.C = score.I = 0;
   for (let i=0; i<pos; i++) {
-    const v = ans[i] ?? 0;
-    const w = getWeight(times[i] ?? 0, QUESTIONS[i].k);
-    score[QUESTIONS[i].k] += v * w;
+    const sv = ans[i] ?? 0;
+    const w  = getWeight(times[i] ?? 0, QUESTIONS[i].k);
+    const adj = sv + (sv * (w - 1) * 0.2);
+    score[QUESTIONS[i].k] += adj;
   }
 }
 
-// ------------------------ 가중치 로직 ------------------------
+// ------------------------ 가중치 로직(보조용) ------------------------
 /* 
-  응답시간 가중치 기본값:
+  응답시간 가중치 기본값 (보조):
   - <1s : 0.7 (즉흥)
   - <4s : 1.0 (보통)
   - <8s : 1.2 (신중)
   - ≥8s : 1.1 (매우 신중)
 
-  + 항목별 성향 보정(선택사항):
-  - E/C(표현·교류) 문항을 "빠르게" 답하면 1.05배
-  - I/S(자율·안정) 문항을 "느리게(≥4s)" 답하면 1.05배
+  + 항목 보정(아주 미세):
+  - E/C 문항을 매우 빠르게 답하면 ×1.05
+  - I/S 문항을 4초 이상 고민하면 ×1.05
 */
 function getWeight(sec, key){
   let w;
@@ -140,7 +145,6 @@ function getWeight(sec, key){
   else if (sec < 8) w = 1.2;
   else w = 1.1;
 
-  // 미세 보정
   if ((key==='E' || key==='C') && sec < 2) w *= 1.05;
   if ((key==='I' || key==='S') && sec >= 4) w *= 1.05;
 
