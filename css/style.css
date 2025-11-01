@@ -100,3 +100,33 @@ main.test{max-width:780px;margin:32px auto;padding:0 16px}
   .bottom-main { display: block; text-align:center; margin:24px 0 8px; }
 }
 
+/* ===== 상단 고정 메인 버튼 ===== */
+.top-main-btn{
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--mint-300);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  color: #1f3b39;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+}
+.top-main-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  background: #fff;
+}
+.top-main-btn svg{ flex:0 0 auto }
+@media (max-width: 480px){
+  .top-main-btn{ top: 10px; right: 10px; padding: 9px 12px; }
+  .top-main-btn span{ font-size: 14px; }
+}
