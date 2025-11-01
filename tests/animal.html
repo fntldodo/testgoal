@@ -50,5 +50,10 @@
 <!-- 하단 스크립트 버전 업만 권장 --> <script src="../js/animal.js?v=5" defer></script>
   <!-- 캐시 무력화용 v 파라미터 꼭 붙이기 -->
   <script src="../js/animal.js?v=4" defer></script>
+    <!-- 공통 안정화 스크립트 (먼저 실행) -->
+  <script src="../js/error-proof.js" defer></script>
+
+  <!-- 개별 테스트 로직 (animal.js) -->
+  <script src="../js/animal.js?v=6" defer></script>
 </body>
 </html>
