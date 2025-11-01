@@ -1,7 +1,15 @@
-// === Animal Test (항상 동물 결과 버전) ===
-console.log('animal.js v4 loaded');
+/* ===================================================
+ * 나는 어떤 동물? (5지선다 + 시간 가중치 ±20% + 6유형 유지)
+ * ---------------------------------------------------
+ * - 답변: 0~4 (전혀/아니다/보통/그렇다/매우그렇다)
+ * - 선택이 핵심, 응답시간은 보조 가중치(최대 ±20%)
+ * - 분류: 6종 동물(AN, AC, AS, CN, CS, NS)
+ * - 극단 응답: '단일 성향 강함' 배지로 강조 (동물은 6종 유지)
+ * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('animal.js v5');
+
   // 16문항 (A:활동성, N:새로움, C:공감, S:신중)
   const Q = [
     {k:'A', q:'즉흥적인 외출/모임 제안이 설렌다.'},
@@ -26,8 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   let idx = 0;
-  const score = { A:0, N:0, C:0, S:0 };
-  const ans   = [];
+  const score  = { A:0, N:0, C:0, S:0 };  // 가중 합산 점수
+  const counts = { A:0, N:0, C:0, S:0 };  // 축별 응답 문항 수
+  const ans    = [];                       // 원점수(0~4)
+  const times  = [];                       // 응답 시간(초)
+  let startTime = Date.now();
 
   // DOM
   const stepLabel = document.getElementById('stepLabel');
@@ -44,67 +55,100 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // ---------- 질문 렌더 ----------
+  /* ---------- 렌더 ---------- */
   function render(){
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
     barFill.style.width   = `${(idx/Q.length)*100}%`;
     qText.textContent     = Q[idx].q;
 
+    // 5지선다(0~4)
     wrap.innerHTML = `
-      <button class="choice" data-s="3" type="button">매우 그렇다</button>
-      <button class="choice" data-s="2" type="button">그렇다</button>
+      <button class="choice" data-s="4" type="button">매우 그렇다</button>
+      <button class="choice" data-s="3" type="button">그렇다</button>
+      <button class="choice" data-s="2" type="button">보통이다</button>
       <button class="choice ghost" data-s="1" type="button">아니다</button>
       <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
 
     // 이전 선택 복원
     const prevSel = ans[idx];
-    if (prevSel !== undefined) {
+    if (prevSel !== undefined){
       Array.from(wrap.children).forEach(b=>{
-        if (Number(b.dataset.s) === prevSel) b.classList.add('selected');
+        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
 
-    // 클릭 핸들러
+    // 클릭
     Array.from(wrap.children).forEach(btn=>{
       btn.addEventListener('click', ()=>{
         Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
         btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)), 120);
+        setTimeout(()=>choose(Number(btn.dataset.s)), 150);
       });
     });
+
+    startTime = Date.now();
   }
 
+  /* ---------- 응답 처리 ---------- */
   function choose(s){
+    const elapsed = (Date.now() - startTime)/1000;
+    times[idx] = elapsed;
+
+    const k = Q[idx].k;
+    const w = getWeight(elapsed); // 0.8~1.2
     ans[idx] = s;
-    score[Q[idx].k] += s;
+
+    // 선택 최우선 + 시간 보조(±20% 캡)
+    const adjusted = s + (s * (w - 1) * 0.2);
+    score[k]  += adjusted;
+    counts[k] += 1;
+
     next();
   }
 
   function next(){
     idx++;
-    if (idx < Q.length) render();
+    if(idx < Q.length) render();
     else finish();
   }
 
   prevBtn?.addEventListener('click', ()=>{
-    if (idx === 0) return;
+    if(idx===0) return;
     idx--;
-    // 점수 재계산
-    score.A = score.N = score.C = score.S = 0;
-    for (let i=0; i<idx; i++){
-      const v = ans[i] ?? 0;
-      score[Q[i].k] += v;
-    }
+    recalc(idx);
     render();
   });
 
   skipBtn?.addEventListener('click', ()=>{
-    ans[idx] = 0;
+    ans[idx]   = 0;
+    times[idx] = (Date.now() - startTime)/1000;
     next();
   });
 
-  // ---------- 결과 산출 (항상 동물) ----------
-  // 상위 2축 조합 → 동물
+  /* ---------- 재계산(되돌아감) ---------- */
+  function recalc(end){
+    score.A=score.N=score.C=score.S=0;
+    counts.A=counts.N=counts.C=counts.S=0;
+    for(let i=0;i<end;i++){
+      const s = ans[i] ?? 0;
+      const k = Q[i].k;
+      const w = getWeight(times[i] ?? 0); // 동일 규칙
+      const adjusted = s + (s * (w - 1) * 0.2);
+      score[k]  += adjusted;
+      counts[k] += 1;
+    }
+  }
+
+  /* ---------- 시간 가중치(보조) ---------- */
+  function getWeight(sec){
+    // 0.8 ~ 1.2 범위에서 매핑
+    if(sec < 1)  return 0.9;   // 너무 빠른 반응은 약간 -10%
+    if(sec < 4)  return 1.0;   // 정상
+    if(sec < 8)  return 1.15;  // 숙고
+    return 1.1;                // 아주 오래 고민: +10% (과도 상향 방지)
+  }
+
+  /* ---------- 동물 매핑 (6유형 유지) ---------- */
   const MAP = {
     'AN':'FOX',      // 여우
     'AC':'OTTER',    // 수달
@@ -115,68 +159,72 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const IMG = {
-    FOX:     '../assets/animals/fox.png',
-    OTTER:   '../assets/animals/otter.png',
-    CAT:     '../assets/animals/cat.png',
-    DOLPHIN: '../assets/animals/dolphin.png',
-    PENGUIN: '../assets/animals/penguin.png',
-    OWL:     '../assets/animals/owl.png'
+    FOX     : '../assets/animals/fox.png',
+    OTTER   : '../assets/animals/otter.png',
+    CAT     : '../assets/animals/cat.png',
+    DOLPHIN : '../assets/animals/dolphin.png',
+    PENGUIN : '../assets/animals/penguin.png',
+    OWL     : '../assets/animals/owl.png'
   };
 
   const COPY = {
     FOX: {
-      title:'🦊 여우형',
-      quote:'“일단 해보고 배우자!”',
+      title:'🦊 여우형', quote:'“일단 해보고 배우자!”',
       desc:'기민하고 재치 있는 도전자! 새로운 판을 여는 데 주저 없고, 상황 판단과 임기응변이 빠릅니다.',
       tips:['체크포인트 3단계','즉흥 플랜에 안전장치 하나']
     },
     OTTER: {
-      title:'🦦 수달형',
-      quote:'“같이 하면 더 재밌지!”',
+      title:'🦦 수달형', quote:'“같이 하면 더 재밌지!”',
       desc:'즐거움을 나누는 팀플레이어. 친화력 만점, 분위기 메이커! 함께할 때 힘이 커집니다.',
       tips:['연락 리듬 정하기','휴식 신호 공유']
     },
     CAT: {
-      title:'🐱 고양이형',
-      quote:'“거리는 내가 정해. 정성은 진심으로.”',
+      title:'🐱 고양이형', quote:'“거리는 내가 정해. 정성은 진심으로.”',
       desc:'자율성과 집중력이 강점. 필요할 때 번개같이 움직이고, 에너지 관리에 능합니다.',
       tips:['자유 시간 확보','50-10 타이머']
     },
     DOLPHIN: {
-      title:'🐬 돌고래형',
-      quote:'“센스와 배려의 콜라보!”',
+      title:'🐬 돌고래형', quote:'“센스와 배려의 콜라보!”',
       desc:'영리하고 감각적. 공감과 창의성의 조합으로 흐름을 바꾸고 커뮤니케이션을 잘 이끕니다.',
       tips:['아이디어 1가지 바로 실행','조용한 충전 타임']
     },
     PENGUIN: {
-      title:'🐧 펭귄형',
-      quote:'“천천히, 하지만 함께.”',
+      title:'🐧 펭귄형', quote:'“천천히, 하지만 함께.”',
       desc:'의리 있고 성실한 협력가. 함께 가는 길을 좋아하며 꾸준함이 큰 무기입니다.',
       tips:['규칙 + 예외 규칙','내 감정도 중요!']
     },
     OWL: {
-      title:'🦉 부엉이형',
-      quote:'“빨리보다 정확하게.”',
+      title:'🦉 부엉이형', quote:'“빨리보다 정확하게.”',
       desc:'차분한 통찰가. 새로움도 구조 안에서 섬세하게 다루고, 근거 기반 결정을 중시합니다.',
       tips:['탐색 시간 제한','작은 단위 실행']
     }
   };
 
-  function pickAnimal(sc){
-    // 점수 내림차순 → 상위 2개 키 정렬조합 (ex. 'AN', 'CS')
-    const pairs = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
-    const top1 = pairs[0][0];
-    const top2 = pairs[1][0];
-    const key  = [top1, top2].sort().join(''); // 알파벳 순
-    return MAP[key] || 'FOX'; // 혹시 모를 예외 기본값
+  // 단일 성향 강함 판단 임계값(Top1-Top2 격차)
+  const DIFF_STRICT = 4.0; // 5지선다+가중치 기준에서 "확실히 한쪽"으로 보는 최소 격차
+
+  function pickKey(sc){
+    // 점수 내림차순 → 상위 2개 축
+    const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+    const [k1,v1] = arr[0];
+    const [k2,v2] = arr[1];
+    const diff = v1 - v2;
+
+    // 동물은 6종 유지 → 조합키(알파벳 정렬)
+    const comboKey = [k1,k2].sort().join(''); // 'AN','AC',...
+
+    // 극단 응답일 땐 결과 카드에 배지로 '단일 성향 강함'만 표시 (동물은 그대로)
+    const dominance = diff >= DIFF_STRICT;
+
+    return { comboKey, dominance };
   }
 
   function meters(sc){
-    // 각 축 최대치: 4문항 × 3점 = 12 → 백분율
-    const maxPerAxis = 12;
+    // 각 축 최대치: 4문항 × 4점 = 16 (5지선다 최대 4)
+    const maxPerAxis = 16;
     return ['A','N','C','S'].map(k=>{
-      const name = {A:'활동성', N:'새로움', C:'공감', S:'신중'}[k];
-      const pct  = Math.round(sc[k] / maxPerAxis * 100);
+      const name = ({A:'활동성', N:'새로움', C:'공감', S:'신중'})[k];
+      const pct  = Math.round((sc[k] / maxPerAxis) * 100);
       return `<div style="text-align:left;margin:6px 0">
         <div style="display:flex;justify-content:space-between;font-weight:700">
           <span>${name}</span><span>${pct}%</span>
@@ -192,24 +240,40 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.display = 'none';
     barFill.style.width = '100%';
 
-    const animal = pickAnimal(score);
+    const { comboKey, dominance } = pickKey(score);
+    const animal = MAP[comboKey] || 'FOX';
     const info   = COPY[animal];
     const img    = IMG[animal];
+
+    // 전체 평균(참고용 표시)
+    const answered = ans.filter(v => v !== undefined).length || 1;
+    const totalAdj = Object.values(score).reduce((a,b)=>a+b,0);
+    const avgAll   = (totalAdj / answered).toFixed(1); // 0~4 스케일
+
+    const domBadge = dominance ? `<div class="pill" style="margin-left:8px">단일 성향 강함</div>` : '';
 
     const html = `
       <div class="result-card">
         <div class="result-hero">
-          <img src="${img}" alt="${info.title}">
+          <img src="${img}" alt="${info.title}" onerror="this.style.display='none'">
           <div>
             <div class="result-title">${info.title}</div>
             <div class="result-desc">${info.quote}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <div class="pill">평균 점수: <b>${avgAll}</b>/4.0</div>
+              ${domBadge}
+            </div>
           </div>
         </div>
+
         <p style="margin:8px 0">${info.desc}</p>
+
         <div style="margin-top:8px">${meters(score)}</div>
+
         <div style="margin-top:8px">
           ${info.tips.map(t=>`<div class="pill">${t}</div>`).join('')}
         </div>
+
         <div class="result-actions">
           <a class="start" href="../index.html">메인으로</a>
           <button class="start" onclick="location.reload()">다시 테스트</button>
