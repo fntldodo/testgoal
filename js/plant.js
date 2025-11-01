@@ -1,3 +1,5 @@
+// plant.js v3
+
 document.addEventListener('DOMContentLoaded', () => {
   const Q = [
     {k:'E', q:'감정이 풍부하다는 말을 자주 듣는다.'},
@@ -27,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const wrap = document.getElementById('choiceWrap');
   const card = document.getElementById('card');
   const resultBox = document.getElementById('result');
+  const prevBtn = document.getElementById('prev');
+  const skipBtn = document.getElementById('skip');
 
   function render() {
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
@@ -38,6 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="choice" data-s="2">그렇다</button>
       <button class="choice ghost" data-s="1">아니다</button>
       <button class="choice ghost" data-s="0">전혀 아니다</button>`;
+
+    const prevSel = ans[idx];
+    if (prevSel !== undefined) {
+      Array.from(wrap.children).forEach(b=>{
+        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
+      });
+    }
 
     Array.from(wrap.children).forEach(btn=>{
       btn.addEventListener('click', ()=>{
@@ -68,13 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.getElementById('prev').addEventListener('click',()=>{
+  prevBtn.addEventListener('click',()=>{
     if(idx===0) return;
     idx--;
     recalcTo(idx);
     render();
   });
-  document.getElementById('skip').addEventListener('click',()=>{
+
+  skipBtn.addEventListener('click',()=>{
     ans[idx]=0;
     next();
   });
@@ -134,9 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const type = classify(score);
     let final = type;
-    // 세부 분화 (감정 강하면 장미/민들레, 논리 강하면 선인장/소나무)
     if(type==='EMOTION') final = score.E>30 ? 'EMO_STRONG' : 'EMOTION';
-    if(type==='LOGIC') final = score.L>30 ? 'LOGI_STRONG' : 'LOGIC';
+    if(type==='LOGIC')   final = score.L>30 ? 'LOGI_STRONG' : 'LOGIC';
 
     const c = PLANTS[final];
     const html = `
@@ -145,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${c.img}" alt="${c.title}">
           <div>
             <div class="result-title">${c.title}</div>
-          <div class="result-desc">${c.desc}</div>
+            <div class="result-desc">${c.desc}</div>
           </div>
         </div>
         <p style="margin:8px 0">${c.reason}</p>
