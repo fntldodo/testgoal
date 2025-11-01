@@ -95,4 +95,8 @@ main.test{max-width:780px;margin:32px auto;padding:0 16px}
   opacity:0.9;
   transform:scale(1.01);
 }
+.bottom-main { display: none; }
+@media (max-width: 480px) {
+  .bottom-main { display: block; text-align:center; margin:24px 0 8px; }
+}
 
