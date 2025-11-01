@@ -1,3 +1,4 @@
+// personality.js v2
 
 const ITEMS = [
   {k:'O',q:'새로 배우는 기술이나 취미를 기쁘게 시도한다.'},
@@ -21,7 +22,9 @@ const ITEMS = [
   {k:'N',q:'스트레스 상황에서 마음이 금방 휘청인다.'},
   {k:'N',q:'실수/지적을 오래 곱씹는 편이다.'},
 ];
+
 const LABELS = {O:'개방성', C:'성실성', E:'외향성', A:'우호성', N:'정서안정(역)'};
+
 let idx=0; const score={O:0,C:0,E:0,A:0,N:0}; const ans=[];
 const stepLabel=document.getElementById('stepLabel');
 const barFill=document.getElementById('barFill');
@@ -31,6 +34,7 @@ const result=document.getElementById('result');
 const wrap=document.getElementById('choiceWrap');
 const prevBtn=document.getElementById('prev');
 const skipBtn=document.getElementById('skip');
+
 function render(){
   stepLabel.textContent=`${idx+1} / ${ITEMS.length}`;
   barFill.style.width = `${(idx/ITEMS.length)*100}%`;
@@ -50,11 +54,15 @@ function render(){
     });
   });
 }
+
 function choose(s){ ans[idx]=s; score[ITEMS[idx].k]+=s; next(); }
 function next(){ idx++; if(idx<ITEMS.length) render(); else finish(); }
+
 prevBtn.addEventListener('click',()=>{ if(idx===0) return; idx--; recalc(); render(); });
 skipBtn.addEventListener('click',()=>{ ans[idx]=0; next(); });
+
 function recalc(){ score.O=score.C=score.E=score.A=score.N=0; for(let i=0;i<idx;i++) score[ITEMS[i].k]+=ans[i]??0; }
+
 function finish(){
   card.style.display='none'; barFill.style.width='100%';
   const norm = normalizeScores(score);
@@ -62,7 +70,7 @@ function finish(){
   result.innerHTML = `
     <div class="result-card">
       <div class="result-hero">
-        <img src="../assets/personality.png" alt="성격 아이콘">
+        <img src="../assets/brain.png" alt="성격 아이콘">
         <div>
           <div class="result-title">나의 성격 성향 오각형</div>
           <div class="result-desc">빅파이브 5축을 카드 안 레이더로 보여드려요.</div>
@@ -86,6 +94,7 @@ function finish(){
   result.style.display='block';
   drawRadar('radar', norm, ['O','C','E','A','N']);
 }
+
 function normalizeScores(sc){
   const counts = {O:4, C:4, E:4, A:4, N:4}; const maxPer = 3;
   return { O: sc.O/(counts.O*maxPer), C: sc.C/(counts.C*maxPer),
