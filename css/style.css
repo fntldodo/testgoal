@@ -62,3 +62,37 @@ main.test{max-width:780px;margin:32px auto;padding:0 16px}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:13px}
 .legend-dot{width:10px;height:10px;border-radius:50%;background:var(--mint-500);border:1px solid var(--mint-600)}
 .anim img { display:block; width:160px; height:160px; object-fit:contain; }
+/* ===== 테스트 선택지 (5지선다 통일 테마) ===== */
+.choice {
+  display:block;
+  width:100%;
+  padding:14px 0;
+  margin:6px 0;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  transition:all .2s ease;
+  font-family:inherit;
+}
+
+/* 기본 색상 단계 (감정 강도 시각화) */
+.choice[data-s="4"] { background:linear-gradient(135deg,#FF90B3,#FFB4C7); color:#fff; }
+.choice[data-s="3"] { background:linear-gradient(135deg,#FFD1E0,#FFE1EC); color:#444; }
+.choice[data-s="2"] { background:#f5f5f5; color:#333; border:1px solid #ccc; }
+.choice[data-s="1"] { background:linear-gradient(135deg,#D1F2EB,#C8E6C9); color:#333; }
+.choice[data-s="0"] { background:linear-gradient(135deg,#A5D6A7,#81C784); color:#fff; }
+
+/* 선택 시 강조 */
+.choice.selected {
+  transform:scale(1.02);
+  box-shadow:0 0 8px rgba(0,0,0,0.15);
+  border:2px solid #333;
+}
+
+/* 부드러운 hover 효과 */
+.choice:hover:not(.selected) {
+  opacity:0.9;
+  transform:scale(1.01);
+}
+
