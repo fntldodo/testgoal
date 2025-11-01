@@ -4,11 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>성격 성향 미니 체크 - 몽실몽실</title>
+
+  <!-- AdSense (head 필수) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
+
+  <!-- 폰트 & 공통 스타일 -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+
+  <!-- 상단 메인버튼 전용 CSS (공통 규칙) -->
+  <style>
+    .top-main-btn{
+      position:fixed;top:14px;right:14px;z-index:9999;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:999px;
+      background:#ffffffcc;backdrop-filter:blur(6px);
+      border:1px solid var(--mint-300);
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      color:#1f3b39;font-weight:800;text-decoration:none;
+      transition:transform .15s ease, box-shadow .2s ease;
+    }
+    .top-main-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+      background:#fff;
+    }
+    @media(max-width:480px){
+      .top-main-btn{top:10px;right:10px;padding:9px 12px}
+      .top-main-btn span{font-size:14px}
+    }
+  </style>
 </head>
+
 <body>
+  <!-- 상단 고정 메인버튼 -->
+  <a class="top-main-btn" href="../index.html" aria-label="메인으로">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
+    </svg>
+    <span>메인으로</span>
+  </a>
+
   <header>
     <div class="logo">
       <img src="../assets/KakaoTalk_20251020_233535446.png"
@@ -21,7 +57,7 @@
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / X</div>
+      <div id="stepLabel">1 / 20</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
@@ -29,8 +65,8 @@
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
       <div class="navs">
-        <button id="prev" class="start ghost">← 이전</button>
-        <button id="skip" class="start ghost">건너뛰기</button>
+        <button id="prev" class="start ghost" type="button">← 이전</button>
+        <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
       <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
     </section>
@@ -44,9 +80,9 @@
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 공통 안정화 스크립트 (먼저 실행) -->
+  <!-- 공통 안정화 스크립트 -->
   <script src="../js/error-proof.js?v=1" defer></script>
-  <!-- 성격 테스트 로직 -->
+  <!-- 개별 로직 -->
   <script src="../js/personality.js?v=2" defer></script>
 </body>
 </html>
