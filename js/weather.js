@@ -1,156 +1,109 @@
-/* ===========================================
- * 마음 일기예보 ☁️ (Emotional Weather Forecast)
- * 몽실몽실 기본 프롬프트 기반
- * =========================================== */
 document.addEventListener('DOMContentLoaded', () => {
   const Q = [
-    {k:'SUN', q:'오늘의 나는 기분이 대체로 맑다고 느낀다.'},
-    {k:'SUN', q:'사소한 일에도 감사함을 느끼는 편이다.'},
-    {k:'CLOUD', q:'요즘 생각이 많고 머리가 자주 복잡하다.'},
-    {k:'CLOUD', q:'내 마음을 스스로도 정리하기 어렵다고 느낀다.'},
-    {k:'RAIN', q:'작은 일에도 눈물이 나거나 감정이 흔들린다.'},
-    {k:'RAIN', q:'감정 기복이 크고 예민해진 느낌이 있다.'},
-    {k:'STORM', q:'한 번 마음이 불타면 멈추기 어렵다.'},
-    {k:'STORM', q:'요즘 감정의 폭이 커서 주변에 영향이 간다.'},
-    {k:'RAINBOW', q:'힘든 일이 있었지만 다시 웃을 수 있을 것 같다.'},
-    {k:'RAINBOW', q:'요즘 마음속에 희망이 조금씩 돌아온다.'},
-    {k:'NIGHT', q:'혼자 있는 시간이 가장 편하게 느껴진다.'},
-    {k:'NIGHT', q:'소음보다 조용한 공간이 더 안정감을 준다.'},
-    {k:'SUN', q:'오늘의 나를 꽤 괜찮다고 느낀다.'},
-    {k:'RAIN', q:'감정 표현이 많아지거나 불안정할 때가 있다.'},
-    {k:'NIGHT', q:'차분히 내면을 들여다보는 시간이 좋다.'}
+    {k:'S', q:'아침에 일어났을 때 가벼운 기분으로 하루를 시작한다.'},
+    {k:'S', q:'요즘 마음속에 햇살처럼 따뜻한 감정이 있다.'},
+    {k:'C', q:'무기력하거나 이유 없이 다운되는 시간이 있다.'},
+    {k:'C', q:'주변의 시선보다 내 내면의 상태가 더 중요하다.'},
+    {k:'R', q:'감정이 자주 흔들리고 쉽게 눈물이 난다.'},
+    {k:'R', q:'감정이 복잡할 때 기록하거나 표현하려 한다.'},
+    {k:'T', q:'불안하거나 압박감을 느끼는 순간이 많다.'},
+    {k:'T', q:'최근 감정의 폭이 크다고 느낀다.'},
+    {k:'B', q:'힘든 시기에도 희망을 쉽게 잃지 않는다.'},
+    {k:'B', q:'감정의 회복이 빠른 편이다.'},
+    {k:'N', q:'고요함이나 혼자 있는 시간을 좋아한다.'},
+    {k:'N', q:'밤이 되면 감정이 정리되는 느낌을 받는다.'},
+    {k:'S', q:'하루 중 웃는 시간이 많다고 느낀다.'},
+    {k:'B', q:'최근 스스로를 다독인 경험이 있다.'},
+    {k:'C', q:'마음이 쉽게 지치거나 무기력해지는 편이다.'}
   ];
 
-  const score = {SUN:0,CLOUD:0,RAIN:0,STORM:0,RAINBOW:0,NIGHT:0};
-  const ans=[]; let idx=0; let start=Date.now();
+  let idx = 0;
+  const score = {S:0, C:0, R:0, T:0, B:0, N:0};
+  const ans = [];
+  const qText = document.getElementById('qText');
+  const wrap = document.getElementById('choiceWrap');
+  const stepLabel = document.getElementById('stepLabel');
+  const barFill = document.getElementById('barFill');
+  const card = document.getElementById('card');
+  const result = document.getElementById('result');
 
-  const qText=document.getElementById('qText');
-  const wrap=document.getElementById('choiceWrap');
-  const stepLabel=document.getElementById('stepLabel');
-  const barFill=document.getElementById('barFill');
-  const result=document.getElementById('result');
-  const card=document.getElementById('card');
-  const prevBtn=document.getElementById('prev');
-  const skipBtn=document.getElementById('skip');
-
-  function render(){
+  function render() {
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
-    barFill.style.width = `${(idx/Q.length)*100}%`;
+    barFill.style.width = `${(idx / Q.length) * 100}%`;
     qText.textContent = Q[idx].q;
-
     wrap.innerHTML = `
       <button class="choice" data-s="4">매우 그렇다</button>
       <button class="choice" data-s="3">그렇다</button>
       <button class="choice" data-s="2">보통이다</button>
-      <button class="choice ghost" data-s="1">아니다</button>
-      <button class="choice ghost" data-s="0">전혀 아니다</button>
+      <button class="choice" data-s="1">아니다</button>
+      <button class="choice" data-s="0">전혀 아니다</button>
     `;
-    const prevSel=ans[idx];
-    if(prevSel!==undefined){
-      Array.from(wrap.children).forEach(b=>{
-        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
-      });
-    }
     Array.from(wrap.children).forEach(btn=>{
       btn.addEventListener('click',()=>{
-        Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
+        Array.from(wrap.children).forEach(b=>b.classList.remove('selected'));
         btn.classList.add('selected');
         setTimeout(()=>choose(Number(btn.dataset.s)),180);
       });
     });
-    start=Date.now();
   }
 
-  function choose(s){
-    ans[idx]=s; score[Q[idx].k]+=s; next();
-  }
+  function choose(s){ ans[idx]=s; score[Q[idx].k]+=s; next(); }
   function next(){ idx++; if(idx<Q.length) render(); else finish(); }
-  prevBtn.addEventListener('click',()=>{ if(idx===0)return; idx--; render(); });
-  skipBtn.addEventListener('click',()=>{ ans[idx]=0; next(); });
 
   function classify(sc){
-    const arr=Object.entries(sc).sort((a,b)=>b[1]-a[1]);
-    const top=arr[0][0];
-    return top;
+    const arr = [
+      {k:'S',v:sc.S},{k:'C',v:sc.C},{k:'R',v:sc.R},
+      {k:'T',v:sc.T},{k:'B',v:sc.B},{k:'N',v:sc.N}
+    ];
+    arr.sort((a,b)=>b.v-a.v);
+    return arr[0].k;
   }
 
- const TYPES={
-  SUN:{
-    title:'☀️ 맑음 — 마음이 맑은 날',
-    desc:`햇살처럼 부드럽고 투명한 기운이 감돌아요.  
-오늘의 당신은 소소한 순간에도 기쁨을 발견하고,  
-자신을 따뜻하게 바라보는 힘이 생겼어요.`,
-    mood:`🌤 **마음 일기예보**  
-정서가 안정되어 있으며, 내면의 햇살이 고요히 퍼지고 있습니다.  
-이 평온함이 영원할 필요는 없어요. 구름이 와도 하늘은 변치 않듯,  
-당신의 마음도 본래 밝음을 품고 있답니다.`,
-    img:'../assets/weather/weather_sunny.png'
-  },
-  CLOUD:{
-    title:'☁️ 흐림 — 잠시 흐린 마음',
-    desc:`생각이 잦고, 머릿속 구름이 천천히 지나가고 있어요.  
-스스로를 정리하고 싶은 욕구가 강해지는 시기입니다.`,
-    mood:`☁️ **마음 일기예보**  
-조금 멈춰 서도 괜찮아요. 마음의 구름은 정리를 위한 준비예요.  
-할 일을 3가지로 줄이고, 한숨 돌리며 하늘의 색이 바뀌길 기다려주세요.`,
-    img:'../assets/weather/weather_cloudy.png'
-  },
-  RAIN:{
-    title:'🌧️ 비 — 눈물이 맺힌 날',
-    desc:`감정이 예민하고 감수성이 깊어지는 날이에요.  
-이 시기의 눈물은 마음이 정화되는 자연스러운 과정이에요.`,
-    mood:`🌧 **마음 일기예보**  
-감정이 커질수록 내면의 색이 진해집니다.  
-오늘은 자신에게 ‘괜찮아’를 한 번만 더 건네주세요.  
-눈물 뒤엔 언제나 공기처럼 맑은 감정이 남아요.`,
-    img:'../assets/weather/weather_rainy.png'
-  },
-  STORM:{
-    title:'⛈️ 폭풍 — 마음의 소용돌이',
-    desc:`집중과 열정이 폭발하는 시기예요.  
-무언가에 강하게 몰입하지만, 동시에 쉽게 지칠 수 있어요.`,
-    mood:`⛈ **마음 일기예보**  
-당신의 에너지는 강력한 엔진이에요.  
-하지만 엔진에도 냉각수가 필요하죠.  
-조금만 속도를 늦추고, 짧은 숨 고르기를 허락해 주세요.`,
-    img:'../assets/weather/weather_storm.png'
-  },
-  RAINBOW:{
-    title:'🌈 무지개 — 회복 중인 하늘',
-    desc:`다 지나갔다고 느낄 때, 희망의 빛이 스며들고 있어요.  
-당신은 이미 새로운 하늘 아래 서 있어요.`,
-    mood:`🌈 **마음 일기예보**  
-‘다 괜찮아지려는 중’이에요. 지금의 회복은 조용하지만 분명히 진행 중입니다.  
-어제보다 조금 더 웃을 수 있다면, 그것만으로 충분해요.`,
-    img:'../assets/weather/weather_rainbow.png'
-  },
-  NIGHT:{
-    title:'🌙 밤 — 조용한 마음',
-    desc:`고요하고 차분한 에너지가 깃든 시기예요.  
-내면의 소리가 또렷하게 들리고, 생각이 맑아지는 시간입니다.`,
-    mood:`🌙 **마음 일기예보**  
-지금의 고요함은 쉼과 회복의 전조예요.  
-세상의 소리를 잠시 낮추고, 당신만의 속도로 숨 쉬어보세요.  
-이 밤의 평온이 곧 새로운 시작이 됩니다.`,
-    img:'../assets/weather/weather_night.png'
-  }
-};
-
+  const WEATHER = {
+    S:{img:'../assets/weather/weather_sunny.png', title:'☀️ 맑음 — 활력형', quote:'“오늘의 마음은 투명한 햇살처럼 가볍습니다.”',
+      desc:'당신은 긍정적 에너지가 가득한 상태예요. 자신을 믿고 하루를 시작할 수 있는 안정감이 느껴집니다. 주변 사람들에게도 좋은 파동을 주는 존재입니다.',
+      feeling:'감정의 온도는 따뜻하고 맑습니다. 자신감과 활력이 고르게 퍼져 있어요.',
+      remind:''},
+    C:{img:'../assets/weather/weather_cloudy.png', title:'☁️ 흐림 — 사색형', quote:'“마음의 하늘엔 살짝 구름이 낀 듯, 조용한 사색의 시간이에요.”',
+      desc:'지금의 당신은 조용하고 내면적인 흐름 속에 있습니다. 감정이 안정적이지만 에너지가 살짝 줄었어요. 생각이 많은 시기일 수 있습니다.',
+      feeling:'기압은 안정적이나 햇살이 살짝 약한 상태예요. 이 시간은 스스로를 성찰하기에 좋습니다.',
+      remind:'조용한 카페나 산책으로 머릿속 구름을 잠시 흘려보내세요.'},
+    R:{img:'../assets/weather/weather_rainy.png', title:'🌧 비 — 감성 섬세형', quote:'“감정의 결이 비처럼 세밀하게 스며듭니다.”',
+      desc:'감정의 진폭이 커지고, 작은 일에도 마음이 움직이는 시기예요. 당신은 깊은 감수성을 지닌 사람입니다.',
+      feeling:'습도가 살짝 높아요. 마음의 감각이 예민해진 만큼, 충분한 휴식이 필요합니다.',
+      remind:'감정일기나 따뜻한 차 한 잔으로 마음을 가볍게 해주세요.'},
+    T:{img:'../assets/weather/weather_storm.png', title:'🌪 폭풍 — 불안형', quote:'“감정의 바람이 강하게 부는 날, 중심을 잃지 않도록.”',
+      desc:'최근 감정의 파도가 거세게 일고 있을 수 있습니다. 피로감, 불안, 자기비판이 함께 찾아올 때예요.',
+      feeling:'기압이 불안정하며, 마음의 바람이 강하게 불고 있습니다.',
+      remind:'지금은 생각보다 휴식이 필요합니다. 잠깐의 멈춤이 내일의 안정이 됩니다.'},
+    B:{img:'../assets/weather/weather_rainbow.png', title:'🌈 무지개 — 회복형', quote:'“비가 그친 뒤의 공기, 그 사이에서 다시 피어나는 당신.”',
+      desc:'당신은 스스로의 회복력을 증명하고 있어요. 감정이 정리되고, 마음의 균형이 서서히 돌아오고 있습니다.',
+      feeling:'하늘에 희미한 햇살이 비치듯, 감정의 조화가 회복되고 있습니다.',
+      remind:''},
+    N:{img:'../assets/weather/weather_night.png', title:'🌙 밤 — 사색·내면형', quote:'“고요함 속에서 마음의 별빛을 발견하는 시간.”',
+      desc:'당신은 지금 사색의 시기에 있습니다. 혼자 있는 시간이 필요하거나, 마음의 정리가 진행 중이에요.',
+      feeling:'감정은 잔잔하고, 내면의 목소리가 또렷이 들립니다.',
+      remind:'조용한 음악과 함께 하루를 정리해보세요.'}
+  };
 
   function finish(){
-    card.style.display='none'; barFill.style.width='100%';
-    const type=classify(score);
-    const c=TYPES[type];
-    result.innerHTML=`
+    card.style.display='none';
+    barFill.style.width='100%';
+    const type = classify(score);
+    const c = WEATHER[type];
+    const remindHTML = c.remind ? `<div class="remind"><b>🌿 마음 리마인드</b><p>${c.remind}</p></div>` : '';
+    result.innerHTML = `
       <div class="result-card">
         <div class="result-hero">
           <img src="${c.img}" alt="${c.title}">
           <div>
             <div class="result-title">${c.title}</div>
-            <div class="result-desc" style="white-space:pre-line">${c.desc}</div>
+            <div class="result-desc">${c.quote}</div>
           </div>
         </div>
-        <div style="margin-top:12px;white-space:pre-line">${c.mood}</div>
+        <p>${c.desc}</p>
+        <p style="margin:8px 0 6px;color:var(--text-soft)">${c.feeling}</p>
+        ${remindHTML}
         <div class="result-actions">
           <a class="start" href="../index.html">메인으로</a>
           <button class="start" onclick="location.reload()">다시 테스트</button>
