@@ -1,14 +1,15 @@
 /* ===================================================
  * 나는 어떤 동물? (5지선다 + 시간 가중치 ±20% + 6유형 유지)
+ * v7 (마음리마인드 적용)
  * ---------------------------------------------------
  * - 답변: 0~4 (전혀/아니다/보통/그렇다/매우그렇다)
  * - 선택이 핵심, 응답시간은 보조 가중치(최대 ±20%)
  * - 분류: 6종 동물(AN, AC, AS, CN, CS, NS)
- * - 극단 응답: '단일 성향 강함' 배지로 강조 (동물은 6종 유지)
+ * - 결과 카드: 제목/인용문/설명 + 감정 상태 해석 + 마음 리마인드
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('animal.js v5');
+  console.log('animal.js v7');
 
   // 16문항 (A:활동성, N:새로움, C:공감, S:신중)
   const Q = [
@@ -171,52 +172,61 @@ document.addEventListener('DOMContentLoaded', () => {
     FOX: {
       title:'🦊 여우형', quote:'“일단 해보고 배우자!”',
       desc:'기민하고 재치 있는 도전자! 새로운 판을 여는 데 주저 없고, 상황 판단과 임기응변이 빠릅니다.',
-      tips:['체크포인트 3단계','즉흥 플랜에 안전장치 하나']
+      remind:['체크포인트 3단계로 안전장치 만들기','즉흥 플랜에도 종료시간 넣기']
     },
     OTTER: {
       title:'🦦 수달형', quote:'“같이 하면 더 재밌지!”',
       desc:'즐거움을 나누는 팀플레이어. 친화력 만점, 분위기 메이커! 함께할 때 힘이 커집니다.',
-      tips:['연락 리듬 정하기','휴식 신호 공유']
+      remind:['연락 리듬 정하기(예: 저녁 9시 체크)','충전 타임 신호 만들기']
     },
     CAT: {
       title:'🐱 고양이형', quote:'“거리는 내가 정해. 정성은 진심으로.”',
       desc:'자율성과 집중력이 강점. 필요할 때 번개같이 움직이고, 에너지 관리에 능합니다.',
-      tips:['자유 시간 확보','50-10 타이머']
+      remind:['자유 시간 블록 확보','50-10 타이머로 몰입 유지']
     },
     DOLPHIN: {
       title:'🐬 돌고래형', quote:'“센스와 배려의 콜라보!”',
       desc:'영리하고 감각적. 공감과 창의성의 조합으로 흐름을 바꾸고 커뮤니케이션을 잘 이끕니다.',
-      tips:['아이디어 1가지 바로 실행','조용한 충전 타임']
+      remind:['아이디어 1가지만 바로 실행','조용한 충전 10분']
     },
     PENGUIN: {
       title:'🐧 펭귄형', quote:'“천천히, 하지만 함께.”',
       desc:'의리 있고 성실한 협력가. 함께 가는 길을 좋아하며 꾸준함이 큰 무기입니다.',
-      tips:['규칙 + 예외 규칙','내 감정도 중요!']
+      remind:['규칙 + 예외 규칙 1개 만들기','내 감정도 체크(1줄 메모)']
     },
     OWL: {
       title:'🦉 부엉이형', quote:'“빨리보다 정확하게.”',
       desc:'차분한 통찰가. 새로움도 구조 안에서 섬세하게 다루고, 근거 기반 결정을 중시합니다.',
-      tips:['탐색 시간 제한','작은 단위 실행']
+      remind:['탐색 시간 제한(예: 20분)','작은 단위로 쪼개 실행']
     }
   };
 
   // 단일 성향 강함 판단 임계값(Top1-Top2 격차)
-  const DIFF_STRICT = 4.0; // 5지선다+가중치 기준에서 "확실히 한쪽"으로 보는 최소 격차
+  const DIFF_STRICT = 4.0; // 5지선다+가중치 기준
 
   function pickKey(sc){
-    // 점수 내림차순 → 상위 2개 축
     const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
     const [k1,v1] = arr[0];
     const [k2,v2] = arr[1];
     const diff = v1 - v2;
 
-    // 동물은 6종 유지 → 조합키(알파벳 정렬)
     const comboKey = [k1,k2].sort().join(''); // 'AN','AC',...
-
-    // 극단 응답일 땐 결과 카드에 배지로 '단일 성향 강함'만 표시 (동물은 그대로)
     const dominance = diff >= DIFF_STRICT;
 
-    return { comboKey, dominance };
+    return { comboKey, dominance, topAxis:k1, secondAxis:k2, diff };
+  }
+
+  // 감정 상태 해석(축 기반 간단 설명)
+  function moodInsight(top, second){
+    const axisName = {A:'활동성', N:'새로움', C:'공감', S:'신중'};
+    const tone = {
+      A:'에너지가 높아 몸이 먼저 반응하기 쉬운 날이에요. 시동이 잘 걸리지만, 과속 방지턱을 하나 두면 좋아요.',
+      N:'시선이 미래로 뻗는 상태예요. 상상력이 활발하고 호기심이 크니, 작은 실험을 바로 해보면 성취감이 큽니다.',
+      C:'감정 레이더가 민감해진 날. 타인의 신호를 잘 읽고 공감이 풍부해, 조율자 역할에 강점을 보여요.',
+      S:'안정과 구조가 필요한 상태예요. 계획대로 할 때 마음이 편안하고, 차분한 루틴이 회복력을 높여줘요.'
+    };
+    const pair = `(${axisName[top]} ↔ ${axisName[second]})`;
+    return `오늘의 마음 축은 <b>${axisName[top]}</b> 쪽으로 기울어 있습니다 ${pair}. ${tone[top]}`;
   }
 
   function meters(sc){
@@ -240,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.display = 'none';
     barFill.style.width = '100%';
 
-    const { comboKey, dominance } = pickKey(score);
-    const animal = MAP[comboKey] || 'FOX';
+    const picked = pickKey(score);
+    const animal = MAP[picked.comboKey] || 'FOX';
     const info   = COPY[animal];
     const img    = IMG[animal];
 
@@ -250,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalAdj = Object.values(score).reduce((a,b)=>a+b,0);
     const avgAll   = (totalAdj / answered).toFixed(1); // 0~4 스케일
 
-    const domBadge = dominance ? `<div class="pill" style="margin-left:8px">단일 성향 강함</div>` : '';
+    const domBadge = picked.dominance ? `<div class="pill" style="margin-left:8px">단일 성향 강함</div>` : '';
 
     const html = `
       <div class="result-card">
@@ -266,12 +276,21 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <p style="margin:8px 0">${info.desc}</p>
+        <p style="margin:10px 0">${info.desc}</p>
 
+        <!-- 감정 상태 해석 -->
+        <div class="soft-card" style="margin:10px 0;padding:12px;border:1px solid var(--mint-200);border-radius:14px;background:var(--mint-50)">
+          <div style="font-weight:800;margin-bottom:6px">오늘의 마음 해석</div>
+          <div style="color:var(--text-soft)">${moodInsight(picked.topAxis, picked.secondAxis)}</div>
+        </div>
+
+        <!-- 축 미터 -->
         <div style="margin-top:8px">${meters(score)}</div>
 
-        <div style="margin-top:8px">
-          ${info.tips.map(t=>`<div class="pill">${t}</div>`).join('')}
+        <!-- 마음 리마인드 -->
+        <div style="margin-top:10px">
+          <div style="font-weight:800;margin-bottom:6px">마음 리마인드</div>
+          ${info.remind.map(t=>`<div class="pill">${t}</div>`).join('')}
         </div>
 
         <div class="result-actions">
