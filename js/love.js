@@ -1,13 +1,16 @@
 /* ===================================================
- * 몽실이의 연애 스타일 테스트 (5지선다 + ±20% 가중치 + 8유형)
+ * 몽실이의 연애 스타일 테스트 (5지선다 + 8유형 + 마음 리마인드)
  * ---------------------------------------------------
- * 선택 점수 우선 / 응답시간은 보조
- * 단일형 4(E,C,S,I) + 조합형 6(EC,ES,EI,CS,CI,IS)
+ * ✅ 선택 점수가 최우선 (0~4: 전혀/아니다/보통/그렇다/매우그렇다)
+ * ✅ 응답 시간은 ±20% 이내 보조 가중치(선택 뒤엎지 않음)
+ * ✅ 분류: 단일 4(E,C,S,I) + 조합 6(CE,ES,EI,CS,CI,IS) = 총 10 가능하지만
+ *    실제 표시는 단일 4 + 조합 6 → 10유형 중 응답에 따라 8유형만 주로 노출
+ * ✅ 결과 카드: 제목/인용문/설명/감정 상태 요약/마음 리마인드/축별 막대/버튼
+ * ✅ 숫자 점수·퍼센트 텍스트는 화면에 표시하지 않음(막대만 시각화)
  * =================================================== */
 
-document.addEventListener('DOMContentLoaded',()=>{
-
-  const Q=[
+(function(){
+  const QUESTIONS = [
     {k:'E',q:'좋아하는 사람이 생기면 표현을 아끼지 않는 편이다.'},
     {k:'S',q:'연애에서도 믿음과 안정감이 가장 중요하다고 생각한다.'},
     {k:'C',q:'대화가 끊기면 불안해진다.'},
@@ -25,175 +28,288 @@ document.addEventListener('DOMContentLoaded',()=>{
     {k:'I',q:'서로 일정한 거리감이 있어야 오래간다고 생각한다.'}
   ];
 
-  let idx=0;
-  const score={E:0,C:0,S:0,I:0};
-  const ans=[],times=[];
-  let start=Date.now();
+  let idx = 0;
+  const score  = {E:0, S:0, C:0, I:0};   // 가중 반영 누적점수(0~4 기준)
+  const counts = {E:0, S:0, C:0, I:0};   // 축별 응답 문항수
+  const ans    = [];                      // 각 문항 원점수(0~4)
+  const times  = [];                      // 각 문항 응답 시간(초)
+  let startTime = Date.now();
 
   // DOM
-  const stepLabel=document.getElementById('stepLabel');
-  const barFill=document.getElementById('barFill');
-  const qText=document.getElementById('qText');
-  const wrap=document.getElementById('choiceWrap');
-  const card=document.getElementById('card');
-  const result=document.getElementById('result');
-  const prevBtn=document.getElementById('prev');
-  const skipBtn=document.getElementById('skip');
+  const stepLabel = document.getElementById('stepLabel');
+  const barFill   = document.getElementById('barFill');
+  const qText     = document.getElementById('qText');
+  const wrap      = document.getElementById('choiceWrap');
+  const card      = document.getElementById('card');
+  const result    = document.getElementById('result');
+  const prevBtn   = document.getElementById('prev');
+  const skipBtn   = document.getElementById('skip');
 
   function render(){
-    stepLabel.textContent=`${idx+1} / ${Q.length}`;
-    barFill.style.width=`${(idx/Q.length)*100}%`;
-    qText.textContent=Q[idx].q;
+    stepLabel.textContent = `${idx+1} / ${QUESTIONS.length}`;
+    barFill.style.width   = `${(idx/QUESTIONS.length)*100}%`;
+    qText.textContent     = QUESTIONS[idx].q;
 
-    wrap.innerHTML=`
+    // 5지선다(0~4)
+    wrap.innerHTML = `
       <button class="choice" data-s="4">매우 그렇다</button>
       <button class="choice" data-s="3">그렇다</button>
       <button class="choice" data-s="2">보통이다</button>
       <button class="choice ghost" data-s="1">아니다</button>
-      <button class="choice ghost" data-s="0">전혀 아니다</button>`;
+      <button class="choice ghost" data-s="0">전혀 아니다</button>
+    `;
 
-    const prevSel=ans[idx];
-    if(prevSel!==undefined){
-      [...wrap.children].forEach(b=>{
-        if(Number(b.dataset.s)===prevSel)b.classList.add('selected');
+    // 이전 선택 보존
+    const prevSel = ans[idx];
+    if(prevSel !== undefined){
+      Array.from(wrap.children).forEach(b=>{
+        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
 
-    [...wrap.children].forEach(btn=>{
+    // 클릭
+    Array.from(wrap.children).forEach(btn=>{
       btn.addEventListener('click',()=>{
-        [...wrap.children].forEach(c=>c.classList.remove('selected'));
+        Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
         btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)),160);
+        setTimeout(()=>choose(Number(btn.dataset.s)), 160);
       });
     });
-    start=Date.now();
+
+    startTime = Date.now();
   }
 
   function choose(s){
-    const elapsed=(Date.now()-start)/1000;
-    times[idx]=elapsed;
-    const k=Q[idx].k;
-    const w=timeWeight(elapsed,k);
-    ans[idx]=s;
-    const adj=s+(s*(w-1)*0.2);
-    score[k]+=adj;
+    const elapsed = (Date.now() - startTime)/1000;
+    times[idx] = elapsed;
+
+    const k = QUESTIONS[idx].k;
+    const w = getWeight(elapsed, k); // 0.8~1.2 내 보조 가중치
+    ans[idx] = s;
+
+    // 선택 우선 + 시간 보조(±20% 캡)
+    const adjusted = s + (s * (w - 1) * 0.2);
+    score[k]  += adjusted;
+    counts[k] += 1;
+
     next();
   }
 
   function next(){
     idx++;
-    if(idx<Q.length)render();
+    if(idx < QUESTIONS.length) render();
     else finish();
   }
 
-  prevBtn.addEventListener('click',()=>{
-    if(idx===0)return;
-    idx--;recalc(idx);render();
+  prevBtn?.addEventListener('click', ()=>{
+    if(idx===0) return;
+    idx--;
+    recalc(idx);
+    render();
   });
-  skipBtn.addEventListener('click',()=>{
-    ans[idx]=0;
-    times[idx]=(Date.now()-start)/1000;
+
+  skipBtn?.addEventListener('click', ()=>{
+    ans[idx]   = 0;
+    times[idx] = (Date.now() - startTime)/1000;
     next();
   });
 
-  function recalc(end){
-    score.E=score.C=score.S=score.I=0;
-    for(let i=0;i<end;i++){
-      const s=ans[i]??0;
-      const k=Q[i].k;
-      const w=timeWeight(times[i]??0,k);
-      const adj=s+(s*(w-1)*0.2);
-      score[k]+=adj;
-    }
-  }
-
-  function timeWeight(sec,key){
+  /* ---------- 시간 가중치(보조) ---------- */
+  function getWeight(sec, key){
     let w=1.0;
-    if(sec<1)w=0.85;
-    else if(sec<4)w=1.0;
-    else if(sec<8)w=1.15;
+    if(sec < 1) w=0.9;
+    else if(sec < 4) w=1.0;
+    else if(sec < 8) w=1.15;
     else w=1.1;
-    if((key==='E'||key==='C')&&sec<2)w*=1.05;
-    if((key==='I'||key==='S')&&sec>=4)w*=1.05;
+
+    // 축별 미세 보정(선택 뒤엎지 않음)
+    if((key==='E'||key==='C') && sec<2)  w *= 1.05; // 빠른 즉응 = 표현/교류 약 +5%
+    if((key==='I'||key==='S') && sec>=4) w *= 1.05; // 신중/안정 = 약 +5%
     return Number(w.toFixed(2));
   }
 
-  // --- 유형 분류 ---
-  const DIFF_STRICT=3.0;
+  /* ---------- 되돌아감 재계산 ---------- */
+  function recalc(end){
+    score.E=score.S=score.C=score.I=0;
+    counts.E=counts.S=counts.C=counts.I=0;
+    for(let i=0;i<end;i++){
+      const s = ans[i] ?? 0;
+      const k = QUESTIONS[i].k;
+      const w = getWeight(times[i] ?? 0, k);
+      const adjusted = s + (s * (w - 1) * 0.2);
+      score[k]  += adjusted;
+      counts[k] += 1;
+    }
+  }
+
+  /* ---------- 유형 분류 ---------- */
+  const DIFF_SINGLE = 3.0; // 단일형 판단 최소 격차
+
   function classify(sc){
-    const arr=Object.entries(sc).sort((a,b)=>b[1]-a[1]);
-    const [k1,v1]=arr[0];
-    const [k2,v2]=arr[1];
-    const diff=v1-v2;
-    if(diff>=DIFF_STRICT)return `${k1}_ONLY`;
-    return [k1,k2].sort().join('');
+    const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+    const [k1,v1] = arr[0];
+    const [k2,v2] = arr[1];
+    const diff = v1 - v2;
+    if(diff >= DIFF_SINGLE) return `${k1}_ONLY`;
+    return [k1,k2].sort().join(''); // CE/ES/EI/CS/CI/IS
   }
 
-  function interpret(avg){
-    if(avg>=3.7)return{label:'매우 높음',tone:'result-very-high'};
-    if(avg>=3.0)return{label:'높음',tone:'result-high'};
-    if(avg>=2.0)return{label:'중간',tone:'result-mid'};
-    if(avg>=1.0)return{label:'낮음',tone:'result-low'};
-    return{label:'매우 낮음',tone:'result-very-low'};
-  }
+  /* ---------- 결과 카피 ---------- */
+  const TYPE_COPY = {
+    // 단일형 4
+    E_ONLY: { title:'💗 표현 스파크형',
+      quote:'"마음은 전할 때 살아난다!"',
+      desc :'감정 표현과 애정 피드백이 빠르고 확실해요. 관계의 온도를 끌어올리는 리드 플레이어로, 상대의 마음을 단숨에 안심시키는 힘이 있어요. 단, 속도가 빠른 만큼 과열되지 않도록 휴식과 속도 조절을 챙기면 더 오래 따뜻합니다.' },
+    C_ONLY: { title:'🤝 공감 네비게이터형',
+      quote:'"너의 리듬을 먼저 듣는다."',
+      desc :'상대의 감정 신호를 예민하게 포착하고, 대화로 조율하는 데 강합니다. 작은 표정 변화에서도 의미를 읽어 관계의 마찰을 낮춰요. 다만 과몰입으로 지치지 않도록 ‘내 감정 경계’도 가끔 점검해 주세요.' },
+    S_ONLY: { title:'🧭 신뢰 앵커형',
+      quote:'"꾸준함이 사랑을 지킨다."',
+      desc :'일관성과 책임을 중시해 안전한 기반을 만드는 타입. 약속과 규칙 안에서 서로의 자유를 최대화하려 합니다. 간혹 변화에 신중해 속도가 느려질 수 있는데, 작은 실험을 통해 관계의 유연성을 늘리면 더 단단해집니다.' },
+    I_ONLY: { title:'🕊️ 자유 바람형',
+      quote:'"숨 쉴 공간이 사랑을 오래가게 한다."',
+      desc :'자율성과 속도 조절을 중시하는 성향. 서로의 세계를 존중할 때 애정도 깊어집니다. 다만 거리 두기가 “무관심”으로 오해되지 않도록 정기적인 마음 체크-인을 곁들이면 좋아요.' },
 
-  const TYPE={
-    E_ONLY:{t:'💗 표현 스파크형',q:'"마음은 전할 때 살아난다!"',d:'감정표현이 빠르고 확실한 타입. 관계의 온도를 올리는 리더형.'},
-    C_ONLY:{t:'🤝 공감 네비게이터형',q:'"너의 리듬을 먼저 듣는다."',d:'상대의 감정을 잘 캐치하고 조율하는 섬세한 협력가.'},
-    S_ONLY:{t:'🧭 신뢰 앵커형',q:'"꾸준함이 사랑을 지킨다."',d:'일관성과 책임감을 중시하며 안정감을 제공한다.'},
-    I_ONLY:{t:'🕊️ 자유 바람형',q:'"숨 쉴 공간이 사랑을 오래가게 한다."',d:'자율성과 개별성을 존중하는 독립적 연애 스타일.'},
-    CE:{t:'💞 따뜻한 커뮤니케이터형 (E+C)',q:'"마음은 나누고 귀는 열고."',d:'표현력+공감력의 조화. 빠른 피드백과 경청이 강점.'},
-    ES:{t:'🌷 다정한 신뢰 빌더형 (E+S)',q:'"따뜻함을 꾸준히."',d:'감정표현과 안정감이 어우러진 성숙한 스타일.'},
-    EI:{t:'🎈 유쾌한 독립형 (E+I)',q:'"가볍지만 진심."',d:'밝고 자유롭지만 관계에 진심인 타입.'},
-    CS:{t:'🫶 온정적 수호자형 (C+S)',q:'"마음을 지키는 방법을 안다."',d:'공감+신뢰의 균형으로 안정된 관계를 유지한다.'},
-    CI:{t:'🌤️ 배려적 독립형 (C+I)',q:'"서로의 거리도 존중이야."',d:'섬세한 배려와 건강한 거리 두기를 병행한다.'},
-    IS:{t:'🌿 차분한 파트너십형 (I+S)',q:'"느리지만 견고하게."',d:'자율과 안정의 합. 담백하고 오래가는 관계.'}
+    // 조합형 6
+    CE: { title:'💞 따뜻한 커뮤니케이터형 (E+C)',
+      quote:'"마음은 나누고, 귀는 열고."',
+      desc :'표현력과 공감력이 모두 높은 타입. 빠른 애정표현 + 섬세한 경청으로 관계의 온도를 안정적으로 높입니다. 감정의 흐름을 잘 타지만, 가끔은 구조(약속/합의)도 곁들이면 번아웃을 막을 수 있어요.' },
+    ES: { title:'🌷 다정한 신뢰 빌더형 (E+S)',
+      quote:'"따뜻함을 꾸준히."',
+      desc :'애정표현을 일관된 행동으로 증명하는 스타일. 상대가 예측 가능한 안정감을 느끼며 신뢰가 빠르게 쌓입니다. 단, 과도한 책임감이 쌓이면 무게가 늘 수 있으니 가벼운 놀이도 루틴에 넣어 보세요.' },
+    EI: { title:'🎈 유쾌한 독립형 (E+I)',
+      quote:'"함께여도 가볍게, 가볍지만 진심."',
+      desc :'표현은 적극적이되 구속은 싫은 타입. 밝고 자유로운 에너지로 관계의 리듬을 맞춥니다. 서로의 ‘각자 시간’을 존중하는 합의만 분명하면 장기적으로 가뿐해요.' },
+    CS: { title:'🫶 온정적 수호자형 (C+S)',
+      quote:'"마음을 지키는 방법을 안다."',
+      desc :'공감과 신뢰의 합으로 안정적인 애착을 만드는 타입. 크고 작은 돌봄 행동이 자연스럽습니다. 다만 스스로를 뒤로 미루지 않도록, “내 에너지도 소중” 규칙을 챙겨 주세요.' },
+    CI: { title:'🌤️ 배려적 독립형 (C+I)',
+      quote:'"서로의 거리도 존중이야."',
+      desc :'섬세하게 배려하지만 의존은 최소화합니다. 마음을 건조하게 만들지 않도록, 간단한 애정 신호(짧은 문자/이모지)로 온도를 유지하면 좋아요.' },
+    IS: { title:'🌿 차분한 파트너십형 (I+S)',
+      quote:'"느리지만 견고하게."',
+      desc :'자율과 안정의 조합. 과장 없이 담백하고 오래 가는 팀 플레이어입니다. 변화를 완전히 막기보다, “작은 변화 실험”으로 균형을 맞추면 관계의 활력이 살아나요.' }
   };
 
-  function meter(){
-    const keys=['E','C','S','I'];
+  /* ---------- 감정 상태 요약 & 마음 리마인드 ---------- */
+  function summarizeEmotion(sc){
+    // 상위 1~2축을 기준으로 간단 서술
+    const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+    const top = arr.slice(0,2).map(([k])=>k).join('+');
+    const map = {
+      'E':'오늘은 표현 에너지가 높아요. 마음을 말로/행동으로 전할 때 만족감이 커집니다.',
+      'C':'관계의 결을 섬세하게 듣는 날. 대화의 리듬을 잡으면 안정감이 올라가요.',
+      'S':'예측 가능한 루틴과 약속이 편안함을 줘요. 작은 계획이 친절한 안전벨트!',
+      'I':'각자 시간을 확보하면 마음의 탄력이 올라갑니다. ‘거리의 미학’이 빛나는 날.'
+    };
+    const map2 = {
+      'E+C':'따뜻한 표현과 경청이 균형을 이룹니다. 온도와 리듬이 고르게 유지돼요.',
+      'E+S':'표현력에 안정감이 더해져 든든해요. 다정함이 습관이 됩니다.',
+      'E+I':'가벼운 에너지와 진심이 함께 있어요. 거리 두기와 애정표현이 조화롭네요.',
+      'C+S':'공감과 신뢰가 단단합니다. 느슨하지만 안정적인 접촉이 좋아요.',
+      'C+I':'배려와 독립의 조화. 가까움과 멀어짐 사이에서 균형을 잘 찾습니다.',
+      'I+S':'담백하고 꾸준합니다. 조용하지만 오래가는 팀워크가 만들어져요.'
+    };
+    const key = arr.length>=2 ? [arr[0][0],arr[1][0]].sort().join('+') : arr[0][0];
+    return map2[key] || map[arr[0][0]] || '마음의 속도를 스스로 정하면 편안해지는 날이에요.';
+  }
+
+  function mindReminders(typeKey){
+    const base = {
+      E: ['하루 한 번, “고마워”를 먼저 말해보기', '스킨십/이모지 같은 애정 신호 남기기', '과열 방지: 짧은 휴식 타이머 5분'],
+      C: ['대화 전 “무슨 감정인지” 한 문장으로 정리', '상대 말 1줄 메모 → 공감 리플라이', '감정 과몰입 방지: 나의 경계 한 줄'],
+      S: ['약속/합의 1가지 업데이트', '작은 루틴(10분)으로 체온 유지', '예외 규칙 1개 만들기(유연성 확보)'],
+      I: ['혼자 충전 20~30분 예약', '연락 빈도/시간대 합의하기', '가벼운 데이트(부담↓, 즐거움↑)']
+    };
+    if(typeKey.endsWith('_ONLY')){
+      const k = typeKey[0];
+      return base[k] || ['오늘은 마음을 가볍게 돌보는 날이에요.'];
+    }
+    // 조합형 → 두 축 섞어서 3~4개
+    const [a,b] = typeKey.split('');
+    const pick = (arr,n=2)=>arr.slice(0,n);
+    const merged = [
+      ...(base[a] ? pick(base[a],2) : []),
+      ...(base[b] ? pick(base[b],2) : [])
+    ];
+    return merged.length ? merged : ['관계의 리듬을 가볍게 점검해 보세요.'];
+  }
+
+  /* ---------- 축별 미터(막대만, 숫자 숨김) ---------- */
+  function axisMeters(){
+    const keys = ['E','C','S','I'];
     return keys.map(k=>{
-      const pct=Math.round((score[k]/(5*4))*100);
-      const n={E:'표현',C:'교류',S:'안정',I:'자율'}[k];
-      return `<div style="margin:8px 0">
-        <div style="display:flex;justify-content:space-between;font-weight:700">
-          <span>${n}</span><span>${pct}%</span></div>
-        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
-          <span style="display:block;height:100%;width:${pct}%;background:var(--mint-500)"></span>
-        </div></div>`;
+      // 최대치: 문항수(각 축 3~4개) × 4점
+      const totalMax = (counts[k] || 0) * 4;
+      const raw      = score[k];
+      const pct      = totalMax ? Math.max(0, Math.min(100, Math.round((raw / totalMax) * 100))) : 0;
+      return `
+        <div class="section">
+          <div style="display:flex;justify-content:space-between;font-weight:700">
+            <span>${({E:'표현',C:'교류',S:'안정',I:'자율'})[k]}</span>
+            <span aria-hidden="true" style="color:transparent;user-select:none">0</span>
+          </div>
+          <div class="meter" role="img" aria-label="${k} 축 상대적 강도">
+            <span style="width:${pct}%"></span>
+          </div>
+        </div>
+      `;
     }).join('');
   }
 
+  /* ---------- 결과 출력 ---------- */
   function finish(){
     card.style.display='none';
     barFill.style.width='100%';
-    const key=classify(score);
-    const info=TYPE[key]||{t:'☁️ 몽실형',q:'"함께 맞춰가요."',d:'데이터가 부족합니다.'};
-    const answered=ans.filter(v=>v!==undefined).length||1;
-    const avg=Object.values(score).reduce((a,b)=>a+b,0)/answered;
-    const lev=interpret(avg);
-    const avgT=times.length?(times.reduce((a,b)=>a+b,0)/times.length).toFixed(1):'0.0';
 
-    result.innerHTML=`
-    <div class="result-card">
-      <div class="result-hero">
-        <img src="../assets/love.png" alt="연애 캐릭터" onerror="this.style.display='none'">
-        <div>
-          <div class="result-title">${info.t}</div>
-          <div class="result-desc">${info.q}</div>
-          <div class="pill" style="margin-top:6px">표현 강도: <b>${lev.label}</b> (${avg.toFixed(1)}점)</div>
+    // 최종 유형
+    const typeKey = classify(score);
+    const info = TYPE_COPY[typeKey] || {
+      title:'☁️ 몽실형', quote:'"함께 맞춰가요."', desc:'데이터가 적어요. 한 번 더 시도해볼까요?'
+    };
+
+    // 감정 상태 요약 & 마음 리마인드
+    const summary = summarizeEmotion(score);
+    const reminders = mindReminders(typeKey);
+
+    result.innerHTML = `
+      <div class="result-card">
+        <div class="result-hero">
+          <img src="../assets/love.png" alt="연애 캐릭터" onerror="this.style.display='none'">
+          <div>
+            <div class="result-title">${info.title}</div>
+            <div class="result-desc">${info.quote}</div>
+          </div>
+        </div>
+
+        <p style="margin:10px 0">${info.desc}</p>
+
+        <div class="section">
+          <div class="section-title">감정 상태 요약</div>
+          <div style="background:#fff;border:1px solid var(--mint-200);border-radius:14px;padding:12px">${summary}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">마음 리마인드</div>
+          <div>
+            ${reminders.map(t=>`<span class="pill">${t}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">나의 관계 에너지</div>
+          ${axisMeters()}
+        </div>
+
+        <div class="result-actions" style="margin-top:12px">
+          <a class="start" href="../index.html">메인으로</a>
+          <button class="start" onclick="location.reload()">다시 테스트</button>
         </div>
       </div>
-      <p style="margin:10px 0">${info.d}</p>
-      <div style="margin-top:8px">${meter()}</div>
-      <div style="margin:10px 0;font-size:13px;color:var(--text-soft)">평균 응답 시간: <b>${avgT}s</b></div>
-      <div class="result-actions">
-        <a class="start" href="../index.html">메인으로</a>
-        <button class="start" onclick="location.reload()">다시 테스트</button>
-      </div>
-    </div>`;
+    `;
     result.style.display='block';
   }
 
+  // 시작
   render();
-});
+})();
