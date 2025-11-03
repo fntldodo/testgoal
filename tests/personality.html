@@ -3,53 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>성격 성향 집중형(5유형) - 몽실몽실</title>
+  <title>성격 성향 미니 체크 - 몽실몽실</title>
 
-  <!-- AdSense (프롬프트 필수) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
-     crossorigin="anonymous"></script>
+  <!-- ✅ AdSense (head 안 필수) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
-  <!-- 폰트 / 스타일 -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+
+  <!-- 상단 고정 메인 버튼 (전역에 있다면 중복 삽입 불필요) -->
   <style>
-    /* 상단 메인 버튼 (공통 규칙) */
     .top-main-btn{
       position:fixed;top:14px;right:14px;z-index:9999;
       display:inline-flex;align-items:center;gap:8px;
       padding:10px 14px;border-radius:999px;
       background:#ffffffcc;backdrop-filter:blur(6px);
-      border:1px solid var(--mint-300);
+      border:1px solid var(--mint-300, #bfe7de);
       box-shadow:0 6px 18px rgba(0,0,0,.08);
       color:#1f3b39;font-weight:800;text-decoration:none;
       transition:transform .15s ease, box-shadow .2s ease;
     }
-    .top-main-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.12); background:#fff; }
-    @media(max-width:480px){
-      .top-main-btn{top:10px;right:10px;padding:9px 12px}
-      .top-main-btn span{font-size:14px}
-    }
+    .top-main-btn:hover{ transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12);background:#fff; }
+    @media(max-width:480px){ .top-main-btn{top:10px;right:10px;padding:9px 12px} .top-main-btn span{font-size:14px} }
 
-    /* 결과 시각요소(꽃잎형 5축) */
-    .petal-wrap{ display:grid; place-items:center; margin:8px 0 6px }
-    .legend{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px }
-    .legend .chip{ background:var(--mint-100); border:1px solid var(--mint-200); padding:6px 10px; border-radius:999px; font-weight:700 }
-
-    /* 상태 라벨 */
-    .state-row{ display:grid; gap:6px; margin-top:8px }
-    .state-item{ background:#fff; border:1px solid var(--mint-200); border-radius:12px; padding:10px }
-    .state-item b{ font-weight:800 }
-
-    .result-note{ color:var(--text-soft); font-size:13px; margin-top:10px }
+    /* 결과 내 캡션/레이더 보조 스타일 */
+    .legend {display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .legend .pill {background:#fff;border:1px solid var(--mint-200,#cfeee7);padding:6px 10px;border-radius:999px}
+    .state-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    @media(max-width:520px){ .state-list{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">
-      <img src="../assets/brain.png" alt="성격" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
-      <span>성격 성향 집중형(5유형)</span>
+      <img src="../assets/KakaoTalk_20251020_233535446.png"
+           alt="몽실이 캐릭터"
+           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+      <span>성격 성향 미니 체크</span>
     </div>
-    <p class="subtitle">14문항 · 5유형(집중/사색/공감/실행/탐구) · 퍼센트+상태 라벨</p>
+    <p class="subtitle">빅파이브 20문항 · 상태라벨 중심 레이다 · 마음 리마인드</p>
   </header>
 
   <!-- 상단 고정 메인 버튼 -->
@@ -62,7 +54,7 @@
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / 14</div>
+      <div id="stepLabel">1 / 20</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
@@ -81,9 +73,9 @@
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 공통 안정화 스크립트 -->
+  <!-- 공통 안정화(먼저) -->
   <script src="../js/error-proof.js" defer></script>
-  <!-- 개별 로직 -->
-  <script src="../js/personality.js?v=focus5-1" defer></script>
+  <!-- 빅파이브 로직 -->
+  <script src="../js/personality.js?v=7" defer></script>
 </body>
 </html>
