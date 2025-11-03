@@ -1,380 +1,418 @@
-/* ===================================================
- * 성격 성향 미니 체크 (빅파이브) — 몽실몽실 v2025.2+
- * ---------------------------------------------------
- * - 20문항 / 5지선다(0~4)
- * - 응답시간 가중치(±20%)는 보조, 선택 우선
- * - 결과 UI: 제목/인용문/설명(확장)/감정상태 요약/마음 리마인드/레이더/버튼
- * - 숫자 점수/퍼센트 노출 없음(시각화만)
- * - 결과 이미지: ../assets/brain.png
- * - 변경점:
- *   1) 균형(BALANCE) 빈출 ↓ : 지배형/이중조합 로직 정교화(표준편차 기반)
- *   2) 결과 카피 확장 + 재치 톤
- * =================================================== */
+/* =====================================================
+ * 성격 성향 집중형(5유형) — 몽실몽실 v2025.3
+ * -----------------------------------------------------
+ * - 14문항 / 5지선다(0~4)
+ * - 축: F(집중) R(사색) E(공감) A(실행) C(탐구)
+ * - 응답시간 가중치: ±20% (선택 우선, 뒤엎지 않음)
+ * - 분류:
+ *   1) 각 축 퍼센트 계산
+ *   2) top1-top2 격차 >= 10% → 단일형
+ *      6~9% → 하이브리드형(top1+top2)
+ *      <6% → 균형형(표준편차 0.02 이하에서만)
+ * - UI: 점수 숫자 ❌, 퍼센트 + 상태라벨 ✅
+ * - 결과: 제목/인용문/설명/감정상태요약/마음리마인드/시각요소/버튼
+ * ===================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const LABELS = {O:'개방성', C:'성실성', E:'외향성', A:'우호성', N:'정서안정(역)'};
+  // 14문항 분포(각 축 2~3 문항)
+  const Q = [
+    // F(집중) 3
+    {k:'F', q:'해야 할 일에 몰입하면 주변이 잘 들리지 않는다.'},
+    {k:'F', q:'방해 요소가 있어도 다시 집중을 회복하는 편이다.'},
+    {k:'F', q:'한 번 시작한 일은 끝을 볼 때까지 파고든다.'},
 
-  // 20문항 (O,C,E,A,N 각 4문항)
-  const ITEMS = [
-    // O — 개방성
-    {k:'O',q:'새로 배우는 기술이나 취미를 기쁘게 시도한다.'},
-    {k:'O',q:'낯선 문화/장소에도 호기심이 크다.'},
-    {k:'O',q:'문제를 풀 때 독특한 방식이 떠오르는 편이다.'},
-    {k:'O',q:'변화가 두렵기보다 기대된다.'},
-    // C — 성실성
-    {k:'C',q:'약속·마감은 웬만하면 어기지 않는다.'},
-    {k:'C',q:'할 일 목록을 만들고 체크한다.'},
-    {k:'C',q:'작은 일도 끝까지 마무리하는 편이다.'},
-    {k:'C',q:'정리정돈/시간관리 같은 루틴이 있다.'},
-    // E — 외향성
-    {k:'E',q:'사람이 많은 자리에서 에너지가 오른다.'},
-    {k:'E',q:'처음 본 사람에게도 먼저 말을 건다.'},
-    {k:'E',q:'즉흥적인 만남/활동을 즐긴다.'},
-    {k:'E',q:'감정 표현을 솔직하게 하는 편이다.'},
-    // A — 우호성
-    {k:'A',q:'상대 감정에 공감하고 배려하려 한다.'},
-    {k:'A',q:'갈등이 생기면 먼저 부드럽게 풀고 싶다.'},
-    {k:'A',q:'상대가 불편해할 요소를 미리 살핀다.'},
-    {k:'A',q:'내 의견을 말해도 톤은 다정하게 유지한다.'},
-    // N — 정서안정(역채점)
-    {k:'N',q:'사소한 일에도 걱정이 쉽게 올라온다.'},
-    {k:'N',q:'기분 기복이 잦은 편이다.'},
-    {k:'N',q:'스트레스 상황에서 마음이 금방 휘청인다.'},
-    {k:'N',q:'실수/지적을 오래 곱씹는 편이다.'},
+    // R(사색) 3
+    {k:'R', q:'결정을 내리기 전에 충분히 곱씹어 보는 편이다.'},
+    {k:'R', q:'내 마음의 변화를 기록/정리하면 안정된다.'},
+    {k:'R', q:'조용한 시간에서 아이디어가 잘 떠오른다.'},
+
+    // E(공감) 3
+    {k:'E', q:'타인의 감정 신호를 비교적 빨리 알아차린다.'},
+    {k:'E', q:'말투/표정에 담긴 뉘앙스를 민감하게 읽는다.'},
+    {k:'E', q:'갈등이 생기면 먼저 톤을 낮추고 대화를 시도한다.'},
+
+    // A(실행) 3
+    {k:'A', q:'생각이 길어지기 전에 작게라도 바로 실행한다.'},
+    {k:'A', q:'일정/루틴을 만들어 꾸준히 움직인다.'},
+    {k:'A', q:'문제를 보면 계획보다 손부터 움직일 때가 있다.'},
+
+    // C(탐구) 2
+    {k:'C', q:'새로운 방식/도구를 시험해보는 걸 즐긴다.'},
+    {k:'C', q:'원인과 구조를 파악하는 데 흥미를 느낀다.'}
   ];
 
-  let idx=0;
-  const score={O:0,C:0,E:0,A:0,N:0};     // 가중 누적
-  const counts={O:0,C:0,E:0,A:0,N:0};    // 축별 응답 수
-  const ans=[], times=[];
-  let startTime=Date.now();
+  // 상태
+  let idx = 0;
+  const raw = {F:0, R:0, E:0, A:0, C:0};  // 가중 반영 합산
+  const cnt = {F:0, R:0, E:0, A:0, C:0};  // 문항수
+  const ans = [];                          // 0~4 선택 기록
+  const times = [];                        // 응답 시간(s)
+  let t0 = Date.now();
 
   // DOM
-  const stepLabel=document.getElementById('stepLabel');
-  const barFill=document.getElementById('barFill');
-  const qText=document.getElementById('qText');
-  const wrap=document.getElementById('choiceWrap');
-  const card=document.getElementById('card');
-  const result=document.getElementById('result');
-  const prevBtn=document.getElementById('prev');
-  const skipBtn=document.getElementById('skip');
+  const stepLabel = document.getElementById('stepLabel');
+  const barFill   = document.getElementById('barFill');
+  const qText     = document.getElementById('qText');
+  const wrap      = document.getElementById('choiceWrap');
+  const card      = document.getElementById('card');
+  const resultBox = document.getElementById('result');
+  const prevBtn   = document.getElementById('prev');
+  const skipBtn   = document.getElementById('skip');
 
+  if(!stepLabel||!barFill||!qText||!wrap||!card||!resultBox){
+    console.error('[personality] 필수 엘리먼트 누락');
+    return;
+  }
+
+  /* ---------- 렌더 ---------- */
   function render(){
-    stepLabel.textContent=`${idx+1} / ${ITEMS.length}`;
-    barFill.style.width=`${(idx/ITEMS.length)*100}%`;
-    qText.textContent=ITEMS[idx].q;
+    stepLabel.textContent = `${idx+1} / ${Q.length}`;
+    barFill.style.width   = `${(idx/Q.length)*100}%`;
+    qText.textContent     = Q[idx].q;
 
     wrap.innerHTML = `
-      <button class="choice" data-s="4">매우 그렇다</button>
-      <button class="choice" data-s="3">그렇다</button>
-      <button class="choice" data-s="2">보통이다</button>
-      <button class="choice ghost" data-s="1">아니다</button>
-      <button class="choice ghost" data-s="0">전혀 아니다</button>`;
+      <button class="choice" data-s="4" type="button">매우 그렇다</button>
+      <button class="choice" data-s="3" type="button">그렇다</button>
+      <button class="choice" data-s="2" type="button">보통이다</button>
+      <button class="choice ghost" data-s="1" type="button">아니다</button>
+      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
 
-    // 이전 선택 표시
-    const prevSel=ans[idx];
+    const prevSel = ans[idx];
     if(prevSel!==undefined){
-      Array.from(wrap.children).forEach(b=>{
+      [...wrap.children].forEach(b=>{
         if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
 
-    Array.from(wrap.children).forEach(btn=>{
+    [...wrap.children].forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
+        [...wrap.children].forEach(c=>c.classList.remove('selected'));
         btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)), 180);
+        setTimeout(()=>choose(Number(btn.dataset.s)), 150);
       });
     });
 
-    startTime=Date.now();
+    t0 = Date.now();
   }
 
+  /* ---------- 시간 가중치 ---------- */
+  // 선택을 뒤엎지 않는 보조(±20% 캡)
+  function w(sec){
+    // 집중도 설계(프롬프트 합의치)
+    if(sec < 0.5) return 0.9;   // 너무 빠름 → -10%
+    if(sec < 3.0) return 1.0;   // 정상
+    if(sec < 7.0) return 1.1;   // 숙고
+    return 1.05;                // 과숙고는 완만히
+  }
+
+  /* ---------- 응답 처리 ---------- */
   function choose(s){
-    const elapsed=(Date.now()-startTime)/1000;
-    times[idx]=elapsed;
+    const elapsed = (Date.now() - t0)/1000;
+    times[idx] = elapsed;
 
-    const axis = ITEMS[idx].k;
-    const w = getWeight(elapsed, axis);      // 0.8~1.2
-    ans[idx]=s;
+    const axis = Q[idx].k;
+    ans[idx] = s;
 
-    // 선택 우선 + 시간 보조(±20% 캡)
-    const adjusted = s + (s*(w-1)*0.2);
-    score[axis]+=adjusted;
-    counts[axis]+=1;
+    const adj = s + (s * (w(elapsed) - 1) * 0.2);
+    raw[axis] += adj;
+    cnt[axis] += 1;
 
     next();
   }
 
-  function next(){ idx++; if(idx<ITEMS.length) render(); else finish(); }
+  function next(){
+    idx++;
+    if(idx < Q.length) render();
+    else finish();
+  }
 
   prevBtn?.addEventListener('click', ()=>{
     if(idx===0) return;
     idx--;
-    recalcTo(idx);
+    recalc(idx);
     render();
   });
 
   skipBtn?.addEventListener('click', ()=>{
     ans[idx]=0;
-    times[idx]=(Date.now()-startTime)/1000;
+    times[idx]=(Date.now()-t0)/1000;
     next();
   });
 
-  // 시간 가중치(보조)
-  function getWeight(sec, k){
-    let w=1.0;
-    if(sec<1) w=0.9;
-    else if(sec<4) w=1.0;
-    else if(sec<8) w=1.15;
-    else w=1.1;
-
-    // 미세 보정(선택 뒤엎지 않음)
-    if((k==='E'||k==='O') && sec<2)  w*=1.05;  // 즉응형 축
-    if((k==='C'||k==='A') && sec>=4) w*=1.05;  // 숙고형 축
-    return Number(w.toFixed(2));
-  }
-
-  function recalcTo(end){
-    for(const k of Object.keys(score)){ score[k]=0; counts[k]=0; }
+  /* ---------- 되돌아감 재계산 ---------- */
+  function recalc(end){
+    raw.F=raw.R=raw.E=raw.A=raw.C=0;
+    cnt.F=cnt.R=cnt.E=cnt.A=cnt.C=0;
     for(let i=0;i<end;i++){
-      const s=ans[i] ?? 0;
-      const axis=ITEMS[i].k;
-      const w=getWeight(times[i] ?? 0, axis);
-      const adjusted = s + (s*(w-1)*0.2);
-      score[axis]+=adjusted;
-      counts[axis]+=1;
+      const s = ans[i] ?? 0;
+      const axis = Q[i].k;
+      const elapsed = times[i] ?? 3.0;
+      const adj = s + (s * (w(elapsed) - 1) * 0.2);
+      raw[axis] += adj;
+      cnt[axis] += 1;
     }
   }
 
-  /* ---------- 시각화용 정규화(0~1) ---------- */
-  function normalize(sc, ct){
-    const maxBy = {O:(ct.O||0)*4, C:(ct.C||0)*4, E:(ct.E||0)*4, A:(ct.A||0)*4, N:(ct.N||0)*4};
-    const norm = {
-      O: maxBy.O? Math.max(0, Math.min(1, sc.O/maxBy.O)) : 0,
-      C: maxBy.C? Math.max(0, Math.min(1, sc.C/maxBy.C)) : 0,
-      E: maxBy.E? Math.max(0, Math.min(1, sc.E/maxBy.E)) : 0,
-      A: maxBy.A? Math.max(0, Math.min(1, sc.A/maxBy.A)) : 0,
-      // 정서안정(역): 높을수록 불안정 → 안정 관점으로 뒤집어 시각화
-      N: maxBy.N? 1 - Math.max(0, Math.min(1, sc.N/maxBy.N)) : 0,
-    };
-    return norm;
+  /* ---------- 퍼센트 & 상태라벨 ---------- */
+  const LABEL = {F:'집중성', R:'사색성', E:'감정공감', A:'실행력', C:'탐구성'};
+
+  function pctOf(axis){
+    const max = (cnt[axis]||0) * 4; // 5지선다 상한(4)
+    if(!max) return 0;
+    const p = Math.round((raw[axis]/max)*100);
+    return Math.max(0, Math.min(100, p));
   }
 
-  /* ---------- 감정 상태 요약 ---------- */
-  function emotionSummary(norm){
-    const lvl = (v)=> v>=0.7?'높음' : v>=0.4?'중간' : '낮음';
-    return `오늘의 성향: 개방성 ${lvl(norm.O)} · 성실성 ${lvl(norm.C)} · 외향성 ${lvl(norm.E)} · 우호성 ${lvl(norm.A)} · 정서안정 ${lvl(norm.N)}`;
+  function stateWord(p){ // 퍼센트 → 상태 단어
+    if(p>=80) return '만개';
+    if(p>=60) return '잘 자람';
+    if(p>=40) return '자라는 중';
+    if(p>=20) return '움트는 중';
+    return '씨앗';
   }
 
-  /* ---------- 마음 리마인드 ---------- */
-  function mindReminders(norm){
-    const arr = Object.entries(norm).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>k);
-    const pool = {
-      O:['번뜩인 아이디어 1개만 바로 시도해보기','실험 결과 1줄 로그 남기기'],
-      C:['할 일 3개만 남기고 출발하기','완벽 대신 “80% 출발” 시도'],
-      E:['짧은 인사라도 마음 신호 보내기','5분 산책으로 활력 충전'],
-      A:['부드러운 경계 문장 1줄 준비','고마웠던 순간 1가지 전하기'],
-      N:['3-3-3 호흡으로 마음 정리','수면·식사·물 마시기 우선순위'],
-    };
-    const bag=[];
-    arr.forEach(k=>{ const tip=(pool[k]||[])[0]; if(tip) bag.push(tip); });
-    return bag;
+  /* ---------- 분류 로직 ---------- */
+  function classify(){
+    const dist = [
+      ['F', pctOf('F')],
+      ['R', pctOf('R')],
+      ['E', pctOf('E')],
+      ['A', pctOf('A')],
+      ['C', pctOf('C')]
+    ].sort((a,b)=>b[1]-a[1]);
+
+    const [k1, v1] = dist[0];
+    const [k2, v2] = dist[1];
+    const gap = v1 - v2;
+
+    // 표준편차(0~1 스케일로 환산)
+    const arr01 = dist.map(([,p])=>p/100);
+    const mean = arr01.reduce((a,b)=>a+b,0)/arr01.length;
+    const variance = arr01.reduce((a,b)=>a+Math.pow(b-mean,2),0)/arr01.length;
+    const stdev = Math.sqrt(variance);
+
+    if(gap >= 10) return {kind:'single', a:k1, b:null, stdev};
+    if(gap >= 6)  return {kind:'hybrid', a:k1, b:k2, stdev};
+    // gap < 6 → 균형형은 너무 남발 금지: stdev 매우 낮을 때만
+    if(stdev <= 0.02) return {kind:'balance', a:null, b:null, stdev};
+    // 그 외엔 하이브리드로 흡수(애매 방지)
+    return {kind:'hybrid', a:k1, b:k2, stdev};
   }
 
-  /* ---------- 결과 카피(확장·재치 톤) ---------- */
-  const COPY_SINGLE = {
-    O:{ title:'🌈 탐험형 창의가',
-        quote:'"새 길은 걸으면 길이 된다."',
-        desc:'새로움을 좋아하는 당신은 아이디어 생산 공장 같은 사람. 시작 버튼만 눌러주면 금세 프로토타입이 튀어나옵니다. 단, 흥미가 옮겨 다닐 수 있어요. 오늘은 “작게, 빨리, 재밌게” — 30분 실험과 1줄 기록으로 다음 걸음을 연결해보세요.' },
-    C:{ title:'📅 루틴형 설계가',
-        quote:'"꾸준함은 최고의 치트키."',
-        desc:'계획과 체크리스트가 최고의 친구인 타입. 시스템으로 불확실성을 줄이고 결과를 뽑아냅니다. 단, 완벽주의가 발목을 잡을 때가 있어요. “완료 80%도 승리”라는 표어를 붙여보세요. 속도와 품질, 둘 다 잡힙니다.' },
-    E:{ title:'☀️ 소통형 에너자이저',
-        quote:'"움직이면 길이 보인다!"',
-        desc:'사람, 대화, 현장 에너지에서 힘을 얻는 당신. 분위기를 살리고 관성을 만드는 데 탁월합니다. 단, 일정이 과열되면 체력이 소모돼요. 5분 산책과 2잔의 물을 루틴에 붙여 활력을 안정적으로 유지하세요.' },
-    A:{ title:'☕ 온도 유지 관리자',
-        quote:'"다정함은 성과의 윤활유."',
-        desc:'공감과 배려로 팀의 마찰을 줄이는 조율가. 갈등의 모서리를 둥글게 다듬습니다. 단, “거절”이 어렵다면 내 마음의 경계도 함께 챙겨요. “지금은 어렵지만, 다음 주에 도울게요” 같은 문장 하나를 준비해두세요.' },
-    N:{ title:'🌿 안정 추구 균형가',
-        quote:'"불안은 줄이고, 근거는 채우고."',
-        desc:'파동을 빠르게 감지하는 레이더 보유자. 민감함은 위험을 사전에 줄이는 강점이 됩니다. 단, 생각이 과열되면 체력부터 방전! 수면·식사·물 마시기를 최우선에 두고, 오늘의 걱정은 “10분 타임어택 메모”로 꺼내보세요.' },
+  /* ---------- 결과 카피 ---------- */
+  const COPY = {
+    F: {
+      title:'🌞 집중형 — 한 점으로 모아 쏘는 힘',
+      quote:'“흩어지지 않으면, 도착한다.”',
+      desc:'방해 신호를 조용히 걷어내고 필요한 지점에 에너지를 모으는 타입입니다. 루틴 속에서 몰입이 깊어지고, 작은 진도를 꾸준히 쌓을수록 성과가 크게 드러납니다. 때때로 완벽주의가 속도를 늦출 수 있으니, 80% 완료에도 박수 치는 감각이 도움이 됩니다.',
+      mind:'오늘의 마음 리마인드 — “깊게 파되, 가볍게 마무리.” 25분만 몰입하고 5분 호흡을 권해요.'
+    },
+    R: {
+      title:'🌿 사색형 — 마음의 관찰자',
+      quote:'“조용함 속에서 답이 피어난다.”',
+      desc:'생각의 결을 섬세하게 읽고, 맥락을 정리하는 데 강점이 있습니다. 감정의 미세한 떨림을 놓치지 않고 기록에 담아 의미를 만들어 냅니다. 단, 지나친 분석은 실행을 지연시킬 수 있어요. 오늘은 “작은 실행 1”만 얹어보는 게 좋아요.',
+      mind:'오늘의 마음 리마인드 — “생각의 끝에, 작은 발걸음 하나.” 3줄 메모 후 버튼 한 번 눌러보기.'
+    },
+    E: {
+      title:'💧 공감형 — 온도의 조율자',
+      quote:'“마음을 먼저 듣는다.”',
+      desc:'상대의 감정 신호를 빨리 알아차리고, 말과 태도로 온도를 조절하는 능력이 돋보입니다. 관계의 미세한 균형을 지킴으로써 팀의 효율까지 높입니다. 다만 과도한 배려는 자기 소진으로 이어질 수 있어, 나의 에너지 게이지도 함께 살펴주세요.',
+      mind:'오늘의 마음 리마인드 — “내 마음도 케어 대상.” 10분 충전 타임을 달력에 예약!'
+    },
+    A: {
+      title:'🚀 실행형 — 움직임이 답',
+      quote:'“생각은 짧게, 시도는 빠르게.”',
+      desc:'아이디어를 손으로 증명하는 실천가입니다. 작은 시범과 빠른 피드백 루프를 통해 성공/실패를 학습으로 전환합니다. 가끔 성급함이 디테일을 놓치게 만들 수 있으니, 출발 전 체크리스트 한 줄만 추가해도 완성도가 확 올라갑니다.',
+      mind:'오늘의 마음 리마인드 — “작게 시작, 빠르게 배우기.” TO-DO 1개만 지금 체크!'
+    },
+    C: {
+      title:'🔎 탐구형 — 구조의 탐험가',
+      quote:'“표면 아래, 원리를 본다.”',
+      desc:'원인과 패턴을 발견하고, 도구를 시험하며 더 나은 구조를 만듭니다. 불확실한 문제일수록 흥미롭게 파고드는 타입입니다. 다만 실험이 길어지면 퍼블리시가 늦을 수 있어요. 오늘은 기준선 버전(v0)을 먼저 내고, 개선을 이어가 보세요.',
+      mind:'오늘의 마음 리마인드 — “완벽보다 공개.” v0를 내고, v1은 내일의 나에게!'
+    }
   };
 
-  const COPY_PAIR = {
-    OE:{ title:'🧪 창의 실험가 (O+E)',
-         quote:'"아이디어는 밖으로 나와야 산다."',
-         desc:'아이디어+현장 에너지의 폭발력. 떠오른 생각을 바로 시도하고 반응을 받아 더 좋은 버전으로 진화시킵니다. 단, 레일이 없으면 공회전할 수도. 3칸짜리 레일(목표-시간-결과 로그)을 깔면 속도가 난이도가 됩니다.' },
-    OC:{ title:'🧭 기획형 실천가 (O+C)',
-         quote:'"상상은 계획으로, 계획은 한 걸음으로."',
-         desc:'상상력과 구조화의 교차점. 새로움을 설계로 엮어 결과를 뽑아내는 타입입니다. 흥미의 불꽃이 꺼지기 전에 “소(小)마감”을 촘촘히 걸어두면 완주 확률이 크게 올라가요.' },
-    OA:{ title:'🌸 감성 크리에이터 (O+A)',
-         quote:'"섬세함이 만드는 새 가능성."',
-         desc:'미감·배려·창의의 조합. 사람의 마음을 움직이는 결과물을 잘 만듭니다. 단, 스스로에게 너무 엄격할 수 있어요. “초안은 거칠게, 피드백은 가볍게”를 합의로 만들어보세요.' },
-    CE:{ title:'🎯 실행력 리더 (C+E)',
-         quote:'"일은 굴리면 굴러간다."',
-         desc:'체계와 추진력의 합. 목표를 불도저처럼 밀어 붙이는 실행형. 단, 팀의 속도가 뒤처지지 않도록 체크포인트를 만들고, 휴식도 “업무”처럼 예약해두면 더 멀리 갑니다.' },
-    CA:{ title:'🤝 믿음의 운영가 (C+A)',
-         quote:'"꾸준함이 신뢰를 만든다."',
-         desc:'약속을 지키는 다정함. 팀을 편안하게 만드는 운영자형입니다. 단, “나만의 시간”이 제일 나중으로 밀리지 않게 일주일에 2칸은 자신에게 예약해두세요.' },
-    CN:{ title:'🛟 안전장치 설계자 (C+N)',
-         quote:'"위험은 미리 줄이고, 루틴은 넓힌다."',
-         desc:'리스크 관리의 고수. 체크리스트로 불확실성을 줄입니다. 단, 준비만 하다 기회를 놓치지 않도록 “실험 금요일 30분”을 의식적으로 배정해보세요.' },
-    EA:{ title:'☀️💬 분위기 메이커 (E+A)',
-         quote:'"말 한마디가 팀의 온도를 바꾼다."',
-         desc:'표현과 배려로 공기부터 바꾸는 사람. 회의가 “모각모(모여서 각자 모드)”가 되지 않게 분위기를 열어줍니다. 단, 과열 방지를 위해 “하루 한 번 고요 시간”을 루틴으로!' },
-    EN:{ title:'⚖️ 현실감 있는 낙관가 (E+N)',
-         quote:'"가볍게 웃고, 크게 흔들리지 않는다."',
-         desc:'외향 에너지에 안전 장치를 단 타입. 즉흥과 안정의 균형을 잘 잡습니다. 단, 감정이 지칠 때는 사람 대신 “자연”에서 에너지를 보충해보세요.' },
-    AN:{ title:'🫶 따뜻한 균형추 (A+N)',
-         quote:'"내 마음도 돌보는 다정함."',
-         desc:'남을 챙기는 만큼 나를 챙기는 법을 아는 타입. 경계 문장 하나만 준비해도 피로도가 크게 줄어요. 다정함은 지속 가능할 때 더 빛납니다.' },
-    ON:{ title:'🌙 사색형 안정가 (O+N)',
-         quote:'"깊이와 안전의 공존."',
-         desc:'내면 탐색이 깊고, 위험 신호를 빠르게 감지합니다. 아이디어는 “드래프트 공개 1회”로 세상과 가볍게 연결해보세요. 생각이 더 탄탄해집니다.' },
-  };
-
-  function variantFromNorm(norm){
-    const entries = Object.entries(norm).sort((a,b)=>b[1]-a[1]);
-    const [k1,v1] = entries[0];
-    const [k2,v2] = entries[1];
-
-    // 표준편차 기반 균형 판단 (너무 빡빡하면 항상 균형 나와서 완화)
-    const vals = entries.map(([,v])=>v);
-    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const stdev = Math.sqrt(vals.reduce((a,b)=>a+Math.pow(b-mean,2),0)/vals.length);
-
-    // 지배형: top1과 top2 격차가 충분할 때
-    const DOM_DIFF = 0.25;   // 지배형 임계
-    // 균형형: 전축이 매우 근접할 때만 (과거보다 훨씬 드물게)
-    const BALANCE_STD = 0.06; // 균형 임계
-
-    if (v1 - v2 >= DOM_DIFF) {
-      return { key: k1, mode: 'single' };
-    }
-    if (stdev <= BALANCE_STD) {
-      return { key: 'BALANCE', mode: 'balance' };
-    }
-    // 그 외는 상위 2축 조합(알파벳 순 정렬 X → 실제 순위 보존)
-    return { key: (k1+k2), mode: 'pair' };
+  function hybridTitle(a,b){
+    const name = {F:'집중',R:'사색',E:'공감',A:'실행',C:'탐구'};
+    return `🌼 하이브리드 — ${name[a]}×${name[b]}`;
   }
 
-  function profileCopy(norm){
-    const v = variantFromNorm(norm);
-    if (v.mode === 'single') {
-      return COPY_SINGLE[v.key] || {title:'☁️ 균형 몽실형', quote:'"상황에 맞춰 톤을 바꿔요."', desc:'특정 축에 치우치지 않고 유연하게 반응합니다.'};
-    }
-    if (v.mode === 'pair') {
-      return COPY_PAIR[v.key] || {title:'☁️ 균형 몽실형', quote:'"상황에 맞춰 톤을 바꿔요."', desc:'특정 축에 치우치지 않고 유연하게 반응합니다.'};
-    }
-    // 진짜 균형일 때만
-    return { title:'☁️ 균형 몽실형',
-             quote:'"필요한 색을 그때그때 꺼내 쓰는 팔레트."',
-             desc:'모든 축이 고르게 자리 잡아 상황에 따라 톤을 자연스럽게 바꾸는 타입. 특정 강점 하나로 밀어붙이기보다, “맥락 읽기 → 필요한 도구 꺼내기”가 강점입니다. 프로젝트 초반엔 폭넓게 탐색하고, 중반부엔 한 축(예: C 또는 O)에 레버리지를 주세요.' };
+  function balanceCopy(){
+    return {
+      title:'☁️ 균형형 — 바람 결 따라 색을 바꾸는 구름',
+      quote:'“상황이 바뀌면, 강점도 바뀐다.”',
+      desc:'다섯 축이 적절히 고르게 나타납니다. 팀과 과업의 성격에 맞춰 집중/사색/공감/실행/탐구를 유연하게 배치하는 타입입니다. 이 균형감은 변화에 강한 장점이지만, 목표가 모호할 땐 추진력이 약해질 수 있어요. 오늘은 “어느 축을 10%만 더 올릴지” 정해 보세요.',
+      mind:'오늘의 마음 리마인드 — “유연함은 힘.” 오늘의 미션에 맞는 축 1개만 강조!'
+    };
   }
 
-  /* ---------- 레이더(숫자 미노출) ---------- */
-  function drawRadar(canvasId, values, keys){
-    const c = document.getElementById(canvasId); if(!c) return;
+  /* ---------- 결과 렌더 ---------- */
+  function petalCanvasHTML(){
+    return `
+      <div class="petal-wrap">
+        <canvas id="petal" width="340" height="340" aria-label="성격 꽃잎 차트"></canvas>
+        <div class="legend">
+          <span class="chip">집중성</span>
+          <span class="chip">사색성</span>
+          <span class="chip">감정공감</span>
+          <span class="chip">실행력</span>
+          <span class="chip">탐구성</span>
+        </div>
+      </div>`;
+  }
+
+  function drawPetal(){
+    const c = document.getElementById('petal'); if(!c) return;
     const ctx = c.getContext('2d');
     const W=c.width, H=c.height, cx=W/2, cy=H/2;
-    const radius=Math.min(W,H)*0.38;
-    const layers=5, angleStep=(Math.PI*2)/keys.length;
+    const radius = Math.min(W,H)*0.38;
+    const keys = ['F','R','E','A','C'];
+    const angleStep = (Math.PI*2)/keys.length;
 
+    // 배경 가이드
     ctx.clearRect(0,0,W,H);
-
-    // 격자
-    ctx.strokeStyle='rgba(146,217,206,0.9)'; ctx.lineWidth=1;
-    for(let l=1;l<=layers;l++){
+    ctx.strokeStyle='rgba(146,217,206,0.9)';
+    ctx.lineWidth=1;
+    for(let ring=1; ring<=5; ring++){
+      const r = radius*(ring/5);
       ctx.beginPath();
-      const r=radius*(l/layers);
       for(let i=0;i<keys.length;i++){
-        const a=-Math.PI/2+angleStep*i;
-        const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
-        (i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+        const a = -Math.PI/2 + angleStep*i;
+        const x = cx + Math.cos(a)*r;
+        const y = cy + Math.sin(a)*r;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
-      ctx.closePath(); ctx.stroke();
+      ctx.closePath();
+      ctx.stroke();
     }
+
+    // 값 → 점
+    const pts = keys.map((k,i)=>{
+      const p = pctOf(k)/100;
+      const a = -Math.PI/2 + angleStep*i;
+      return {x: cx + Math.cos(a)*radius*p, y: cy + Math.sin(a)*radius*p};
+    });
+
+    // 채움
+    ctx.beginPath();
+    pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.closePath();
+    ctx.fillStyle='rgba(165,226,217,0.45)';
+    ctx.fill();
+    ctx.beginPath();
+    pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.closePath();
+    ctx.strokeStyle='rgba(146,217,206,1)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    // 점
+    ctx.fillStyle='rgba(146,217,206,1)';
+    pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill(); });
 
     // 라벨
     ctx.fillStyle='#2F2F2F'; ctx.font='12px Pretendard, system-ui';
     keys.forEach((k,i)=>{
-      const a=-Math.PI/2+angleStep*i;
-      const x=cx+Math.cos(a)*(radius+16), y=cy+Math.sin(a)*(radius+16);
-      const label=LABELS[k];
-      const tw=ctx.measureText(label).width;
-      ctx.fillText(label, x-tw/2, y+4);
+      const a = -Math.PI/2 + angleStep*i;
+      const x = cx + Math.cos(a)*(radius+16);
+      const y = cy + Math.sin(a)*(radius+16);
+      const label = LABEL[k];
+      const tw = ctx.measureText(label).width;
+      ctx.fillText(label, x - tw/2, y+4);
     });
-
-    // 값 영역
-    const pts = keys.map((k,i)=>{
-      const v=Math.max(0,Math.min(1,values[k]??0));
-      const a=-Math.PI/2+angleStep*i;
-      return {x:cx+Math.cos(a)*radius*v, y:cy+Math.sin(a)*radius*v};
-    });
-
-    ctx.beginPath(); pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-    ctx.closePath(); ctx.fillStyle='rgba(165,226,217,0.45)'; ctx.fill();
-    ctx.beginPath(); pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-    ctx.closePath(); ctx.strokeStyle='rgba(146,217,206,1)'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='rgba(146,217,206,1)'; pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill(); });
   }
 
-  function resultShell(profile, summary, tips){
+  function statesHTML(){
+    const keys = ['F','R','E','A','C'];
     return `
-      <div class="result-card">
-        <div class="result-hero">
-          <img src="../assets/brain.png" alt="성격 아이콘" onerror="this.style.display='none'">
-          <div>
-            <div class="result-title">${profile.title}</div>
-            <div class="result-desc">${profile.quote}</div>
-          </div>
-        </div>
-
-        <p style="margin:10px 0">${profile.desc}</p>
-
-        <div class="section">
-          <div class="section-title">감정 상태 요약</div>
-          <div style="background:#fff;border:1px solid var(--mint-200);border-radius:14px;padding:12px">
-            ${summary}
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-title">마음 리마인드</div>
-          <div>${tips.map(t=>`<span class="pill">${t}</span>`).join('')}</div>
-        </div>
-
-        <div class="section radar-wrap">
-          <canvas id="radar" width="340" height="340" aria-label="성격 레이다 차트"></canvas>
-          <div class="radar-legend">
-            ${['O','C','E','A','N'].map(k=>`
-              <div class="legend-item"><span class="legend-dot"></span>${LABELS[k]}</div>
-            `).join('')}
-          </div>
-        </div>
-
-        <div class="result-actions" style="margin-top:12px">
-          <a class="start" href="../index.html">메인으로</a>
-          <button class="start" onclick="location.reload()">다시 테스트</button>
-        </div>
-        <p class="note" style="margin-top:10px">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
+      <div class="state-row">
+        ${keys.map(k=>{
+          const p = pctOf(k);
+          const s = stateWord(p);
+          return `<div class="state-item">
+            <b>${LABEL[k]}</b> — ${s} (${p}%)
+          </div>`;
+        }).join('')}
       </div>
     `;
   }
 
   function finish(){
+    // 진행 바 완료
     card.style.display='none';
     barFill.style.width='100%';
 
-    const norm = normalize(score, counts);
-    const summary = emotionSummary(norm);
-    const profile = profileCopy(norm);
-    const tips = mindReminders(norm);
+    // 분류
+    const cls = classify();
 
-    result.innerHTML = resultShell(profile, summary, tips);
-    result.style.display='block';
-    drawRadar('radar', norm, ['O','C','E','A','N']);
+    // 카피 선택
+    let title='', quote='', desc='', mind='';
+    if(cls.kind==='single'){
+      const c = COPY[cls.a];
+      title=c.title; quote=c.quote; desc=c.desc; mind=c.mind;
+    } else if(cls.kind==='hybrid'){
+      const a = COPY[cls.a], b = COPY[cls.b];
+      title = hybridTitle(cls.a, cls.b);
+      quote = (a?.quote && b?.quote) ? `${a.quote} / ${b.quote}` : '“두 강점이 만나는 지점.”';
+      // 하이브리드 설명은 두 축 요지를 부드럽게 합성
+      const blend = {
+        FR:'깊이 몰입하면서도 의미를 정교하게 빚습니다. 생각의 층을 쌓아 실행 전 정확도를 높입니다.',
+        FE:'집중과 공감의 균형으로, 관계의 온도를 지키며 성과를 만듭니다.',
+        FA:'생각에 갇히지 않고 몰입을 행동으로 연결합니다. 완성도와 속도의 균형이 강점입니다.',
+        FC:'몰입해 파고들며 구조를 세웁니다. 문제의 핵을 정확히 겨냥하는 타입입니다.',
+        RE:'사색의 섬세함으로 마음의 신호를 읽고, 대화와 기록으로 질서를 세웁니다.',
+        RA:'생각을 정리해 작은 실행으로 전환합니다. “3줄 정리 → 1클릭 실행”이 잘 맞습니다.',
+        RC:'깊은 성찰을 구조화해 가설-검증 루프를 설계합니다.',
+        EA:'사람을 살피며 빠르게 움직입니다. 팀을 안전하게 이끄는 추진력이 강점입니다.',
+        EC:'관계의 균형을 지키면서도 근거를 세우는 타입입니다.',
+        AC:'실험을 손으로 증명합니다. v0를 빨리 내고 개선을 반복하는 스타일입니다.'
+      };
+      const keySorted = [cls.a, cls.b].sort().join('');
+      desc = blend[keySorted] || '두 강점이 서로의 빈틈을 메우며 안정적인 전진을 돕습니다.';
+      mind = '오늘의 마음 리마인드 — “둘의 장점을 번갈아 쓰기.” 지금 필요한 축을 10%만 강조!';
+    } else { // balance
+      const c = balanceCopy();
+      title=c.title; quote=c.quote; desc=c.desc; mind=c.mind;
+    }
+
+    // 평균 응답시간
+    const avgT = times.length ? (times.reduce((a,b)=>a+b,0)/times.length).toFixed(1) : '0.0';
+
+    // 결과 HTML
+    resultBox.innerHTML = `
+      <div class="result-card">
+        <div class="result-hero">
+          <img src="../assets/brain.png" alt="성격 성향" onerror="this.style.display='none'">
+          <div>
+            <div class="result-title">${title}</div>
+            <div class="result-desc">${quote}</div>
+          </div>
+        </div>
+
+        <p style="margin:10px 0">${desc}</p>
+
+        <div class="pill" style="margin:6px 0 10px">평균 응답 시간: <b>${avgT}s</b></div>
+
+        ${petalCanvasHTML()}
+        ${statesHTML()}
+
+        <div style="margin-top:10px; background:#fff; border:1px solid var(--mint-200); border-radius:12px; padding:12px">
+          <div style="font-weight:800; margin-bottom:6px">🌿 마음 리마인드</div>
+          <div>${mind}</div>
+        </div>
+
+        <div class="result-actions">
+          <a class="start" href="../index.html">메인으로</a>
+          <button class="start" onclick="location.reload()">다시 테스트</button>
+        </div>
+
+        <p class="result-note">* 퍼센트는 현재 경향의 강도를 나타내는 참고값입니다.</p>
+      </div>
+    `;
+
+    resultBox.style.display='block';
+    drawPetal();
   }
 
   // 시작
