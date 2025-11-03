@@ -1,0 +1,30 @@
+/* === 몽실 v2025.2 add-on (붙여넣기용) =============================== */
+.top-main-btn{
+  position:fixed;top:14px;right:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:999px;
+  background:#ffffffcc;backdrop-filter:blur(6px);
+  border:1px solid var(--mint-300);
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  color:#1f3b39;font-weight:800;text-decoration:none;
+  transition:transform .15s ease, box-shadow .2s ease;
+}
+.top-main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+  background:#fff;
+}
+@media(max-width:480px){
+  .top-main-btn{top:10px;right:10px;padding:9px 12px}
+  .top-main-btn span{font-size:14px}
+}
+
+.meter {margin:6px 0;text-align:left}
+.meter .row{display:flex;justify-content:space-between;font-weight:700}
+.meter .bar{height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden}
+.meter .fill{display:block;height:100%;background:var(--mint-500)}
+.result-card .section-title{font-weight:800;margin:12px 0 6px}
+.result-card .mind{background:#fff;border:1px solid var(--mint-200);border-radius:12px;padding:10px}
+.pill{display:inline-block;border:1px solid var(--mint-300);border-radius:999px;padding:6px 10px;margin:2px 4px;background:#fff}
+.result-actions{display:flex;gap:8px;margin-top:12px}
+/* ================================================================ */

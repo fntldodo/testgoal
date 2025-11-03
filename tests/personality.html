@@ -4,53 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>성격 성향 미니 체크 - 몽실몽실</title>
-
-  <!-- ✅ AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
-     crossorigin="anonymous"></script>
-
-  <!-- ✅ Pretendard -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
-
-  <!-- ✅ Site CSS -->
   <link rel="stylesheet" href="../css/style.css">
-
-  <!-- (보강) 상단 버튼/결과 섹션 보조 스타일 -->
-  <style>
-    .top-main-btn{
-      position:fixed;top:14px;right:14px;z-index:9999;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:999px;
-      background:#ffffffcc;backdrop-filter:blur(6px);
-      border:1px solid var(--mint-300);
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      color:#1f3b39;font-weight:800;text-decoration:none;
-      transition:transform .15s ease, box-shadow .2s ease;
-    }
-    .top-main-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.12); background:#fff; }
-    @media(max-width:480px){ .top-main-btn{top:10px;right:10px;padding:9px 12px} .top-main-btn span{font-size:14px} }
-
-    .section{margin-top:10px}
-    .section-title{font-weight:800;margin-bottom:6px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--mint-100);border:1px solid var(--mint-200);margin:4px 6px 0 0}
-    .radar-wrap{display:grid;gap:8px;justify-items:center}
-    .radar-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-    .legend-item{display:flex;align-items:center;gap:6px}
-    .legend-dot{width:10px;height:10px;border-radius:50%;background:var(--mint-500);display:inline-block}
-  </style>
 </head>
 <body>
   <header>
     <div class="logo">
-      <img src="../assets/KakaoTalk_20251020_233535446.png"
-           alt="몽실이 캐릭터"
-           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+      <img src="../assets/KakaoTalk_20251020_233535446.png" alt="몽실이 캐릭터" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
       <span>성격 성향 미니 체크</span>
     </div>
     <p class="subtitle">빅파이브 · 20문항 · 오각형 레이다</p>
   </header>
 
-  <!-- 🏠 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
@@ -60,31 +26,23 @@
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / 20</div>
+      <div id="stepLabel">1 / X</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
-
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
-
       <div class="navs">
         <button id="prev" class="start ghost" type="button">← 이전</button>
         <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-
       <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
     </section>
-
     <section id="result" style="display:none"></section>
-
   </main>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
-
-  <!-- ✅ 공통 안정화 -->
   <script src="../js/error-proof.js" defer></script>
-  <!-- ✅ 성격(빅파이브) 로직 -->
-  <script src="../js/personality.js?v=2025.2" defer></script>
+  <script src="../js/personality.js?v=3" defer></script>
 </body>
 </html>

@@ -1,0 +1,39 @@
+# ============================
+# 몽실몽실 심리테스트 Git 관리 규칙
+# LF 줄바꿈 통일 + 바이너리 파일 예외 처리
+# ============================
+
+# 모든 텍스트 파일은 LF로 통일
+* text=auto eol=lf
+
+# HTML / CSS / JS / JSON / Markdown 등
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+
+# UTF-8 인코딩 명시 (필수는 아니지만 권장)
+*.html text working-tree-encoding=UTF-8
+*.css text working-tree-encoding=UTF-8
+*.js text working-tree-encoding=UTF-8
+
+# 이미지 및 바이너리 파일 (줄바꿈 변환 금지)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.pdf binary
+*.zip binary
+
+# OS별 숨김 파일은 Git 무시하도록 처리
+.DS_Store export-ignore
+Thumbs.db export-ignore
