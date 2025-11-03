@@ -3,50 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>몽실이의 연애 스타일 테스트 - 몽실몽실</title>
+  <title>연애 성향 밸런스 - 몽실몽실</title>
 
-  <!-- ✅ AdSense -->
+  <!-- ✅ AdSense (필수, head 내부) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
   <!-- ✅ Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- ✅ Site CSS -->
+  <!-- ✅ 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css">
-
-  <!-- (옵션) 상단 고정 버튼 CSS가 없다면 아래 보강 -->
-  <style>
-    .top-main-btn{
-      position:fixed;top:14px;right:14px;z-index:9999;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:999px;
-      background:#ffffffcc;backdrop-filter:blur(6px);
-      border:1px solid var(--mint-300);
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      color:#1f3b39;font-weight:800;text-decoration:none;
-      transition:transform .15s ease, box-shadow .2s ease;
-    }
-    .top-main-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.12); background:#fff; }
-    @media(max-width:480px){ .top-main-btn{top:10px;right:10px;padding:9px 12px} .top-main-btn span{font-size:14px} }
-
-    /* 결과 섹션 보조 스타일(필요시) */
-    .section{margin-top:10px}
-    .section-title{font-weight:800;margin-bottom:6px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--mint-100);border:1px solid var(--mint-200);margin:4px 6px 0 0}
-    .meter{height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden}
-    .meter > span{display:block;height:100%;background:var(--mint-500)}
-  </style>
 </head>
-
 <body>
   <header>
     <div class="logo">
       <img src="../assets/KakaoTalk_20251020_233535446.png"
            alt="몽실이 캐릭터"
            onerror="this.onerror=null; this.src='../assets/mongsil.png'">
-      <span>몽실이의 연애 스타일 테스트</span>
+      <span>연애 성향 밸런스</span>
     </div>
-    <p class="subtitle">15문항 · 카드형 결과 · 몽실이가 알려주는 연애 성향 💞</p>
+    <p class="subtitle">15문항 · 5지선다 · 감정상태 + 마음 리마인드</p>
   </header>
 
   <!-- 🏠 상단 고정 메인 버튼 -->
@@ -66,13 +42,16 @@
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
+
       <div class="navs">
         <button id="prev" class="start ghost" type="button">← 이전</button>
         <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-      <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
+
+      <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단을 대체하지 않습니다.</p>
     </section>
 
+    <!-- 결과 -->
     <section id="result" style="display:none"></section>
   </main>
 
@@ -81,7 +60,7 @@
   <!-- ✅ 공통 안정화 스크립트 -->
   <script src="../js/error-proof.js" defer></script>
 
-  <!-- ✅ 테스트 로직 -->
-  <script src="../js/love.js?v=2025.2" defer></script>
+  <!-- ✅ love 테스트 스크립트 -->
+  <script src="../js/love.js?v=7" defer></script>
 </body>
 </html>
