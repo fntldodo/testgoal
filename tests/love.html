@@ -3,46 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>몽실이의 연애 스타일 테스트 - 몽실몽실</title>
-
-  <!-- ✅ Google AdSense (head 안) -->
+  <title>연애 스타일 밸런스 - 몽실몽실</title>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
-
-  <!-- 폰트 & 공통 스타일 -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
-
-  <!-- 상단 고정 메인 버튼 기본 스타일(혹시 style.css에 없다면 이 블록 유지) -->
-  <style>
-    .top-main-btn{
-      position:fixed;top:14px;right:14px;z-index:9999;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:999px;
-      background:#ffffffcc;backdrop-filter:blur(6px);
-      border:1px solid var(--mint-300, #bfe7de);
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      color:#1f3b39;font-weight:800;text-decoration:none;
-      transition:transform .15s ease, box-shadow .2s ease;
-    }
-    .top-main-btn:hover{ transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12);background:#fff; }
-    @media(max-width:480px){ .top-main-btn{top:10px;right:10px;padding:9px 12px} .top-main-btn span{font-size:14px} }
-  </style>
 </head>
-
 <body>
   <header>
     <div class="logo">
-      <img src="../assets/KakaoTalk_20251020_233535446.png"
-           alt="몽실이 캐릭터"
-           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
-      <span>몽실이의 연애 스타일 테스트</span>
+      <img src="../assets/love.png" alt="연애 아이콘" onerror="this.onerror=null;this.src='../assets/mongsil.png'">
+      <span>연애 스타일 밸런스</span>
     </div>
-    <p class="subtitle">15문항 · 5지선다 · 감정상태 요약 + 마음 리마인드</p>
+    <p class="subtitle">14문항 · 감정 밸런스형 · 마음 리마인드 포함</p>
   </header>
 
-  <!-- 상단 고정 메인 버튼 -->
+  <!-- 상단 메인으로 -->
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24">
       <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
     </svg>
     <span>메인으로</span>
@@ -50,30 +27,25 @@
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / 15</div>
+      <div id="stepLabel">1 / 14</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
     <section class="card-q" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
-
       <div class="navs">
         <button id="prev" class="start ghost" type="button">← 이전</button>
         <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-
-      <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
+      <p class="note">* 자기 인식 기반 심리도구이며, 진단이 아닙니다.</p>
     </section>
 
     <section id="result" style="display:none"></section>
   </main>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
-
-  <!-- 공통 안정화 -->
   <script src="../js/error-proof.js" defer></script>
-  <!-- Love 테스트 로직 -->
-  <script src="../js/love.js?v=7" defer></script>
+  <script src="../js/love.js?v=8" defer></script>
 </body>
 </html>
