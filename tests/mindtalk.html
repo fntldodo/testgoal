@@ -1,61 +1,153 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>나는 나에게 무슨 말을 하고 있을까? - 몽실몽실</title>
+<!-- 공통 안정화 -->
+<script src="../js/error-proof.js" defer></script>
 
-  <!-- AdSense (필수) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
+<!-- ✅ 임시 인라인: mindtalk 로직 (경로 문제 우회) -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const Q = [
+    {k:'K', q:'실수했을 때 “괜찮아, 누구나 그럴 수 있어”라고 스스로를 달랜다.'},
+    {k:'K', q:'지친 날엔 나를 위해 작은 선물이나 쉬는 시간을 마련한다.'},
+    {k:'G', q:'문제가 생기면 배울 점이나 다음 선택지를 먼저 떠올린다.'},
+    {k:'G', q:'완벽보다 “진행 중(Progress)”을 더 중요하게 본다.'},
+    {k:'N', q:'사소한 실수도 오래 곱씹으며 스스로를 탓한다.'},
+    {k:'N', q:'칭찬보다 부족한 점에 먼저 시선이 간다.'},
+    {k:'A', q:'불편한 감정이 올라오면 대화를 미루거나 피한다.'},
+    {k:'A', q:'갈등 상황을 떠올리면 “그냥 넘어가자”가 자주 떠오른다.'},
+    {k:'K', q:'요즘의 나에게 “충분히 잘하고 있어”라는 말을 해주고 싶다.'},
+    {k:'G', q:'작은 시도라도 해보면 마음이 한결 가벼워진다.'},
+    {k:'N', q:'“왜 이것밖에 못 했지?”와 같은 말이 머릿속에서 맴돈다.'},
+    {k:'A', q:'힘든 감정을 말로 표현하는 일이 어렵다.'}
+  ];
 
-  <!-- 폰트 & 공통 스타일 -->
-  <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-  <!-- 상단 고정 메인 버튼 -->
-  <a class="top-main-btn" href="../index.html" aria-label="메인으로">
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
-    </svg>
-    <span>메인으로</span>
-  </a>
+  // 필수 DOM
+  const stepLabel = document.getElementById('stepLabel');
+  const barFill   = document.getElementById('barFill');
+  const qText     = document.getElementById('qText');
+  const wrap      = document.getElementById('choiceWrap');
+  const card      = document.getElementById('card');
+  const resultBox = document.getElementById('result');
+  const prevBtn   = document.getElementById('prev');
+  const skipBtn   = document.getElementById('skip');
 
-  <header>
-    <div class="logo">
-      <!-- 아이콘: /assets/mindtalk.png (없으면 mongsil.png로 대체) -->
-      <img src="../assets/mindtalk.png" alt="몽실 대화 아이콘"
-           onerror="this.onerror=null; this.src='../assets/mind.png'">
-      <span>나는 나에게 무슨 말을 하고 있을까?</span>
-    </div>
-    <p class="subtitle">12문항 · 감정 대화형 · 마음 리마인드</p>
-  </header>
+  if(!stepLabel||!barFill||!qText||!wrap||!card||!resultBox){
+    console.error('[mindtalk] 필수 DOM 없음');
+    qText.textContent = '로딩 오류: 필수 요소 누락';
+    return;
+  }
 
-  <main class="test">
-    <div class="meta">
-      <div id="stepLabel">1 / 12</div>
-      <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
-    </div>
+  let idx=0;
+  const score={K:0,G:0,N:0,A:0};
+  const ans=[]; const times=[]; let startTime=Date.now();
 
-    <section class="card-q" id="card">
-      <p class="q-text" id="qText">질문 로딩 중…</p>
-      <div class="choices" id="choiceWrap"></div>
-      <div class="navs">
-        <button id="prev" class="start ghost" type="button">← 이전</button>
-        <button id="skip" class="start ghost" type="button">건너뛰기</button>
-      </div>
-      <p class="note">* 자기 인식·감정 탐색용 도구이며, 임상 진단이 아닙니다.</p>
-    </section>
+  function render(){
+    stepLabel.textContent = `${idx+1} / ${Q.length}`;
+    barFill.style.width   = `${(idx/Q.length)*100}%`;
+    qText.textContent     = Q[idx].q;
+    wrap.innerHTML = `
+      <button class="choice" data-s="4" type="button">매우 그렇다</button>
+      <button class="choice" data-s="3" type="button">그렇다</button>
+      <button class="choice" data-s="2" type="button">보통이다</button>
+      <button class="choice ghost" data-s="1" type="button">아니다</button>
+      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
+    const prevSel = ans[idx];
+    if(prevSel!==undefined){
+      [...wrap.children].forEach(b=>{ if(+b.dataset.s===prevSel) b.classList.add('selected');});
+    }
+    [...wrap.children].forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        [...wrap.children].forEach(c=>c.classList.remove('selected'));
+        btn.classList.add('selected');
+        setTimeout(()=>choose(+btn.dataset.s),160);
+      });
+    });
+    startTime=Date.now();
+  }
 
-    <section id="result" style="display:none"></section>
-  </main>
+  const weight = s=>{
+    if(s<1) return 0.9; if(s<4) return 1.0; if(s<8) return 1.15; return 1.1;
+  };
 
-  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
+  function choose(v){
+    const elapsed=(Date.now()-startTime)/1000;
+    times[idx]=elapsed;
+    const k=Q[idx].k;
+    const w=weight(elapsed);
+    const adjusted = v + (v*(w-1)*0.2);
+    score[k]+=adjusted; ans[idx]=v;
+    next();
+  }
+  function next(){
+    idx++; if(idx<Q.length) render(); else finish();
+  }
+  prevBtn.addEventListener('click',()=>{
+    if(idx===0) return; idx--;
+    score.K=score.G=score.N=score.A=0;
+    for(let i=0;i<idx;i++){
+      const v=ans[i]??0, k=Q[i].k, el=times[i]??4;
+      const w=weight(el); score[k]+= v + (v*(w-1)*0.2);
+    }
+    render();
+  });
+  skipBtn.addEventListener('click',()=>{ ans[idx]=0; times[idx]=(Date.now()-startTime)/1000; next(); });
 
-  <!-- 공통 안정화 -->
-  <script src="../js/error-proof.js" defer></script>
-
-  <!-- ✅ 정확한 경로/파일명(.js 확장자 필수) -->
-  <script src="../js/mindtalk.js?v=3" defer></script>
-</body>
-</html>
+  const TYPE={
+    K_ONLY:{title:'🍵 따뜻한 응원가',quote:'“괜찮아, 오늘의 나로 충분해.”',desc:'자기연민과 다정함이 기본값. 실패를 배움으로 바꾸는 힘.',remind:'하루 한 번 “작은 휴식 알람”을 넣어 주세요.'},
+    G_ONLY:{title:'🌱 성장 격려가',quote:'“어제보다 한 걸음이면 돼.”',desc:'현실적 낙관주의자. 문제를 분해해 다음 행동으로 연결.',remind:'멈춤도 성장이에요. 쉬는 시간도 계획에!'},
+    N_ONLY:{title:'🪞 내면 비평가',quote:'“잘해야 하는데… 아직 부족해.”',desc:'기준이 높고 책임감이 큰 타입. 이미 충분히 해낸 점도 많아요.',remind:'“왜 못했지?” → “오늘 해낸 한 가지는?”으로 바꾸기'},
+    A_ONLY:{title:'🫧 회피 방어가',quote:'“일단 넘기자… 나중에.”',desc:'안전을 우선하며 감정을 천천히 다룸.',remind:'이름 붙이기 → 한 줄 기록 → 10분 산책 순서로 아주 작게'},
+    KG:{title:'🌤 현실 응원가',quote:'“다정하게, 그리고 꾸준하게.”',desc:'자기다정 + 실행력의 좋은 조합.',remind:'과한 계획은 줄이고 휴식도 “계획”에 넣기'},
+    KN:{title:'🧭 엄격 응원가',quote:'“다정하지만 기준은 분명히.”',desc:'다정함 속 엄격함. 기준을 “구체화”하면 편해져요.',remind:'하루 목표 최대 3개, 완료 기준을 문장으로'},
+    GA:{title:'🌈 유연 성장가',quote:'“천천히, 하지만 멈추지 않기.”',desc:'회피를 인지하면서 작게 전진.',remind:'5분만 해보기 규칙'},
+    NA:{title:'⛅ 균형 탐색가',quote:'“엄격함과 안전 사이에서 길 찾는 중.”',desc:'부담이 클수록 작게·구체적으로.',remind:'“오늘의 최소 승리 1가지” 찾기'}
+  };
+  function classify(sc){
+    const arr=Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+    const [k1,v1]=arr[0],[k2,v2]=arr[1]; const diff=v1-v2;
+    const STRICT=3.2; if(diff>=STRICT) return `${k1}_ONLY`;
+    const pair=(k1+k2).split('').sort().join('');
+    if(pair==='GK') return 'KG'; if(pair==='KN') return 'KN';
+    if(pair==='AG') return 'GA'; if(pair==='AN') return 'NA';
+    return `${k1}_ONLY`;
+  }
+  function labelFor(p){ return p>=0.75?'높음':(p>=0.5?'중간':'낮음');}
+  function meters(sc){
+    const max=12; const order=[['K','따뜻함'],['G','성장'],['N','비평'],['A','회피']];
+    return order.map(([k,name])=>{
+      const pct=Math.max(0,Math.min(1,sc[k]/max)); const w=Math.round(pct*100);
+      const tag=labelFor(pct);
+      return `<div style="margin:6px 0">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${name}</span><span class="pill" aria-label="${w}%">${tag}</span>
+        </div>
+        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
+          <span style="display:block;height:100%;width:${w}%;background:var(--mint-500)"></span>
+        </div></div>`;
+    }).join('');
+  }
+  function finish(){
+    card.style.display='none'; barFill.style.width='100%';
+    const key=classify(score); const info=TYPE[key]||TYPE.K_ONLY;
+    document.getElementById('result').innerHTML = `
+      <div class="result-card">
+        <div class="result-hero">
+          <img src="../assets/mindtalk.png" alt="${info.title}"
+               onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+          <div><div class="result-title">${info.title}</div>
+               <div class="result-desc">${info.quote}</div></div>
+        </div>
+        <p style="margin:10px 0">${info.desc}</p>
+        <div style="margin-top:8px">${meters(score)}</div>
+        <div class="result-section" style="margin-top:10px">
+          <div class="pill">오늘의 마음 리마인드</div>
+          <p style="margin:8px 0">${info.remind}</p>
+        </div>
+        <div class="result-actions">
+          <a class="start" href="../index.html">메인으로</a>
+          <button class="start" onclick="location.reload()">다시 테스트</button>
+        </div>
+      </div>`;
+    document.getElementById('result').style.display='block';
+  }
+  render();
+});
+</script>
