@@ -175,4 +175,109 @@ document.addEventListener('DOMContentLoaded', () => {
   const GAP_STRICT = 3.2;     // 단일 성향으로 볼 최소 격차
   const GAP_TIE    = 1.2;     // 상위2축이 너무 근접할 때(균형 쏠림 방지)
 
-  function pick
+  function pickKey(sc){
+    const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+    const [k1,v1] = arr[0]; const [k2,v2] = arr[1];
+    let diff = v1-v2;
+
+    // 균형 편중이면 soft tiebreak: k1, k2 관련 항목 중 아직 2문항 랜덤 보정
+    if(diff < GAP_TIE){
+      const left = Q.map((q,i)=>({i, ...q})).filter(q=>q.k===k1 || q.k===k2);
+      const remain = left.filter(x=>ans[x.i]===undefined);
+      const pick = remain.slice(0,2); // 남은 게 없으면 패스(이미 끝난 시점이면 의미 없음)
+      pick.forEach(p=>{
+        // 가벼운 가중치 오프셋(선택 뒤엎지 않음)
+        score[p.k] += 0.4;
+      });
+      // 재정렬
+      const arr2 = Object.entries(score).sort((a,b)=>b[1]-a[1]);
+      diff = arr2[0][1]-arr2[1][1];
+      return {k1:arr2[0][0], k2:arr2[1][0], diff};
+    }
+    return {k1, k2, diff};
+  }
+
+  // ---------- 상태 미터 (수치/%) 미표시, 상태 라벨만 ----------
+  function axisLabel(k, v){
+    // v는 내부 상대값 → 라벨만 반환
+    const nameMap = {A:'활동성',N:'새로움',C:'공감',S:'신중'};
+    const name = nameMap[k];
+    // 대략적 상태 라벨
+    const label = v>12 ? '강함'
+                : v>9  ? '높음'
+                : v>6  ? '중간'
+                : v>3  ? '온화'
+                : '차분';
+    return `${name} — ${label}`;
+  }
+  function meters(sc){
+    const max = 16; // 4문항*4
+    return ['A','N','C','S'].map(k=>{
+      const ratio = Math.max(0, Math.min(1, sc[k]/max));
+      return `
+        <div style="margin:8px 0">
+          <div style="font-weight:700;display:flex;justify-content:space-between">
+            <span>${axisLabel(k, sc[k])}</span>
+          </div>
+          <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
+            <span style="display:block;height:100%;width:${Math.round(ratio*100)}%;background:var(--mint-500)"></span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---------- 결과 ----------
+  function finish(){
+    card.style.display='none';
+    barFill.style.width='100%';
+
+    const {k1,k2,diff} = pickKey(score);
+    const key = [k1,k2].sort().join(''); // 조합키
+    const animal = MAP[key] || 'FOX';
+    const info = COPY[animal];
+    const img  = IMG[animal];
+
+    // 단일 성향 뱃지(수치표현 없이 상태로만)
+    const singleBadge = (diff >= GAP_STRICT)
+      ? `<div class="pill" title="응답 패턴이 한 축으로 충분히 치우쳤어요.">단일 성향 뚜렷</div>` : '';
+
+    resultBox.innerHTML = `
+      <div class="result-card">
+        <div class="result-hero">
+          <img src="${img}" alt="${info.title}" onerror="this.style.display='none'">
+          <div>
+            <div class="result-title">${info.title}</div>
+            <div class="result-desc">${info.quote}</div>
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${singleBadge}</div>
+          </div>
+        </div>
+
+        <p style="margin:10px 0">${info.desc}</p>
+
+        <div class="soft-box" style="margin:10px 0">
+          <b>감정상태 요약</b>
+          <ul style="margin:6px 0 0 18px">
+            ${info.mood.map(m=>`<li>${m}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div class="soft-box" style="margin:10px 0">
+          <b>마음 리마인드</b>
+          <ul style="margin:6px 0 0 18px">
+            ${info.remind.map(m=>`<li>${m}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div style="margin-top:10px">${meters(score)}</div>
+
+        <div class="result-actions">
+          <a class="start" href="../index.html">메인으로</a>
+          <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
+        </div>
+      </div>`;
+    resultBox.style.display='block';
+  }
+
+  // 시작
+  render();
+});
