@@ -1,296 +1,165 @@
 /* ===================================================
- * 내가 나에게 하고 싶은 말은? (5지선다 + 시간 가중치 ±20%)
- * ---------------------------------------------------
- * - 답변: 0~4 (전혀 아니다 / 아니다 / 보통 / 그렇다 / 매우 그렇다)
- * - 선택 점수 우선, 응답시간은 보조(±20% 캡, 뒤엎지 않음)
- * - 분류: 6유형 (위로/다독/격려/정리/집중/재시작)
- * - 결과 화면: 점수/숫자 미노출 → 상태 설명 + 마음 리마인드 + 배지형 요약
+ * mindtalk.js — 나는 나에게 무슨 말을 하고 있을까?
+ * 몽실몽실 심리테스트 제작 프롬프트 v2025.2 — 마음 리마인드 버전
  * =================================================== */
-
 document.addEventListener('DOMContentLoaded', () => {
-  const Q = [
-    // R : Reassure(위로) — 따뜻한 안심, 수용
-    {k:'R', q:'오늘의 나는 “괜찮아, 여기까지도 잘 왔어”라는 말을 듣고 싶다.'},
-    {k:'R', q:'실수/지연이 있어도 스스로를 이해하려는 편이다.'},
-    // C : Compassion(다독) — 자기연민, 부드러운 톤
-    {k:'C', q:'요즘의 나는 내 마음을 토닥이는 문장이 필요하다.'},
-    {k:'C', q:'내 감정을 있는 그대로 인정하는 편이다.'},
-    // E : Encourage(격려) — 에너지/용기/한 걸음
-    {k:'E', q:'작게라도 “시작하자!” 같은 밀어주는 말이 도움이 된다.'},
-    {k:'E', q:'내가 정한 목표를 향해 다시 달려보고 싶다.'},
-    // G : Ground(정리) — 구조/정돈/우선순위
-    {k:'G', q:'머릿속을 정리하고 우선순위를 다시 세우고 싶다.'},
-    {k:'G', q:'할 일을 작은 단위로 쪼개면 마음이 가벼워진다.'},
-    // F : Focus(집중) — 산만 회수, 몰입
-    {k:'F', q:'산만함을 줄이고 핵심에만 집중하고 싶다.'},
-    {k:'F', q:'쉬운 일부터 몰아치면 몰입이 살아난다.'},
-    // B : Begin(재시작) — 리셋/처음처럼/새 판
-    {k:'B', q:'새 페이지를 여는 마음으로 다시 시작하고 싶다.'},
-    {k:'B', q:'과거는 접어두고 오늘의 한 칸부터 채우고 싶다.'},
-    // 혼합 성향 확인용(각 축 보조 신호)
-    {k:'R', q:'요즘 내게 가장 필요한 건 “걱정 말자”는 숨 고르기다.'},
-    {k:'E', q:'스스로를 북돋는 한마디가 내 발걸음을 가볍게 한다.'},
-    {k:'G', q:'정리된 일정표만 있어도 마음이 한결 편하다.'}
-  ]; // 총 15문항
+  console.log("mindtalk.js loaded");
 
-  const stepLabel = document.getElementById('stepLabel');
-  const barFill   = document.getElementById('barFill');
-  const qText     = document.getElementById('qText');
-  const wrap      = document.getElementById('choiceWrap');
-  const card      = document.getElementById('card');
-  const resultBox = document.getElementById('result');
-  const prevBtn   = document.getElementById('prev');
-  const skipBtn   = document.getElementById('skip');
+  const Q = [
+    {k:'I', q:'요즘 나를 위로하는 말보다, 스스로를 다그치는 말이 많다.'},
+    {k:'I', q:'혼자 있는 시간이 불안하게 느껴질 때가 있다.'},
+    {k:'E', q:'감정 표현을 솔직하게 하는 편이다.'},
+    {k:'E', q:'주변 사람의 반응이 내 기분에 크게 영향을 준다.'},
+    {k:'M', q:'내가 느끼는 감정을 명확히 구분하기 어렵다.'},
+    {k:'M', q:'감정보다는 상황 논리에 맞춰 행동하려는 편이다.'},
+    {k:'S', q:'작은 실수에도 쉽게 자책한다.'},
+    {k:'S', q:'스스로를 칭찬하는 말은 어색하거나 민망하다.'},
+    {k:'B', q:'다른 사람을 위로할 때는 말이 잘 나오지만, 내게는 어렵다.'},
+    {k:'B', q:'마음이 복잡할 때 나만의 정리 루틴(산책, 기록 등)이 있다.'},
+    {k:'C', q:'감정이 올라올 때 잠시 멈추고 숨을 고르려 한다.'},
+    {k:'C', q:'하루의 끝에 “그래도 괜찮아”라고 되뇌어 본 적 있다.'}
+  ];
 
   let idx = 0;
-  const ans   = [];                 // 원점수(0~4)
-  const times = [];                 // 응답시간(초)
-  let startTime = Date.now();
+  const score = {I:0,E:0,M:0,S:0,B:0,C:0};
+  const counts = {I:0,E:0,M:0,S:0,B:0,C:0};
+  let start = Date.now();
+  const ans = [];
 
-  const score  = {R:0,C:0,E:0,G:0,F:0,B:0};
-  const counts = {R:0,C:0,E:0,G:0,F:0,B:0};
+  const step = document.getElementById('stepLabel');
+  const bar  = document.getElementById('barFill');
+  const qTxt = document.getElementById('qText');
+  const wrap = document.getElementById('choiceWrap');
+  const card = document.getElementById('card');
+  const result = document.getElementById('result');
+  const prev = document.getElementById('prev');
+  const skip = document.getElementById('skip');
 
   function render(){
-    stepLabel.textContent = `${idx+1} / ${Q.length}`;
-    barFill.style.width   = `${(idx/Q.length)*100}%`;
-    qText.textContent     = Q[idx].q;
-
+    step.textContent = `${idx+1} / ${Q.length}`;
+    bar.style.width = `${(idx/Q.length)*100}%`;
+    qTxt.textContent = Q[idx].q;
     wrap.innerHTML = `
-      <button class="choice" data-s="4" type="button">매우 그렇다</button>
-      <button class="choice" data-s="3" type="button">그렇다</button>
-      <button class="choice" data-s="2" type="button">보통이다</button>
-      <button class="choice ghost" data-s="1" type="button">아니다</button>
-      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
+      <button class="choice" data-s="4">매우 그렇다</button>
+      <button class="choice" data-s="3">그렇다</button>
+      <button class="choice" data-s="2">보통이다</button>
+      <button class="choice ghost" data-s="1">아니다</button>
+      <button class="choice ghost" data-s="0">전혀 아니다</button>
     `;
-
-    const prevSel = ans[idx];
-    if(prevSel !== undefined){
-      Array.from(wrap.children).forEach(b=>{
-        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
-      });
-    }
-
     Array.from(wrap.children).forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        Array.from(wrap.children).forEach(c=>c.classList.remove('selected'));
-        btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)), 160);
-      });
+      btn.onclick=()=>choose(Number(btn.dataset.s));
     });
-
-    startTime = Date.now();
+    start = Date.now();
   }
 
-  function getWeight(sec){
-    // 0.8~1.2 범위, 선택은 절대 우선
-    if(sec < 1)  return 0.9;
-    if(sec < 4)  return 1.0;
-    if(sec < 8)  return 1.15;
+  function weight(sec){
+    if(sec<1)return 0.9;
+    if(sec<4)return 1.0;
+    if(sec<8)return 1.15;
     return 1.1;
   }
 
   function choose(s){
-    const elapsed = (Date.now()-startTime)/1000;
-    times[idx] = elapsed;
-
-    const k = Q[idx].k;
-    const w = getWeight(elapsed);
-
-    ans[idx] = s;
-    const adjusted = s + (s * (w - 1) * 0.2); // 보조(±20% 캡)
-    score[k]  += adjusted;
-    counts[k] += 1;
-
+    const elapsed=(Date.now()-start)/1000;
+    const k=Q[idx].k;
+    const w=weight(elapsed);
+    ans[idx]=s;
+    const adj=s+(s*(w-1)*0.2);
+    score[k]+=adj;
+    counts[k]+=1;
     next();
   }
 
   function next(){
     idx++;
-    if(idx < Q.length) render();
+    if(idx<Q.length)render();
     else finish();
   }
 
-  prevBtn?.addEventListener('click', ()=>{
-    if(idx===0) return;
-    idx--;
-    recalc(idx);
-    render();
-  });
+  prev.onclick=()=>{if(idx>0){idx--;render();}};
+  skip.onclick=()=>{ans[idx]=2;next();};
 
-  skipBtn?.addEventListener('click', ()=>{
-    ans[idx]   = 0;
-    times[idx] = (Date.now()-startTime)/1000;
-    next();
-  });
-
-  function recalc(end){
-    // 되돌아감 안전재계산
-    for(const k of Object.keys(score)){ score[k]=0; counts[k]=0; }
-    for(let i=0;i<end;i++){
-      const s = ans[i] ?? 0;
-      const k = Q[i].k;
-      const w = getWeight(times[i] ?? 0);
-      const adjusted = s + (s * (w - 1) * 0.2);
-      score[k]  += adjusted;
-      counts[k] += 1;
+  function normalize(){
+    const avg={};
+    for(const k in score){
+      const max=counts[k]*4||1;
+      avg[k]=score[k]/max;
     }
-  }
-
-  /* ---------- 분류 로직 ---------- */
-  const TYPES = {
-    R: { key:'R', title:'☁️ 위로형',     quote:'“지금의 너도 충분해.”' },
-    C: { key:'C', title:'🌿 다독형',     quote:'“느긋하게, 내 편으로.”' },
-    E: { key:'E', title:'☀️ 격려형',     quote:'“작게라도, 지금 시작!”' },
-    G: { key:'G', title:'📋 정리형',     quote:'“정돈하면 마음도 가벼워져.”' },
-    F: { key:'F', title:'🎯 집중형',     quote:'“핵심 한 가지에 몰입.”' },
-    B: { key:'B', title:'🔄 재시작형',   quote:'“오늘 페이지부터 새로.”' },
-    // 조합(상위 2개, 알파벳순 병합키)
-    'C+R': { key:'CR', title:'☁️🌿 위로–다독형', quote:'“괜찮다고 말해주고, 내 어깨를 토닥.”' },
-    'E+B': { key:'EB', title:'☀️🔄 격려–재시작형', quote:'“지금부터의 한 걸음.”' },
-    'G+F': { key:'GF', title:'📋🎯 정리–집중형', quote:'“정돈하고 찌릿, 한 점으로.”' },
-    'R+E': { key:'RE', title:'☁️☀️ 위로–격려형', quote:'“먼저 안심, 이어서 추진.”' },
-    'C+G': { key:'CG', title:'🌿📋 다독–정리형', quote:'“부드럽게 감싸고, 조용히 정돈.”' },
-    'F+B': { key:'FB', title:'🎯🔄 집중–재시작형', quote:'“핵심만 쥐고 새로 시작.”' },
-  };
-
-  const LONG = {
-    R: `마음의 온도를 최저치로 낮추지 않고 지켜내는 능력이 좋아요. 
-부족했던 날에도 “여기까지 온 나”를 포기하지 않는 태도가 당신의 안전망이에요. 
-지금 필요한 말은 비교나 압박이 아니라 “괜찮아, 다음 장면으로 가자”라는 안심이에요.`,
-    C: `당신은 스스로의 마음을 다정하게 돌볼 줄 아는 사람입니다. 
-감정을 밀어내지 않고 품에 올려놓을 때 회복력이 자라요. 
-조급함 대신 속도 조절—이게 당신의 페이스를 지켜줍니다.`,
-    E: `당신의 에너지는 “작은 출발”에서 가장 잘 살아납니다. 
-완벽한 계획보다 10분의 행동, 1줄의 기록, 1개의 체크. 
-격려 한마디가 ‘지금’의 가속 페달이 돼요.`,
-    G: `머릿속 구름을 걷어내는 정리력, 그 자체가 마음의 기압을 안정시켜요. 
-해야 할 일을 작게 쪼개면 부담이 줄고, 우선순위를 세우면 발걸음이 가벼워져요.`,
-    F: `산만함을 모아 한 점으로 응축하는 능력이 돋보여요. 
-핵심 1가지만 정하고 짧게 몰입하면 성취감이 빠르게 돌아옵니다. 
-집중은 ‘양’보다 ‘각도’의 문제예요.`,
-    B: `“다시”의 용기를 아는 사람. 과거의 실수를 동력으로 바꾸는 재시작 감각이 있어요. 
-오늘 페이지를 채우는 순간, 이미 새로운 이야기가 시작되고 있습니다.`,
-
-    CR: `안심의 따뜻함과 다독임의 부드러움이 함께 흐르는 조합이에요. 
-스스로에게 친절할수록 꺼진 등불이 다시 켜집니다. 
-오늘의 당신에게 필요한 건 “괜찮아”와 “조금 쉬어도 돼.”`,
-    EB: `격려의 불꽃과 새출발의 바람이 합쳐진 타입. 
-완벽주의를 잠시 내려놓고 ‘지금 가능한 최소 단위’로 리셋하면 추진력이 살아나요.`,
-    GF: `정리로 길을 만들고, 집중으로 추진하는 조합입니다. 
-칸반/체크리스트/타임블록처럼 도구와 함께할수록 성과가 빨라져요.`,
-    RE: `먼저 안심을 깔고, 그 위에 한 걸음을 더합니다. 
-“괜찮아” 다음에는 “지금부터”를 놓아보세요. 작은 행동이 흐름을 바꿔요.`,
-    CG: `다정한 시선으로 나를 보고, 필요한 구조를 가볍게 세우는 타입. 
-정돈은 완벽성이 아니라 ‘돌봄의 형식’이에요.`,
-    FB: `핵심만 남기고 새로 시작! ‘한 가지’와 ‘오늘’에 집중하면 재시작이 덜 무서워집니다. 
-리셋은 후퇴가 아니라 방향 재설정이에요.`
-  };
-
-  const REMIND = {
-    R: ['오늘의 숨: 4초 들이마시고 6초 내쉬기', '비교 금지—“나의 속도표”로 보기'],
-    C: ['감정 한 줄 기록(감정 · 상황 · 한마디)', '나에게 다정한 호칭 붙이기'],
-    E: ['10분 타이머 스타트', '작업 전 “시작 선언” 한 문장'],
-    G: ['체크리스트 3개만', '우선순위 A-1 표시'],
-    F: ['방해 요소 1개만 끄기(알림/탭)', '몰입 타이머 15분'],
-    B: ['오늘 페이지 1칸 채우기', '새 탭의 첫 줄 쓰기'],
-
-    CR: ['“괜찮아”를 입 밖으로—그리고 10분 산책', '따뜻한 차 한 잔 + 할 일 1개만'],
-    EB: ['작게 시작(5분 규칙)', '오늘의 “첫 체크”를 가장 쉬운 일로'],
-    GF: ['To-Do 3개 → 1개로 압축', '타임블록 25분 × 1회'],
-    RE: ['숨 고르고, 한 줄 쓰고, 버튼 누르기', '“지금부터”라고 속삭이기'],
-    CG: ['감정 라벨링 후, 일정표 3칸만', '정돈은 80%면 충분'],
-    FB: ['핵심 목표 한 줄, 리셋 선언 한 줄', '새 파일/새 페이지로 시작']
-  };
-
-  function classify(sc){
-    // 내부 점수는 UI 노출하지 않음
-    const arr = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
-    const [k1,v1] = arr[0];
-    const [k2,v2] = arr[1];
-    const diff    = v1 - v2;
-
-    const STRICT = 2.8; // 단일로 볼 충분 격차(튜닝)
-    if(diff >= STRICT) return { key:k1, combo:false };
-
-    // 조합 키 (알파벳순)
-    const pair = [k1,k2].sort().join('+');
-    if(TYPES[pair]) return { key:pair, combo:true };
-
-    // 폴백: 상위 1개
-    return { key:k1, combo:false };
-  }
-
-  function stateBadges(k){
-    // 상태형 배지 문구
-    const map = {
-      R:['안심','수용'],
-      C:['다정','회복'],
-      E:['활력','시작'],
-      G:['정돈','구조'],
-      F:['몰입','핵심'],
-      B:['리셋','새장면'],
-      'C+R':['다정','안심'],
-      'E+B':['시작','추진'],
-      'G+F':['정돈','집중'],
-      'R+E':['안심','격려'],
-      'C+G':['다독','정리'],
-      'F+B':['집중','재시작']
-    };
-    const words = map[k] || ['마음','균형'];
-    return words.map(w=>`<div class="pill">${w}</div>`).join('');
-  }
-
-  function heroImage(){
-    // mindtalk 전용 심볼
-    return `../assets/mind.png`;
+    return avg;
   }
 
   function finish(){
-    card.style.display = 'none';
-    barFill.style.width = '100%';
+    card.style.display='none';
+    bar.style.width='100%';
+    const avg=normalize();
+    const sorted=Object.entries(avg).sort((a,b)=>b[1]-a[1]);
+    const [k1,v1]=sorted[0];
+    const [k2,v2]=sorted[1];
+    const diff=v1-v2;
+    const dom=diff>0.25?'strong':'mix';
+    const type=dom==='strong'?k1:[k1,k2].sort().join('');
 
-    const { key } = classify(score);
-    const t = TYPES[key] || TYPES.R;
-    const long = LONG[key] || LONG.R;
-    const remind = REMIND[key] || REMIND.R;
+    const TYPE={
+      I:{title:'🌧 사색가형',quote:'“조용히 스스로를 들여다보는 중이에요.”',
+          desc:'당신의 마음은 깊은 물처럼 차분합니다. 내면을 탐색하며 스스로의 언어를 찾고 있네요.',
+          state:'오늘의 마음: 흐림 속에서 맑음을 기다리는 시간이에요.',
+          remind:'가끔은 생각 대신 감각을 믿어보세요. 따뜻한 차 한 잔으로 마음을 녹여요.'},
+      E:{title:'🌞 활력 전달형',quote:'“내 에너지는 주변에 스며드는 빛.”',
+          desc:'당신은 밝고 따뜻한 사람입니다. 다른 이들의 마음에 온기를 전하며 세상을 조금씩 물들입니다.',
+          state:'오늘의 마음: 햇살처럼 긍정적인 파동이 도는 하루예요.',
+          remind:'당신의 온기는 충분해요. 잠시 멈춰 그 따스함을 본인에게도 나눠주세요.'},
+      M:{title:'🌤 균형 탐색형',quote:'“마음과 생각 사이, 나는 그 중간에서 길을 찾는다.”',
+          desc:'이성과 감정을 모두 존중하는 사람입니다. 고민은 많지만, 그 안에서 조화를 찾고 있습니다.',
+          state:'오늘의 마음: 잔잔한 구름 사이로 빛이 비치는 중이에요.',
+          remind:'결정이 어려울 땐 “지금 이 순간 가장 편안한 선택”을 해도 괜찮아요.'},
+      S:{title:'🌧 자책 완화형',quote:'“괜찮아, 다음에 잘하면 돼.”',
+          desc:'스스로에게 조금은 엄격하지만 진심 어린 사람입니다. 완벽보다 꾸준함이 당신의 힘이에요.',
+          state:'오늘의 마음: 잠시 비가 오지만, 이 비는 성장의 물이에요.',
+          remind:'실수는 과정이에요. 그만큼 당신은 움직이고 있다는 증거랍니다.'},
+      B:{title:'🌈 위로 전달형',quote:'“위로는 나에서 시작돼, 너에게 닿는다.”',
+          desc:'다른 사람의 감정을 잘 읽고, 공감하는 당신은 세상에 부드러운 색을 입히는 사람입니다.',
+          state:'오늘의 마음: 무지갯빛 감정이 피어나고 있어요.',
+          remind:'타인에게 주던 다정함을 오늘은 나에게 선물해보세요.'},
+      C:{title:'🌙 마음 안정형',quote:'“고요함은 나를 회복시킨다.”',
+          desc:'당신은 감정의 파도 속에서도 균형을 잃지 않습니다. 느림의 미학을 아는 현명한 사람입니다.',
+          state:'오늘의 마음: 잔잔한 밤하늘 아래 숨 고르기 중이에요.',
+          remind:'천천히, 그리고 꾸준히 — 그게 당신의 리듬이에요.'}
+    };
 
-    const html = `
+    const info = TYPE[type] || TYPE.M;
+    const bars = Object.entries(avg).map(([k,v])=>{
+      const name = ({I:'내면성',E:'표현력',M:'균형감',S:'자기비판',B:'공감력',C:'안정감'})[k];
+      const pct = Math.round(v*100);
+      let label='';
+      if(pct>75)label='높음';
+      else if(pct>50)label='적당함';
+      else label='낮음';
+      return `<div style="margin:6px 0">
+        <div style="display:flex;justify-content:space-between;font-weight:700"><span>${name}</span><span>${label}</span></div>
+        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
+          <span style="display:block;height:100%;width:${pct}%;background:var(--mint-500)"></span>
+        </div>
+      </div>`;
+    }).join('');
+
+    result.innerHTML=`
       <div class="result-card">
         <div class="result-hero">
-          <img src="${heroImage()}" alt="마음 카드" onerror="this.style.display='none'">
-          <div>
-            <div class="result-title">${t.title}</div>
-            <div class="result-desc">${t.quote}</div>
-            <div class="state-badges">${stateBadges(t.key)}</div>
-          </div>
+          <img src="../assets/brain.png" alt="${info.title}">
+          <div class="result-title">${info.title}</div>
+          <p class="result-quote">${info.quote}</p>
         </div>
-
-        <p style="margin:10px 0; line-height:1.6">${long}</p>
-
-        <div class="mind-brief" style="margin:10px 0; padding:10px; border:1px solid var(--mint-200); border-radius:12px; background:var(--mint-50)">
-          <div style="font-weight:800; margin-bottom:6px">오늘의 마음 상태</div>
-          <div class="mini-note">숫자 대신 상태로 요약했어요.</div>
-          <ul style="margin:8px 0 0 18px; line-height:1.6">
-            ${stateBadges(t.key).replaceAll('pill','').replaceAll('<div ','<li ').replaceAll('</div>','</li>')}
-          </ul>
-        </div>
-
-        <div class="mind-remind" style="margin-top:10px">
-          <div style="font-weight:800; margin-bottom:6px">🌿 마음 리마인드</div>
-          ${remind.map(s=>`<div class="pill">${s}</div>`).join('')}
-        </div>
-
+        <p>${info.desc}</p>
+        <p class="state">${info.state}</p>
+        <p class="remind">🌿 마음 리마인드: ${info.remind}</p>
+        <div class="bars">${bars}</div>
         <div class="result-actions">
           <a class="start" href="../index.html">메인으로</a>
           <button class="start" onclick="location.reload()">다시 테스트</button>
         </div>
-      </div>
-    `;
-
-    resultBox.innerHTML = html;
-    resultBox.style.display = 'block';
+      </div>`;
+    result.style.display='block';
   }
 
-  // 시작
   render();
 });
