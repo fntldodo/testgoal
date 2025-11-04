@@ -206,53 +206,63 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   }
 
-  function finish(){
-    card.style.display='none'; bar.style.width='100%';
-    const {type, tag, n}=classify();
-    const info=COPY[type] || COPY.FOX;
+function finish() {
+  card.style.display = 'none';
+  bar.style.width = '100%';
 
-    // 감정상태 요약(2줄)
-    const mood = [
-      `활동성 — ${label(n.A)}`,
-      `새로움 — ${label(n.N)}`,
-      `공감 — ${label(n.C)}`,
-      `신중 — ${label(n.S)}`
-    ];
-    const badge = tag==='dominant' ? `<div class="pill">단일 성향 또렷</div>` : `<div class="pill">두 성향의 조화</div>`;
+  const { type, tag, n } = classify();
+  const info = COPY[type] || COPY.FOX;
 
-    result.innerHTML=`
-      <div class="result-card">
-        <div class="result-hero">
-          <img src="../assets/animal.png" alt="${info.title}" onerror="this.src='../assets/mongsil.png'">
-          <div>
-            <div class="result-title">${info.title}</div>
-            <div class="result-desc">${info.quote}</div>
-            <div style="margin-top:6px">${badge}</div>
-          </div>
+  // ✅ 타입별 결과 이미지 자동 매핑
+  const imgMap = {
+    FOX: 'fox.png',
+    OTTER: 'otter.png',
+    CAT: 'cat.png',
+    DOLPHIN: 'dolphin.png',
+    PENGUIN: 'penguin.png',
+    OWL: 'owl.png'
+  };
+  const imgFile = imgMap[type] || 'fox.png';
+  const imgPath = `../assets/animal/${imgFile}`;
+
+  // ✅ 뱃지 텍스트
+  const badge =
+    tag === 'dominant'
+      ? `<div class="pill">단일 성향 또렷</div>`
+      : `<div class="pill">두 성향의 조화</div>`;
+
+  // ✅ 결과 렌더링
+  result.innerHTML = `
+    <div class="result-card" style="max-width:460px;margin:auto;">
+      <div class="result-hero"
+           style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
+        <img src="${imgPath}" 
+             alt="${info.title}" 
+             style="width:120px;height:120px;border-radius:20px;object-fit:contain;"
+             onerror="this.onerror=null;this.src='../assets/mongsil.png'">
+        <div style="text-align:left;min-width:180px;">
+          <div class="result-title">${info.title}</div>
+          <div class="result-desc" style="font-weight:500;">${info.quote}</div>
+          <div style="margin-top:6px">${badge}</div>
         </div>
+      </div>
 
-        <p style="margin:8px 0">${info.desc}</p>
+      <p style="margin:14px 0;line-height:1.6;">${info.desc}</p>
 
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
-          <div class="pill">${mood[0]}</div>
-          <div class="pill">${mood[1]}</div>
-          <div class="pill">${mood[2]}</div>
-          <div class="pill">${mood[3]}</div>
-        </div>
+      ${meters(n)}
 
-        ${meters(n)}
+      <div class="mind-remind" style="margin-top:14px;color:var(--text-soft);font-size:0.95rem;">
+        <b>🌿 마음 리마인드:</b> ${info.remind}
+      </div>
 
-        <div class="mind-remind" style="margin-top:8px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b> ${info.remind}
-        </div>
+      <div class="result-actions" style="margin-top:18px;display:flex;gap:10px;justify-content:center;">
+        <a class="start" href="../index.html">메인으로</a>
+        <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
+      </div>
+    </div>`;
+  result.style.display = 'block';
+}
 
-        <div class="result-actions">
-          <a class="start" href="../index.html">메인으로</a>
-          <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
-        </div>
-      </div>`;
-    result.style.display='block';
-  }
 
   // 시작
   render();
