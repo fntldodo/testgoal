@@ -1,107 +1,44 @@
-:root{
-  --mint-100:#E9F7F4; --mint-200:#CFEDE7; --mint-300:#B5E4DD;
-  --mint-400:#9BDACF; --mint-500:#7FD0C3;
-  --text:#1f3b39; --text-soft:#5b6b69; --card:#ffffff;
+/* ========== 카테고리 공통 구조 ========== */
+.choices .choice{
+  border-radius:14px;
+  padding:14px;
+  margin:8px 0;
+  font-weight:600;
+  border:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+  transition:background .2s ease, transform .06s ease;
+  color:var(--text-soft);
 }
+.choice:hover{ transform:scale(.99); }
 
-*{box-sizing:border-box}
-html,body{
-  margin:0;padding:0;
-  font-family:"Pretendard Variable",system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  color:var(--text); background:#fafafa
-}
+/* ========== ① 연애 (love) ========== */
+.love .choice:nth-child(5n+1){ background:#FFF1EA; }
+.love .choice:nth-child(5n+2){ background:#FFD8C4; }
+.love .choice:nth-child(5n+3){ background:#FFE6E1; }
+.love .choice:nth-child(5n+4){ background:#FFD1B5; }
+.love .choice:nth-child(5n+5){ background:#F5E1DC; }
+.love .choice.selected{ background:#FFBA9D; color:#fff; }
 
-header{padding:24px 16px 8px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
-.logo img{width:36px;height:36px;object-fit:contain}
-.subtitle{margin:8px 0 12px;color:var(--text-soft)}
+/* ========== ② 취미 (independence, energy, personality) ========== */
+.hobby .choice:nth-child(5n+1){ background:#EAF8F1; }
+.hobby .choice:nth-child(5n+2){ background:#FFFBE6; }
+.hobby .choice:nth-child(5n+3){ background:#C8F1E3; }
+.hobby .choice:nth-child(5n+4){ background:#FFF0B8; }
+.hobby .choice:nth-child(5n+5){ background:#F7FFEC; }
+.hobby .choice.selected{ background:#A5E3C5; color:#fff; }
 
-.cta{
-  appearance:none;border:none;background:var(--text);color:#fff;border-radius:999px;
-  padding:12px 16px;font-weight:800
-}
-.cta:hover{opacity:.9;cursor:pointer}
+/* ========== ③ 재미 (animal, mbti, weather) ========== */
+.fun .choice:nth-child(5n+1){ background:#EDF7FF; }
+.fun .choice:nth-child(5n+2){ background:#CFE9FF; }
+.fun .choice:nth-child(5n+3){ background:#F4EEFF; }
+.fun .choice:nth-child(5n+4){ background:#FFE6A8; }
+.fun .choice:nth-child(5n+5){ background:#E2F3FF; }
+.fun .choice.selected{ background:#A8D6FF; color:#fff; }
 
-/* 칩 스크롤 */
-.scroll-wrap{display:flex;align-items:center;gap:6px;margin-top:14px}
-.nav-btn{
-  height:44px;width:44px;border-radius:999px;background:#fff;border:1px solid var(--mint-300)
-}
-.nav-btn:hover{background:#fff;filter:brightness(0.98);cursor:pointer}
-.scroll-tests{
-  display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;
-  padding:8px;border:1px solid var(--mint-300);border-radius:12px;
-  background:#fff;height:60px;align-items:center;-webkit-overflow-scrolling:touch
-}
-.test-chip{
-  flex:0 0 auto;padding:10px 14px;border-radius:999px;background:var(--mint-100);
-  border:1px solid var(--mint-300);font-weight:700;color:var(--text)
-}
-.test-chip:active{transform:scale(0.98)}
-
-/* 카드 그리드 */
-main{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px}
-.card{background:#fff;border:1px solid var(--mint-200);border-radius:16px;padding:14px}
-.card:focus-within,.card:hover{box-shadow:0 6px 16px rgba(0,0,0,.06)}
-.card .chip{display:inline-block;font-size:12px;background:var(--mint-100);border:1px solid var(--mint-300);border-radius:999px;padding:6px 10px;margin-bottom:6px}
-.card .anim{display:flex;justify-content:center;align-items:center;height:160px;margin-bottom:6px}
-.card .anim img{width:160px;height:160px;object-fit:contain}
-.card h3{margin:4px 0 6px}
-.card .desc{color:var(--text-soft);margin:0 0 10px}
-.card .start{
-  appearance:none;border:none;background:var(--text);color:#fff;border-radius:12px;padding:10px 12px;font-weight:800
-}
-.card .start:hover{opacity:.95;cursor:pointer}
-
-footer{padding:24px 16px;color:var(--text-soft)}
-
-/* 상단 고정 메인 버튼(테스트 페이지용) */
-.top-main-btn{
-  position:fixed;top:14px;right:14px;z-index:9999;
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 14px;border-radius:999px;
-  background:#ffffffcc;backdrop-filter:blur(6px);
-  border:1px solid var(--mint-300);
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
-  color:#1f3b39;font-weight:800;text-decoration:none;
-  transition:transform .15s ease, box-shadow .2s ease;
-}
-.top-main-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12);background:#fff}
-@media(max-width:480px){
-  .top-main-btn{top:10px;right:10px;padding:9px 12px}
-  .top-main-btn span{font-size:14px}
-}
-
-/* 테스트 공통 레이아웃 */
-main.test{max-width:820px;margin:0 auto;padding:16px}
-.meta{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
-.bar{flex:1;height:8px;background:var(--mint-100);border-radius:999px;margin-left:10px;overflow:hidden;border:1px solid var(--mint-200)}
-.bar span{display:block;height:100%;width:0;background:var(--mint-500);transition:width .2s}
-.card-q{background:#fff;border:1px solid var(--mint-200);border-radius:16px;padding:14px}
-.q-text{font-weight:800;margin:0 0 8px}
-.choices{display:grid;gap:8px}
-.choice{appearance:none;border:1px solid var(--mint-300);background:var(--mint-100);border-radius:12px;padding:12px;font-weight:700}
-.choice.ghost{background:#fff}
-.choice.selected{outline:2px solid var(--mint-500)}
-.navs{display:flex;gap:8px;margin-top:8px}
-.start.ghost{background:#fff;color:var(--text);border:1px solid var(--mint-300)}
-
-/* 결과 공통(요소 재사용) */
-.result-card{
-  background: #fff;border:1px solid rgba(94,73,61,0.15);
-  border-radius: 1rem;padding: 20px;max-width: 640px;margin: 12px auto
-}
-.result-hero{display:flex;gap:12px;align-items:center}
-.result-hero img{width:80px;height:80px;object-fit:contain}
-.result-title{font-weight:900;font-size:18px}
-.result-desc{color:var(--text-soft)}
-.pill{
-  display:inline-block;background:#f6f4f2;border:1px solid rgba(94,73,61,0.15);
-  border-radius:999px;padding:6px 10px;font-weight:700;margin-right:6px;margin-bottom:6px
-}
-.state-meter{display:grid;gap:6px;margin-top:8px}
-.state-meter .row{display:flex;justify-content:space-between;align-items:center}
-.state-meter .bar{flex:1;height:8px;background:var(--mint-100);border:1px solid var(--mint-200);border-radius:999px;margin:0 8px;overflow:hidden}
-.state-meter .fill{display:block;height:100%;width:0;background:var(--mint-400)}
-.result-actions{display:flex;gap:8px;margin-top:10px;justify-content:center}
-.result-actions .start{border:none}
+/* ========== ④ 심리건강 (mindtalk, plant) ========== */
+.mind .choice:nth-child(5n+1){ background:#E8F6F0; }
+.mind .choice:nth-child(5n+2){ background:#D8EFE7; }
+.mind .choice:nth-child(5n+3){ background:#F9F9F7; }
+.mind .choice:nth-child(5n+4){ background:#C5E6D6; }
+.mind .choice:nth-child(5n+5){ background:#E3F2EC; }
+.mind .choice.selected{ background:#9DD8C4; color:#fff; }
