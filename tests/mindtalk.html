@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>마인드톡 - 몽실몽실</title>
+  <title>마인드톡(한마디) - 몽실몽실</title>
 
-  <!-- AdSense (head 필수, 1회만) -->
+  <!-- AdSense (head 필수 1회) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
   <!-- Pretendard -->
@@ -25,12 +25,10 @@
 
   <header>
     <div class="logo">
-      <!-- mindtalk 전용 아이콘이 있으면 assets/mindtalk.png, 없으면 fallback -->
-      <img src="../assets/mindtalk.png" alt="마인드톡"
-           onerror="this.onerror=null; this.src='../assets/plant.png'">
-      <span>마인드톡</span>
+      <img src="../assets/mindtalk.png" alt="마인드톡" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+      <span>마인드톡(한마디)</span>
     </div>
-    <p class="subtitle">12문항 · 한 문장으로 나에게 건네는 말 · 균형형 과다 방지</p>
+    <p class="subtitle">12문항 · 즉시 위로 문장 생성 · 마음 리마인드 포함</p>
   </header>
 
   <main class="test">
@@ -39,24 +37,24 @@
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
-    <section class="card-q" id="card">
+    <!-- 카테고리: 심리건강 -->
+    <section class="card-q mind" id="card">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
       <div class="navs">
-        <button id="prev" class="start ghost" type="button" aria-label="이전">← 이전</button>
-        <button id="skip" class="start ghost" type="button" aria-label="건너뛰기">건너뛰기</button>
+        <button id="prev" class="start ghost" type="button">← 이전</button>
+        <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-      <p class="note">* 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.</p>
+      <p class="note">* 자기 이해용 도구이며, 임상 진단이 아닙니다.</p>
     </section>
 
-    <section id="result" style="display:none"></section>
+    <section id="result" class="mind" style="display:none"></section>
   </main>
 
-  <footer>© 2025 몽실몽심리연구소 ☁️</footer>
+  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 공통 안정화 -->
+  <!-- 공통/로직 -->
   <script src="../js/error-proof.js?v=2025.2" defer></script>
-  <!-- 테스트 로직 -->
   <script src="../js/mindtalk.js?v=2025.2" defer></script>
 </body>
 </html>
