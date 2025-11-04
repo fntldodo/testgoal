@@ -5,47 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MBTI 빠른 테스트 - 몽실몽실</title>
 
-  <!-- ✅ Google AdSense (head 안 필수) -->
+  <!-- AdSense (head 필수, 1회만) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
-  <!-- 폰트 & 공통 스타일 -->
+  <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
 
-  <!-- 상단 고정 메인 버튼 기본 스타일(전역에 이미 있으면 생략 가능) -->
-  <style>
-    .top-main-btn{
-      position:fixed;top:14px;right:14px;z-index:9999;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:999px;
-      background:#ffffffcc;backdrop-filter:blur(6px);
-      border:1px solid var(--mint-300, #bfe7de);
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      color:#1f3b39;font-weight:800;text-decoration:none;
-      transition:transform .15s ease, box-shadow .2s ease;
-    }
-    .top-main-btn:hover{ transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12);background:#fff; }
-    @media(max-width:480px){ .top-main-btn{top:10px;right:10px;padding:9px 12px} .top-main-btn span{font-size:14px} }
-  </style>
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="../css/style.css?v=2025.2">
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <img src="../assets/KakaoTalk_20251020_233535446.png"
-           alt="몽실이 캐릭터"
-           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
-      <span>MBTI 빠른 테스트</span>
-    </div>
-    <p class="subtitle">12문항 · 5지선다 · 상태라벨 중심 결과 + 마음 리마인드</p>
-  </header>
-
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a 1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
     </svg>
     <span>메인으로</span>
   </a>
+
+  <header>
+    <div class="logo">
+      <img src="../assets/mbti.png" alt="MBTI 아이콘"
+           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+      <span>MBTI 빠른 테스트</span>
+    </div>
+    <p class="subtitle">12문항 · 5지선다 · 상태라벨 결과(숫자 미노출)</p>
+  </header>
 
   <main class="test">
     <div class="meta">
@@ -68,9 +53,9 @@
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 공통 안정화: 먼저 실행 -->
-  <script src="../js/error-proof.js" defer></script>
-  <!-- MBTI 로직 -->
-  <script src="../js/mbti.js?v=7" defer></script>
+  <!-- 안정화 -->
+  <script src="../js/error-proof.js?v=2025.2" defer></script>
+  <!-- 테스트 로직 -->
+  <script src="../js/mbti.js?v=2025.2-fix" defer></script>
 </body>
 </html>
