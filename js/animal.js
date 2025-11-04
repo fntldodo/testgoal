@@ -1,10 +1,5 @@
-<script>
 // ===================================================
 // 🦊 나는 어떤 동물? — v2025.2 (14문항)
-// - 5지선다(0~4) + 응답시간 보조 ±20%(선택 우선)
-// - 축: A(활동성) / N(새로움) / C(공감) / S(신중)
-// - 분류: 6유형(AN/AC/AS/CN/CS/NS → FOX/OTTER/CAT/DOLPHIN/PENGUIN/OWL)
-// - 결과: 타입별 이미지 매핑(assets/animals/*.png), 중복라벨 제거(그래프만)
 // ===================================================
 document.addEventListener('DOMContentLoaded', () => {
   const Q = [
@@ -70,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function choose(s){
     const sec=(Date.now()-start)/1000;
     const w=weight(sec);
-    const adj = s + (s*(w-1)*0.2); // ±20% 보조
+    const adj = s + (s*(w-1)*0.2);
     ans[idx]=s; times[idx]=sec;
     const k=Q[idx].k;
     score[k]+=adj; count[k]+=1;
@@ -96,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ---------- 분류 ----------
   function normalize(){
     const n={};
     for(const k of ['A','N','C','S']){
@@ -132,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return {type, dominant, n};
   }
 
-  // ---------- 카피 & 이미지 매핑 ----------
   const COPY={
     FOX:{title:'🦊 여우형', quote:'“일단 해보고 배우자!”',
       desc:'기민하고 재치 있는 도전자예요. 새로운 판을 여는 데 주저가 없고, 임기응변이 빠릅니다. 함께할 때 분위기를 띄우며, 흐름을 바꾸는 추진력이 강점이에요.',
@@ -186,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const badge = `<div class="pill">${dominant ? '단일 성향 또렷' : '두 성향의 조화'}</div>`;
 
-    // 중복 라벨 제거: 개별 “활동성 — 높음” 라인 제거하고, 아래 그래프에만 표시
     result.innerHTML=`
       <div class="result-card">
         <div class="result-hero result-hero--big">
@@ -217,4 +209,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   render();
 });
-</script>
