@@ -254,3 +254,40 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 @media (min-width: 601px) and (max-width: 1024px){
   main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
+/* --- 가로 칩 스크롤 안정화 (모바일 터치 전용) --- */
+.scroll-wrap {
+  position: relative;
+}
+
+.scroll-tests {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* 모바일/사파리에서 터치-모멘텀 스크롤 활성화 */
+  -webkit-overflow-scrolling: touch;
+
+  /* 한 손가락 좌/우 팬 우선권 부여 (충돌 방지) */
+  touch-action: pan-x;
+
+  /* 엣지/크롬에서 상하 스크롤이 가로로 튀는 것 완화 */
+  overscroll-behavior-inline: contain;
+
+  /* 스크롤바 숨김(웹킷) */
+  scrollbar-width: none;           /* Firefox */
+}
+.scroll-tests::-webkit-scrollbar { display: none; }
+
+/* 좌/우 버튼이 스크롤 레일을 가리지 않도록 겹치기 */
+.nav-btn {
+  position: relative;
+  z-index: 1;
+}
+
+/* 칩 자체가 텍스트 선택되며 스크롤 막는 현상 방지 */
+.test-chip {
+  user-select: none;
+  -webkit-user-select: none;
+}
