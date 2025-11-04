@@ -1,12 +1,13 @@
 /* ===================================================
  * 자립 지수 체크 — 몽실몽실 v2025.2 (마음 리마인드)
  * ---------------------------------------------------
- * - 5지선다(0~4) / 시간 가중치 ±20%(선택 우선)
- * - 균형(BALANCE) 과다 판정 방지:
- *   · BALANCE는 진짜로 세 축이 모두 비슷할 때만 (희귀)
- *   · 상위 2축 하이브리드 3종 도입: RD, RC, DC
+ * - 5지선다(0~4) / 응답시간 보조 ±20%(선택 우선)
+ * - 균형(BALANCE) 남발 방지:
+ *   · BALANCE: 3축 모두 0.35~0.65 & spread<0.12일 때만 (희귀)
+ *   · 상위 2축 하이브리드: ROUTINE-DECIDER / ROUTINE-CALMER / DECIDER-CALMER
+ *   · tie-break: diff<0.10이면 최근 3문항+시간보조로 경계 상/하향
  * - 결과 카드: 제목/인용문/설명/감정상태 요약/마음 리마인드/상태 미터/버튼
- * - 퍼센트 노출은 허용하되 상태 라벨이 주도(숫자=보조)
+ * - 숫자 점수 직접 노출 금지(라벨 중심, %는 보조)
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,12 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   // 상태
-  let idx = 0;
-  const score = {R:0, D:0, E:0};     // 가중 누적
+  let idx = 0, startTime = Date.now();
+  const score = {R:0, D:0, E:0};
   const count = {R:0, D:0, E:0};
-  const ans   = [];                   // 0~4
-  const times = [];                   // 초
-  let startTime = Date.now();
+  const ans   = Array(Q.length).fill(undefined); // 0~4
+  const times = Array(Q.length).fill(0);
 
   // DOM
   const stepLabel = document.getElementById('stepLabel');
@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
     barFill.style.width   = `${(idx/Q.length)*100}%`;
     qText.textContent     = Q[idx].q;
-
     wrap.innerHTML = `
       <button class="choice" data-s="4" type="button">매우 그렇다</button>
       <button class="choice" data-s="3" type="button">그렇다</button>
@@ -58,44 +57,45 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="choice ghost" data-s="1" type="button">아니다</button>
       <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
     `;
-
     const prevSel = ans[idx];
-    if(prevSel !== undefined){
+    if(prevSel!==undefined){
       [...wrap.children].forEach(b=>{
         if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
-
     [...wrap.children].forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click',()=>{
         [...wrap.children].forEach(c=>c.classList.remove('selected'));
         btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)), 150);
+        setTimeout(()=>choose(Number(btn.dataset.s)),150);
       });
     });
-
     startTime = Date.now();
   }
 
+  function getWeight(sec){
+    if(sec < 1)  return 0.9;   // 너무 빠름 -10%
+    if(sec < 4)  return 1.0;   // 정상
+    if(sec < 8)  return 1.15;  // 숙고 +15%
+    return 1.10;               // 과숙고 +10%
+  }
+
   function choose(s){
-    const elapsed = (Date.now() - startTime)/1000;
+    const elapsed = (Date.now()-startTime)/1000;
     times[idx] = elapsed;
 
     const k = Q[idx].k;
-    const w = getWeight(elapsed); // 0.8~1.2 (실제 반영은 20% 캡)
+    const w = getWeight(elapsed);
+    const adjusted = s + (s*(w-1)*0.2); // 보조 ±20% 캡(선택 우선)
     ans[idx] = s;
-
-    const adjusted = s + (s * (w - 1) * 0.2);
-    score[k] += adjusted;
-    count[k] += 1;
-
+    score[k]+= adjusted;
+    count[k]+= 1;
     next();
   }
 
   function next(){
     idx++;
-    if(idx < Q.length) render();
-    else finish();
+    if(idx<Q.length) render(); else finish();
   }
 
   prevBtn?.addEventListener('click', ()=>{
@@ -106,65 +106,68 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   skipBtn?.addEventListener('click', ()=>{
-    ans[idx]   = 0;
-    times[idx] = (Date.now()-startTime)/1000;
+    ans[idx]=0; times[idx]=(Date.now()-startTime)/1000;
     next();
   });
 
   function recalc(end){
-    score.R=score.D=score.E=0;
-    count.R=count.D=count.E=0;
+    score.R=score.D=score.E=0; count.R=count.D=count.E=0;
     for(let i=0;i<end;i++){
-      const s = ans[i] ?? 0;
-      const k = Q[i].k;
-      const w = getWeight(times[i] ?? 0);
-      const adjusted = s + (s * (w - 1) * 0.2);
-      score[k]+= adjusted;
-      count[k]+= 1;
+      const s=ans[i]??0, k=Q[i].k, w=getWeight(times[i]??0);
+      const adjusted=s + (s*(w-1)*0.2);
+      score[k]+=adjusted; count[k]+=1;
     }
   }
 
-  // 시간 보조 가중(선택 우선)
-  function getWeight(sec){
-    if(sec < 1)  return 0.9;   // 너무 빠른 반응은 -10%
-    if(sec < 4)  return 1.0;   // 정상
-    if(sec < 8)  return 1.15;  // 숙고 +
-    return 1.10;               // 과도 숙고는 약 +10%
+  /* ------------ 분류 로직 (BALANCE 억제 + tie-break) --------------- */
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+  function normalized(){ // 축평균 0~1
+    const R=(score.R/Math.max(1,count.R))/4;
+    const D=(score.D/Math.max(1,count.D))/4;
+    const E=(score.E/Math.max(1,count.E))/4;
+    return {R:clamp(R,0,1), D:clamp(D,0,1), E:clamp(E,0,1)};
   }
 
-  /* ------------ 분류 로직 (BALANCE 억제) --------------- */
-  // 정규화: 축별 평균(0~4)을 0~1로
-  function normalized(){
-    const avgR = (score.R / Math.max(1, count.R)) / 4;
-    const avgD = (score.D / Math.max(1, count.D)) / 4;
-    const avgE = (score.E / Math.max(1, count.E)) / 4;
-    return {R:clamp(avgR,0,1), D:clamp(avgD,0,1), E:clamp(avgE,0,1)};
+  function tieBreak(k1,k2){ // 최근 3문항 + 시간보조
+    let bias=0;
+    for(let i=Q.length-1; i>=0 && i>=Q.length-3; i--){
+      const s=ans[i] ?? 0; const sec=times[i] ?? 3; const w=getWeight(sec);
+      const axis=Q[i].k;
+      if(axis===k1 && s>=3) bias += 1*w;
+      if(axis===k2 && s>=3) bias -= 1*w;
+      if(axis===k1 && s<=1) bias -= 0.5*w;
+      if(axis===k2 && s<=1) bias += 0.5*w;
+    }
+    return bias>0 ? k1 : k2;
   }
-  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
 
   function classify(){
-    const n = normalized();
-    const arr = Object.entries(n).sort((a,b)=>b[1]-a[1]); // desc
-    const [k1,v1] = arr[0], [k2,v2] = arr[1], [k3,v3] = arr[2];
-    const diff12 = v1 - v2;
-    const spread = v1 - v3;
+    const n=normalized();
+    const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]); // desc
+    let [k1,v1]=arr[0], [k2,v2]=arr[1], [k3,v3]=arr[2];
+    const diff12=v1-v2, spread=v1-v3;
 
-    // 1) 진짜 BALANCE: 모두 비슷 + 중간대역
-    const allMid = (x)=> x>=0.35 && x<=0.65;
-    if ((spread < 0.12) && allMid(n.R) && allMid(n.D) && allMid(n.E)) {
+    // BALANCE: 모두 중간대역 & 매우 근접
+    const allMid=(x)=> x>=0.35 && x<=0.65;
+    if(spread<0.12 && allMid(n.R) && allMid(n.D) && allMid(n.E)){
       return {type:'BALANCE', top:[k1,k2], n};
     }
 
-    // 2) 상위 2축 하이브리드(접전)
-    if (diff12 < 0.10) {
-      const pair = [k1,k2].sort().join('');
-      const map = { RD:'ROUTINE-DECIDER', RE:'ROUTINE-CALMER', DE:'DECIDER-CALMER' };
-      return {type: map[pair] || 'ROUTINE-DECIDER', top:[k1,k2], n};
+    // 상·차상위가 매우 근접하면 tie-break로 정교화
+    if(diff12<0.10){
+      const winner = tieBreak(k1,k2);
+      if(winner!==k1){ [k1,k2]=[k2,k1]; [v1,v2]=[v2,v1]; }
     }
 
-    // 3) 단일형
-    const singleMap = {R:'ROUTINE', D:'DECIDER', E:'CALMER'};
-    return {type: singleMap[k1], top:[k1,k2], n};
+    // 최종 판정(근접이면 하이브리드)
+    if(Math.abs(v1-v2)<0.10){
+      const pair=[k1,k2].sort().join('');
+      const map={ RD:'ROUTINE-DECIDER', RE:'ROUTINE-CALMER', DE:'DECIDER-CALMER' };
+      return {type:map[pair], top:[k1,k2], n};
+    }
+
+    const singleMap={R:'ROUTINE', D:'DECIDER', E:'CALMER'};
+    return {type:singleMap[k1], top:[k1,k2], n};
   }
 
   /* ------------ 결과 카피 --------------- */
@@ -172,55 +175,55 @@ document.addEventListener('DOMContentLoaded', () => {
     'ROUTINE': {
       title:'🗓️ 루틴몽실형',
       quote:'“작은 루틴이 큰 평온을 만든다.”',
-      desc:'계획과 습관으로 하루를 단단히 쌓는 타입. 일관성이 마음의 안전벨트가 되어, 컨디션이 흔들릴 때도 기본기로 복구합니다.',
+      desc:'계획과 습관으로 하루를 단단히 쌓는 타입. 기본기로 컨디션을 복구합니다.',
       mood:['루틴 — 단단함','결정 — 안정적','평온 — 차분함'],
-      remind:'오늘은 “15분 루틴” 하나만 지켜요. 완벽보다 지속! 체크 ✔︎'
+      remind:['오늘 “15분 루틴” 1개만 ✔︎','완벽보다 지속 — 80% 완료도 칭찬!']
     },
     'DECIDER': {
       title:'🧭 결정몽실형',
       quote:'“YES/NO 대신, 내 기준 한 줄.”',
-      desc:'선호와 기준이 또렷한 주도형. 정보와 가치를 비교해 합리적으로 결정하고, 선택 이후 책임감 있게 밀고 갑니다.',
+      desc:'정보와 가치를 비교해 합리적으로 결정하고, 선택 이후 책임감 있게 밀고 갑니다.',
       mood:['루틴 — 유연함','결정 — 선명함','평온 — 적정'],
-      remind:'선택 전, 기준 1줄을 적고 비교하세요. “나에게 맞는가?”'
+      remind:['선택 전 기준 1줄 적기','거절 템플릿 한 문장 준비']
     },
     'CALMER': {
       title:'🌿 평온몽실형',
       quote:'“감정은 없애는 게 아니라 다루는 것.”',
-      desc:'감정의 물결 위에서도 중심을 잡는 타입. 호흡·걷기·수면 같은 기본 케어로 회복 탄력성을 유지합니다.',
+      desc:'호흡·걷기·수면 같은 기본 케어로 회복 탄력성을 유지합니다.',
       mood:['루틴 — 가볍게','결정 — 느긋하게','평온 — 높음'],
-      remind:'오늘의 10분 리셋: 호흡 4-6 → 미지근한 물 한 잔 → 짧은 산책.'
+      remind:['호흡 4-6 → 물 한 잔 → 5분 걷기','스크린 타임 10분 줄이기']
     },
     'ROUTINE-DECIDER': {
       title:'🔧 루틴·결정 하이브리드',
       quote:'“정리하고, 정하고, 실행!”',
-      desc:'루틴과 결정을 결합해 실행력이 좋은 조합. 계획→선택→완료의 흐름을 만들 때 가장 빛납니다.',
+      desc:'루틴과 결정을 결합해 실행력이 좋은 조합입니다.',
       mood:['루틴 — 높음','결정 — 높음','평온 — 보통'],
-      remind:'오늘의 체크리스트 “3개만”: 중요·짧음·지금.'
+      remind:['체크리스트 3개만(중요·짧음·지금)','마감 전 10분 리뷰']
     },
     'ROUTINE-CALMER': {
       title:'🌤️ 루틴·평온 하이브리드',
       quote:'“잔잔하지만 꾸준하게.”',
-      desc:'부담을 낮춘 루틴으로 평온을 키우는 조합. 가벼운 반복이 마음 회복에 큰 힘이 됩니다.',
+      desc:'가벼운 반복으로 평온을 키우는 조합입니다.',
       mood:['루틴 — 잔잔함','결정 — 담백함','평온 — 높음'],
-      remind:'루틴의 난이도를 80%로 낮추고, “성공 경험”을 쌓아보세요.'
+      remind:['루틴 난이도 80%로','성공 경험 먼저 쌓기']
     },
     'DECIDER-CALMER': {
       title:'🫶 결정·평온 하이브리드',
       quote:'“내 속도, 내 선택.”',
-      desc:'감정에 휘둘리기보다 기준과 속도를 맞추는 조합. 회복을 고려한 의사결정이 장점입니다.',
+      desc:'회복을 고려한 의사결정이 강점입니다.',
       mood:['루틴 — 가볍게','결정 — 선명함','평온 — 안정'],
-      remind:'선택 전 30초 정지: “지금 내 몸은 어떤가?”를 먼저 점검.'
+      remind:['선택 전 30초 정지(몸 상태 체크)','핵심 3문장 프레이밍']
     },
     'BALANCE': {
       title:'☁️ 균형몽실형 (레어)',
       quote:'“균형은 작은 습관의 합.”',
-      desc:'세 축이 고르게 발달한 유연형. 상황에 맞게 토글 전환이 가능하나, 과부하 신호를 놓치지 않는 것이 포인트.',
+      desc:'세 축이 고르게 발달한 유연형입니다.',
       mood:['루틴 — 균형','결정 — 균형','평온 — 균형'],
-      remind:'분기별 “업데이트 데이”: 루틴/결정/평온을 1가지씩만 조정.'
+      remind:['분기 “업데이트 데이” — 세 축 1가지씩만 조정']
     }
   };
 
-  function stateLabel(p){ // 0~100
+  function labelByPct(p){ // 0~100 → 상태라벨
     if(p>=76) return '높음';
     if(p>=56) return '적정';
     if(p>=36) return '보통';
@@ -228,37 +231,35 @@ document.addEventListener('DOMContentLoaded', () => {
     return '아주 낮음';
   }
 
-  function meters(n){ // n: 0~1
-    const asPct = (v)=> Math.round(v*100);
+  function meters(n){ // n: {R,D,E} 0~1
     const items = [
-      {k:'R', name:'루틴', val:asPct(n.R)},
-      {k:'D', name:'결정', val:asPct(n.D)},
-      {k:'E', name:'평온', val:asPct(n.E)},
+      {k:'R', name:'루틴', val:Math.round(n.R*100)},
+      {k:'D', name:'결정', val:Math.round(n.D*100)},
+      {k:'E', name:'평온', val:Math.round(n.E*100)},
     ];
-    return items.map(it=>`
-      <div style="text-align:left;margin:6px 0">
-        <div style="display:flex;justify-content:space-between;font-weight:700">
-          <span>${it.name} — ${stateLabel(it.val)}</span>
-          <span>${it.val}%</span>
-        </div>
-        <div style="height:8px;background:var(--mint-200);border-radius:999px;overflow:hidden">
-          <span style="display:block;height:100%;width:${it.val}%;background:var(--mint-500)"></span>
-        </div>
+    return `
+      <div class="state-meter">
+        ${items.map(it=>`
+          <div class="row">
+            <span><b>${it.name}</b></span>
+            <div class="bar"><span class="fill" style="width:${it.val}%"></span></div>
+            <span style="color:var(--text-soft)">${labelByPct(it.val)}${it.val?` (${it.val}%)`:''}</span>
+          </div>
+        `).join('')}
       </div>
-    `).join('');
+    `;
   }
 
   function finish(){
-    card.style.display = 'none';
-    barFill.style.width = '100%';
+    card.style.display='none';
+    barFill.style.width='100%';
 
-    const result = classify();
-    const info   = COPY[result.type] || COPY['BALANCE'];
+    const res = classify();
+    const info = COPY[res.type];
 
-    // 감정 상태 요약(짧은 2줄 느낌)
     const moodSummary = `• ${info.mood[0]}  • ${info.mood[1]}  • ${info.mood[2]}`;
 
-    const html = `
+    resultBox.innerHTML = `
       <div class="result-card">
         <div class="result-hero">
           <img src="../assets/independence.png" alt="자립 캐릭터" onerror="this.style.display='none'">
@@ -270,25 +271,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <p style="margin:8px 0">${info.desc}</p>
 
+        <!-- 감정상태 요약(2줄 이내) -->
         <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
+
+        <!-- 마음 리마인드(조언 금지, 응원/제안 톤) -->
         <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b> ${info.remind}
+          <b>🌿 마음 리마인드:</b> ${info.remind.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('')}
         </div>
 
-        <div style="margin-top:8px">
-          ${meters(result.n)}
-        </div>
+        <!-- 상태 미터(라벨 중심, %는 보조) -->
+        ${meters(res.n)}
 
         <div class="result-actions">
           <a class="start" href="../index.html">메인으로</a>
-          <button class="start" onclick="location.reload()">다시 테스트</button>
+          <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
         </div>
       </div>
     `;
-    resultBox.innerHTML = html;
-    resultBox.style.display = 'block';
+    resultBox.style.display='block';
   }
 
-  // 시작
   render();
 });
