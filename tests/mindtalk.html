@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>마음톡 - 몽실몽실</title>
+  <title>마인드톡 - 몽실몽실</title>
 
-  <!-- AdSense (head 필수, 중복 금지) -->
+  <!-- AdSense (head 필수, 1회만) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
   <!-- Pretendard -->
@@ -18,18 +18,19 @@
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a 1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/>
     </svg>
     <span>메인으로</span>
   </a>
 
   <header>
     <div class="logo">
-      <img src="../assets/mindtalk.png" alt="마음톡"
+      <!-- mindtalk 전용 아이콘이 있으면 assets/mindtalk.png, 없으면 fallback -->
+      <img src="../assets/mindtalk.png" alt="마인드톡"
            onerror="this.onerror=null; this.src='../assets/plant.png'">
-      <span>마음톡</span>
+      <span>마인드톡</span>
     </div>
-    <p class="subtitle">12문항 · 대화형 리마인드 · 결과 추천칩</p>
+    <p class="subtitle">12문항 · 한 문장으로 나에게 건네는 말 · 균형형 과다 방지</p>
   </header>
 
   <main class="test">
