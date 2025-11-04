@@ -1,69 +1,59 @@
 /* ===================================================
- * ☁️ 마음 일기예보 v2025.2 — 마음 리마인드 버전
- * 규칙
- *  - 15문항 / 5지선다(0~4)
- *  - 응답시간 보조 ±20%(선택 우선, 뒤엎지 않음)
- *  - 6유형: SUNNY / CLOUDY / RAINY / STORM / RAINBOW / NIGHT
- *  - 숫자 단독 노출 금지(라벨 중심, %는 보조)
- *  - 결과: 제목/인용문/설명/감정상태 요약/마음 리마인드/상태 미터/버튼
- * 이미지
- *  - assets/weather/weather_{sunny|cloudy|rainy|storm|rainbow|night}.png
+ * 마음 일기예보 — 몽실몽실 v2025.2 (마음 리마인드)
+ * ---------------------------------------------------
+ * - 15문항 / 5지선다(0~4) + 응답시간 가중(±20%, 선택 우선)
+ * - 6형: SUNNY / CLOUDY / RAINY / STORM / RAINBOW / NIGHT
+ * - 결과: 숫자 직접 노출 금지(상태 라벨 중심), %는 보조일 때만
+ * - 상태미터 라벨을 날씨 용어(기압/습도/바람/체감온도)로 표기
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 문항: 축/날씨별로 2~3개씩 분산
-  // t: SUNNY(SU), CLOUDY(CL), RAINY(RA), STORM(ST), RAINBOW(RB), NIGHT(NI)
+  // 각 문항은 특정 날씨 성향에 기여
   const Q = [
-    {t:'SU', q:'가볍게 시작하기가 오늘은 쉬운 편이었다.'},
-    {t:'SU', q:'사소한 일에도 의욕이 톡톡 튄다.'},
-    {t:'CL', q:'속도를 낮추고 상황을 더 살피고 싶었다.'},
-    {t:'CL', q:'결정을 서두르기보다 정리/관망이 편했다.'},
-    {t:'RA', q:'감정의 결이 평소보다 섬세하게 느껴졌다.'},
-    {t:'RA', q:'작은 말/상황에도 마음이 쉽게 흔들렸다.'},
-    {t:'ST', q:'생각/알림/자극이 한꺼번에 몰려왔다.'},
-    {t:'ST', q:'급해지거나 압박감이 크게 느껴졌다.'},
-    {t:'RB', q:'감사/연결감 같은 따뜻한 마음이 떠올랐다.'},
-    {t:'RB', q:'작은 성취에서 회복되는 느낌이 있었다.'},
-    {t:'NI', q:'속도를 늦추고 조용히 정리하고 싶었다.'},
-    {t:'NI', q:'휴식/수면/충전의 필요가 분명히 느껴졌다.'},
-    {t:'SU', q:'짧은 몰입(10~15분)이 지금 바로 가능하다.'},
-    {t:'RA', q:'마음이 말랑해져 창의적인 생각이 스친다.'},
-    {t:'CL', q:'정답보다 “기록/정리”가 오늘은 더 어울린다.'},
+    {t:'SUNNY',   q:'아침에 가볍게라도 시작하면 컨디션이 빨리 오른다.'},
+    {t:'SUNNY',   q:'낙관적인 상상을 하면 실행으로 이어지는 편이다.'},
+    {t:'CLOUDY',  q:'결정 전에 한 번 더 살피고 정리하는 편이 마음이 편하다.'},
+    {t:'CLOUDY',  q:'속도를 조금 늦추면 오히려 실수가 줄어든다.'},
+    {t:'RAINY',   q:'요즘 감정의 결을 예민하게 느낀다.'},
+    {t:'RAINY',   q:'음악/글/영상 같은 감성 자극에 많이 몰입한다.'},
+    {t:'STORM',   q:'생각과 알림이 한꺼번에 몰려 머릿속이 복잡해지곤 한다.'},
+    {t:'STORM',   q:'강한 추진력으로 한 번에 몰아치는 편이다.'},
+    {t:'RAINBOW', q:'최근에 감사할 일이나 연결감이 떠오른다.'},
+    {t:'RAINBOW', q:'감정과 생각이 화해하는 순간이 있었다.'},
+    {t:'NIGHT',   q:'조용한 시간에 재충전이 잘 된다.'},
+    {t:'NIGHT',   q:'스크린 타임을 줄이면 마음이 차분해진다.'},
+    // 균형/보정용 3문항
+    {t:'SUNNY',   q:'작게라도 시작하면 금방 탄력이 붙는다.'},
+    {t:'CLOUDY',  q:'정리/정돈을 하면 머리가 맑아진다.'},
+    {t:'NIGHT',   q:'늦은 밤보다 일찍 눕는 날이 더 안정적이다.'},
   ];
 
-  // 상태
-  let idx=0, start=Date.now();
-  const ans=[], times=[];
-  const score={SU:0,CL:0,RA:0,ST:0,RB:0,NI:0};
+  let idx=0, startTime=Date.now();
+  const S={SUNNY:0,CLOUDY:0,RAINY:0,STORM:0,RAINBOW:0,NIGHT:0};
+  const C={SUNNY:0,CLOUDY:0,RAINY:0,STORM:0,RAINBOW:0,NIGHT:0};
+  const ans=[], times=[], recent=[];
 
-  // DOM
-  const step=document.getElementById('stepLabel');
-  const bar=document.getElementById('barFill');
+  const stepLabel=document.getElementById('stepLabel');
+  const barFill=document.getElementById('barFill');
   const qText=document.getElementById('qText');
   const wrap=document.getElementById('choiceWrap');
   const card=document.getElementById('card');
-  const result=document.getElementById('result');
-  const prev=document.getElementById('prev');
-  const skip=document.getElementById('skip');
-
-  // 시간 보조 가중치(±20% 캡, 선택 우선)
-  function weight(sec){
-    if(sec<1) return 0.9;
-    if(sec<4) return 1.0;
-    if(sec<8) return 1.15;
-    return 1.10;
-  }
+  const resultBox=document.getElementById('result');
+  const prevBtn=document.getElementById('prev');
+  const skipBtn=document.getElementById('skip');
 
   function render(){
-    step.textContent=`${idx+1} / ${Q.length}`;
-    bar.style.width=`${(idx/Q.length)*100}%`;
-    qText.textContent=Q[idx].q;
-    wrap.innerHTML=`
+    stepLabel.textContent = `${idx+1} / ${Q.length}`;
+    barFill.style.width   = `${(idx/Q.length)*100}%`;
+    qText.textContent     = Q[idx].q;
+
+    wrap.innerHTML = `
       <button class="choice" data-s="4" type="button">매우 그렇다</button>
       <button class="choice" data-s="3" type="button">그렇다</button>
       <button class="choice" data-s="2" type="button">보통이다</button>
       <button class="choice ghost" data-s="1" type="button">아니다</button>
-      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
+      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
+    `;
     const prevSel=ans[idx];
     if(prevSel!==undefined){
       [...wrap.children].forEach(b=>{ if(Number(b.dataset.s)===prevSel) b.classList.add('selected'); });
@@ -75,198 +65,176 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(()=>choose(Number(btn.dataset.s)),150);
       });
     });
-    start=Date.now();
+    startTime=Date.now();
+  }
+
+  function weight(sec){
+    if(sec<1) return 0.9;
+    if(sec<4) return 1.0;
+    if(sec<8) return 1.15;
+    return 1.1;
   }
 
   function choose(s){
-    const sec=(Date.now()-start)/1000;
-    const w=weight(sec);
-    ans[idx]=s; times[idx]=sec;
-    const k=Q[idx].t;
-    const adjusted = s + (s*(w-1)*0.2);
-    score[k]+=adjusted;
-    next();
-  }
-  function next(){ idx++; if(idx<Q.length) render(); else finish(); }
+    const elapsed=(Date.now()-startTime)/1000;
+    const t=Q[idx].t, w=weight(elapsed);
+    const adj=s + (s*(w-1)*0.2); // ±20% 캡, 선택이 우선
+    S[t]+=adj; C[t]+=1; ans[idx]=s; times[idx]=elapsed;
 
-  prev?.addEventListener('click',()=>{
+    recent.push({i:idx,t,s,sec:elapsed});
+    if(recent.length>3) recent.shift();
+
+    idx<Q.length-1? (idx++,render()):finish();
+  }
+
+  prevBtn?.addEventListener('click',()=>{
     if(idx===0) return;
     idx--;
     recalc(idx);
     render();
   });
-  skip?.addEventListener('click',()=>{
-    ans[idx]=0; times[idx]=(Date.now()-start)/1000;
-    next();
+
+  skipBtn?.addEventListener('click',()=>{
+    ans[idx]=0; times[idx]=(Date.now()-startTime)/1000;
+    choose(0); // 스킵도 0 반영(통계/가중 유지)
   });
 
   function recalc(end){
-    score.SU=score.CL=score.RA=score.ST=score.RB=score.NI=0;
+    Object.keys(S).forEach(k=>{ S[k]=0; C[k]=0; });
     for(let i=0;i<end;i++){
-      const s=ans[i]??0;
-      const t=times[i]??3;
-      const w=weight(t);
-      const k=Q[i].t;
-      const adjusted = s + (s*(w-1)*0.2);
-      score[k]+=adjusted;
+      const s=ans[i]??0; const t=Q[i].t; const w=weight(times[i]??0);
+      const adj=s + (s*(w-1)*0.2);
+      S[t]+=adj; C[t]+=1;
     }
   }
 
-  /* ---------------- 분류/타이브레이커 ---------------- */
+  // 정규화 0~1
+  function norm(){
+    const N={};
+    Object.keys(S).forEach(k=>{
+      const denom=Math.max(1, C[k])*4;
+      N[k]=Math.max(0, Math.min(1, S[k]/denom));
+    });
+    return N;
+  }
+
+  // 타이브레이커: 근소차면 최근 3문항에서 더 많이 선택된 축
+  function tieBreak(a,b){
+    let d=0;
+    recent.forEach(r=>{
+      const w=weight(r.sec);
+      if(r.t===a) d+=1*w;
+      if(r.t===b) d-=1*w;
+    });
+    return d>=0 ? a : b;
+  }
+
   function classify(){
-    // 평균으로 정규화(축별 문항 수 상이 방지)
-    const count={SU:0,CL:0,RA:0,ST:0,RB:0,NI:0};
-    Q.forEach(q=>{ count[q.t]++; });
-    const norm = Object.fromEntries(Object.entries(score).map(([k,v])=>{
-      const m = count[k]||1;
-      return [k, (v/m)/4]; // 0~1
-    }));
-    const arr = Object.entries(norm).sort((a,b)=>b[1]-a[1]); // desc
-    let [k1,v1]=arr[0], [k2,v2]=arr[1];
-    const diff = v1 - v2;
-
-    // tie-break: 최근 3문항 + 시간 보조
-    if(diff < 0.08){
-      const last3 = Math.max(0, Q.length-3);
-      let drift=0;
-      for(let i=last3;i<Q.length;i++){
-        const ansVal = ans[i]??0;
-        const t=times[i]??3;
-        const w=weight(t);
-        const k=Q[i].t;
-        if(k===k1) drift += (ansVal+ (ansVal*(w-1)*0.2));
-        else if(k===k2) drift -= (ansVal+ (ansVal*(w-1)*0.2));
-      }
-      if(drift<0){ const tmp=k1; k1=k2; k2=tmp; }
-    }
-
-    return {top:k1, second:k2, norm};
+    const n=norm();
+    const arr=Object.entries(n).sort((x,y)=>y[1]-x[1]);
+    const [k1,v1]=arr[0], [k2,v2]=arr[1];
+    const diff=v1-v2;
+    const main = (diff<0.08) ? tieBreak(k1,k2) : k1;
+    return main; // SUNNY~NIGHT
   }
 
-  /* ---------------- 결과 카피 ---------------- */
-  const ICON = (k)=>`../assets/weather/weather_${({
-    SU:'sunny', CL:'cloudy', RA:'rainy', ST:'storm', RB:'rainbow', NI:'night'
-  })[k]}.png`;
+  // 상태미터 계산(날씨 용어)
+  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+  function weatherMeters(n){
+    // 기압: STORM 반대 + CLOUDY 약간의 안정
+    const pressure = clamp01(1 - n.STORM*0.8 + n.CLOUDY*0.2);
+    // 습도: RAINY 그대로
+    const humidity = clamp01(n.RAINY);
+    // 바람: STORM 0.6 + CLOUDY 0.3
+    const wind     = clamp01(n.STORM*0.6 + n.CLOUDY*0.3);
+    // 체감온도: SUNNY 0.6 + RAINBOW 0.4 - NIGHT 0.2
+    const feels    = clamp01(n.SUNNY*0.6 + n.RAINBOW*0.4 - n.NIGHT*0.2);
 
-  const COPY = {
-    SU:{title:'☀️ 맑음', quote:'“기세가 있을 때, 한 걸음!”',
-        desc:'빛이 통과하듯 가벼운 날. 시작이 쉬워 작은 실행이 잘 붙습니다.',
-        remind:['햇볕 5분 받기','가벼운 정리 3개','핵심 1개만 착수']},
-    CL:{title:'⛅ 흐림', quote:'“급할 것 없어요. 관찰이 힘.”',
-        desc:'속도를 줄이고 주변을 헤아리는 날. 탐색/정리에 어울립니다.',
-        remind:['미정은 기록으로 보류','받은 편지함 5개 정리','결정은 내일 오전으로']},
-    RA:{title:'🌧 비', quote:'“흘려보내면 창의가 열려요.”',
-        desc:'감정의 결이 섬세해지는 날. 부드럽게 흘리면 오히려 깊이가 생깁니다.',
-        remind:['감정일기 3줄(사실/느낌/바람)','따뜻한 음료','창밖 1분 보기']},
-    ST:{title:'⛈ 폭풍', quote:'“방향만 잡으면 추진력 폭발.”',
-        desc:'자극과 생각이 몰려드는 날. 한 가지에 꽂으면 강력합니다.',
-        remind:['알림 20분 차단','중요 1개만 고정','25분 몰입 타이머']},
-    RB:{title:'🌈 무지개', quote:'“감사/연결감이 회복을 부릅니다.”',
-        desc:'마음과 생각이 화해하는 날. 따뜻한 연결이 쉽게 떠오릅니다.',
-        remind:['고마운 일 3가지 적기','안부 한 줄 보내기','책상 위 작은 꽃/오브제 정리']},
-    NI:{title:'🌙 밤', quote:'“낮춰야 멀리 가요.”',
-        desc:'속도를 낮추고 충전에 적합한 날. 조용한 정리가 깊이를 만듭니다.',
-        remind:['스크린 15분 줄이기','따뜻한 샤워','일찍 눕기 알람']}
-  };
+    const pct=(x)=>Math.round(x*100);
+    const label=(p,kind)=>{
+      if(kind==='pressure'){ if(p>=80) return '매우 안정적'; if(p>=60) return '안정적'; if(p>=40) return '보통'; if(p>=20) return '변동 있음'; return '불안정'; }
+      if(kind==='humidity'){ if(p>=80) return '매우 높음'; if(p>=60) return '높음'; if(p>=40) return '보통'; if(p>=20) return '낮음'; return '매우 낮음'; }
+      if(kind==='wind'){     if(p>=80) return '강풍';     if(p>=60) return '약간 강함'; if(p>=40) return '보통'; if(p>=20) return '잔잔'; return '매우 잔잔'; }
+      if(kind==='feels'){    if(p>=80) return '아주 따뜻함'; if(p>=60) return '따뜻함'; if(p>=40) return '온화'; if(p>=20) return '서늘'; return '차가움'; }
+      return '보통';
+    };
 
-  /* ---------------- 상태 미터(날씨 용어) ----------------
-   *  - 기압: 안정/압박감(= 자극 역지표) → ST와 반비례
-   *  - 습도: 감정 포화감(= RA)        → 정비례
-   *  - 바람: 전환/움직임(= SU/ST)     → SU+ST 중간값
-   *  - 체감온도: 따뜻한 연결감(= RB)   → 정비례 (CL/NI는 약간 낮춤)
-   * 수치는 %로 계산하되 라벨 동반(숫자 단독 금지)
-   * ----------------------------------------------------- */
-  function labelScale(v){
-    if(v>=0.80) return '아주 안정적';
-    if(v>=0.60) return '안정적';
-    if(v>=0.40) return '보통';
-    if(v>=0.20) return '약간 민감';
-    return '예민/저기압';
-  }
-  function percent(v){ return Math.max(0, Math.min(100, Math.round(v*100))); }
-
-  function buildMeters(norm){
-    // 0~1 정규화 입력
-    const pSU=norm.SU, pCL=norm.CL, pRA=norm.RA, pST=norm.ST, pRB=norm.RB, pNI=norm.NI;
-
-    const press = clamp(1 - pST*0.8, 0, 1);                         // 기압(안정)
-    const humid = clamp(pRA, 0, 1);                                 // 습도(감정 포화)
-    const wind  = clamp((pSU*0.6 + pST*0.4), 0, 1);                  // 바람(전환/추진)
-    const feels = clamp(pRB*0.9 + pCL*0.1 + (1-pNI)*0.05, 0, 1);     // 체감온도(따뜻함)
-
-    const rows = [
-      {name:'기압', val:press},
-      {name:'습도', val:humid},
-      {name:'바람', val:wind},
-      {name:'체감온도', val:feels},
-    ];
-    return `
-      <div class="state-meter" style="margin-top:8px">
-        ${rows.map(r=>`
-          <div class="row">
-            <span><b>${r.name}</b></span>
-            <div class="bar"><span class="fill" style="width:${percent(r.val)}%"></span></div>
-            <span style="color:var(--text-soft)">${labelScale(r.val)}${''}</span>
-          </div>
-        `).join('')}
+    const row=(name,p,kind)=>`
+      <div style="text-align:left;margin:6px 0">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${name} — ${label(p,kind)}</span>
+          <span style="color:var(--text-soft)">${p}%</span>
+        </div>
+        <div class="bar" style="height:8px"><span class="fill" style="width:${p}%"></span></div>
       </div>
     `;
+
+    return [
+      row('기압',   pct(pressure), 'pressure'),
+      row('습도',   pct(humidity), 'humidity'),
+      row('바람',   pct(wind),     'wind'),
+      row('체감온도', pct(feels),   'feels')
+    ].join('');
   }
 
-  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+  const IMG=(k)=>`../assets/weather/weather_${k.toLowerCase()}.png`;
+  const COPY={
+    SUNNY:{title:'☀️ 맑음 — 낙관 에너지형', quote:'“작게 시작하면 금방 빛이 들어요.”',
+      desc:'의욕과 낙관이 가볍게 올라오는 날. 시작의 마찰이 낮고 흐름이 잘 붙습니다.',
+      mood:['속도 — 가벼움','집중 — 상승','정서 — 밝음'],
+      remind:['할 일 1개만 끝내기','햇빛 10분 산책','물 한 컵']},
+    CLOUDY:{title:'⛅ 흐림 — 사려 깊은 관망형', quote:'“천천히 보면 더 잘 보여요.”',
+      desc:'속도를 낮추고 정리/정돈이 잘되는 날. 탐색·검토에 유리합니다.',
+      mood:['속도 — 느림','집중 — 선별','정서 — 잔잔'],
+      remind:['결정 보류 OK, 메모 먼저','책상 5분 정리','가벼운 스트레칭']},
+    RAINY:{title:'🌧 비 — 감성 섬세형', quote:'“흐름에 맡기고 흘려보내요.”',
+      desc:'감정의 결이 섬세하게 느껴지는 날. 표현/창작/회고에 강점이 있습니다.',
+      mood:['속도 — 부드러움','집중 — 감성','정서 — 깊음'],
+      remind:['감정일기 3줄','따뜻한 음료','창밖 보기 2분']},
+    STORM:{title:'⛈ 폭풍 — 에너지 과포화형', quote:'“방향을 잡으면 추진력은 자산.”',
+      desc:'자극과 생각이 몰려오는 날. 한 가지에 몰입하면 성과가 큽니다.',
+      mood:['속도 — 빠름','집중 — 분산→집중','정서 — 요동'],
+      remind:['알림 끄고 25분 타이머','중요한 1개만 실행','깊은 호흡 3회']},
+    RAINBOW:{title:'🌈 무지개 — 회복·통합형', quote:'“감사와 연결이 에너지를 채워요.”',
+      desc:'감정과 생각이 화해하는 날. 관계·감사·정리에 최적화.',
+      mood:['속도 — 안정','집중 — 통합','정서 — 온화'],
+      remind:['고마운 일 3가지','짧은 안부 한 줄','정리 후 마무리 의식']},
+    NIGHT:{title:'🌙 밤 — 정리·충전형', quote:'“속도를 낮추면 깊이가 채워집니다.”',
+      desc:'조용한 성찰과 휴식이 필요한 날. 에너지 보존/정리에 적합합니다.',
+      mood:['속도 — 낮춤','집중 — 휴식','정서 — 차분'],
+      remind:['스크린 타임 줄이기','따뜻한 샤워','일찍 눕기 챌린지']}
+  };
 
   function finish(){
-    card.style.display='none'; bar.style.width='100%';
+    card.style.display='none'; barFill.style.width='100%';
 
-    const {top, second, norm} = classify();
-    const info = COPY[top];
-    const icon = ICON(top);
+    const key=classify();          // 최종 날씨
+    const n=norm();                // 축별 정규화(0~1)
+    const c=COPY[key];
+    const moodSummary=`• ${c.mood.join('  • ')}`;
 
-    // 감정상태 요약(2줄)
-    const summary = {
-      SU:'가볍게 시작·짧은 몰입에 유리',
-      CL:'관찰/정리 타이밍, 결정은 보류 OK',
-      RA:'감정 섬세 — 부드럽게 흘려보내기',
-      ST:'자극 과다 — 한 가지에만 몰입',
-      RB:'회복/감사 — 연결감으로 에너지 ↑',
-      NI:'충전/정리 — 속도를 낮춰 깊이 만들기'
-    }[top];
-
-    const nextHint = {
-      SU:'핵심 1개만 바로 시작',
-      CL:'미정은 기록으로 묶고 보류',
-      RA:'감정일기 3줄 후 따뜻한 음료',
-      ST:'알림 OFF + 25분 타이머',
-      RB:'고마운 사람에게 안부 한 줄',
-      NI:'스크린 타임 줄이고 일찍 눕기'
-    }[top];
-
-    result.innerHTML = `
-      <div class="result-card">
+    resultBox.innerHTML=`
+      <div class="result-card mind">
         <div class="result-hero">
-          <img src="${icon}" alt="${info.title}"
-               onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+          <img src="${IMG(key)}" alt="${c.title}" onerror="this.src='../assets/mongsil.png'">
           <div>
-            <div class="result-title">${info.title}</div>
-            <div class="result-desc">${info.quote}</div>
+            <div class="result-title">${c.title}</div>
+            <div class="result-desc">${c.quote}</div>
           </div>
         </div>
 
-        <p style="margin:8px 0">${info.desc}</p>
+        <p style="margin:8px 0">${c.desc}</p>
 
-        <!-- 감정상태 요약(2줄) -->
-        <pre class="pill" style="white-space:pre-wrap;margin:8px 0">• 오늘의 톤: ${summary}
-• 다음 한 걸음: ${nextHint}</pre>
+        <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
 
-        <!-- 상태 미터(날씨 용어) -->
-        ${buildMeters(norm)}
+        <div class="mind-remind" style="margin:6px 0 10px; color:var(--text-soft)">
+          <b>🌿 마음 리마인드:</b>
+          ${c.remind.map(t=>`<div class="pill" style="display:inline-block; margin:4px 6px 0 0">${t}</div>`).join('')}
+          <div style="margin-top:6px; font-size:13px">* 지금 당장 할 수 있는 미니 행동 1가지부터 시작해요.</div>
+        </div>
 
-        <!-- 마음 리마인드(1분 내 실행) -->
-        <div class="mind-remind" style="margin:8px 0 10px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드(1분 내 실행)</b><br>
-          · ${info.remind[0]}<br>
-          · ${info.remind[1]}<br>
-          · ${info.remind[2]}
+        <div style="margin-top:8px">
+          ${weatherMeters(n)}
         </div>
 
         <div class="result-actions">
@@ -275,10 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
-
-    result.style.display='block';
+    resultBox.style.display='block';
   }
 
-  // 시작
   render();
 });
