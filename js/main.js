@@ -61,39 +61,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* 칩 스크롤(버튼/드래그/터치) */
-  (function () {
-    const scroller = document.getElementById('scrollTests');
-    if (!scroller) return;
+/* 칩 스크롤: 네이티브 터치 사용 + 좌/우 버튼 + 휠 보조 */
+(function () {
+  const scroller = document.getElementById('scrollTests');
+  if (!scroller) return;
 
-    const prev = document.querySelector('.nav-btn.prev');
-    const next = document.querySelector('.nav-btn.next');
-    const STEP = 160;
+  const prev = document.querySelector('.nav-btn.prev');
+  const next = document.querySelector('.nav-btn.next');
+  const STEP = 160;
 
-    prev?.addEventListener('click', () => {
-      scroller.scrollBy({ left: -STEP, behavior: canAnimate ? 'smooth' : 'auto' });
-    });
+  prev?.addEventListener('click', () =>
+    scroller.scrollBy({ left: -STEP, behavior: canAnimate ? 'smooth' : 'auto' })
+  );
+  next?.addEventListener('click', () =>
+    scroller.scrollBy({ left:  STEP, behavior: canAnimate ? 'smooth' : 'auto' })
+  );
 
-    next?.addEventListener('click', () => {
-      scroller.scrollBy({ left: STEP, behavior: canAnimate ? 'smooth' : 'auto' });
-    });
+  // 트랙패드/마우스 휠의 세로 입력을 가로로 매핑
+  scroller.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) < Math.abs(e.deltaY) && !e.shiftKey) {
+      scroller.scrollLeft += e.deltaY;
+      e.preventDefault(); // 페이지 세로 스크롤 방지
+    }
+  }, { passive: false });
 
-    // 드래그 스크롤
-    let isDown = false, startX = 0, startScroll = 0;
+  // 스크롤 직후 오작동 클릭 방지(선택 사항)
+  let moved = false;
+  scroller.addEventListener('pointerdown', () => (moved = false));
+  scroller.addEventListener('pointermove', () => (moved = true));
+  scroller.addEventListener('click', (e) => {
+    if (moved) e.stopPropagation();
+  }, true);
+})();
 
-    const start = x => { isDown = true; startX = x; startScroll = scroller.scrollLeft; scroller.classList.add('dragging'); };
-    const move = x => { if (!isDown) return; const dx = x - startX; scroller.scrollLeft = startScroll - dx; };
-    const end = () => { isDown = false; scroller.classList.remove('dragging'); };
-
-    // 마우스
-    scroller.addEventListener('mousedown', e => start(e.pageX));
-    window.addEventListener('mousemove', e => move(e.pageX));
-    window.addEventListener('mouseup', end);
-
-    // 터치
-    scroller.addEventListener('touchstart', e => start(e.touches[0].pageX), { passive: true });
-    window.addEventListener('touchmove', e => move(e.touches[0].pageX), { passive: true });
-    window.addEventListener('touchend', end);
-    window.addEventListener('touchcancel', end);
-  })();
 });
