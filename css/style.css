@@ -212,6 +212,30 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
   .test{ padding: 8px 10px 80px; }
 }
 
+/* === 결과 히어로 이미지 확대 (동물 테스트 전용) === */
+.result-hero.result-hero--big {
+  align-items: center;
+}
+.result-hero.result-hero--big .animal-hero {
+  width: 96px;              /* 모바일에서 살짝 큼 */
+  height: auto;
+  image-rendering: -webkit-optimize-contrast;
+  margin-right: 12px;
+}
+@media (min-width: 480px){
+  .result-hero.result-hero--big .animal-hero { width: 110px; }
+}
+
+/* 그래프 오른쪽 상태 라벨 색상 톤 다운 */
+.state-meter .meter-label{
+  color: var(--text-soft);
+}
+
+/* 만약 .result-hero 기본 스타일이 너무 타이트하면 여백 보강 */
+.result-card .result-hero{
+  gap: 12px;
+}
+
 @media (min-width: 601px) and (max-width: 1024px){
   main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
