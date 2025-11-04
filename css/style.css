@@ -1,227 +1,217 @@
 /* =========================================================
-   몽실몽실 심리테스트 - style.css  v2025.2 (마음 리마인드)
-   - Pastel / Rounded / Thin brown outlines vibe
-   - 상단 고정 메인 버튼 / 카드 그리드 / 테스트 공통 UI
-   - 수치 대신 상태 라벨 위주 (그래프는 별도 JS에서 채움)
+   몽실몽실 심리테스트 style.css v2025.2 — 반응형 & 파스텔
+   - Pretendard Variable 기준
+   - 톤: 파스텔 / 라운디드 / 얇은 브라운 라인
+   - 카테고리 테마: love / hobby / fun / mind
    ========================================================= */
 
-/* ---------- CSS 변수 ---------- */
+/* ---------- 리셋 & 기본 ---------- */
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+img { display:block; max-width:100%; height:auto; }
+
 :root{
-  --mint-50:#f6fbf9;   --mint-100:#E9F7F4; --mint-200:#CFEDE7; --mint-300:#B5E4DD;
-  --mint-400:#9BDACF;  --mint-500:#7FD0C3;
+  --bg: #f7faf9;
+  --card: #ffffff;
+  --line: #5e493d22;       /* 얇은 브라운 */
+  --text: #2b2b2b;
+  --text-soft:#5e5e5e;
 
-  --sky-50:#f4f9ff;    --sky-200:#cfe9ff;  --sky-300:#a8d6ff;
-  --lvd-50:#f4eeff;    --ivory:#fffdf6;
+  /* 파스텔 팔레트 */
+  --mint-100:#e9fbf4; --mint-200:#cff2e4; --mint-300:#a5e3c5; --mint-500:#67c5a1;
+  --sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff;  --sky-500:#6cb7f0;
+  --lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd;  --lav-500:#9a8cf5;
+  --iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;   --iv-500:#ffcf60;
 
-  --brown:#5e493d;
-  --text:#1f3b39;
-  --text-soft:#5b6b69;
-  --card:#ffffff;
-  --border:#e8efe9;
-  --shadow:0 6px 18px rgba(0,0,0,.08);
+  --rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d; --rose-500:#ff9468;
+  --shadow: 0 6px 18px rgba(0,0,0,.06);
+  --radius: 18px;
 }
 
-/* ---------- Reset ---------- */
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-img{max-width:100%;display:block}
-button{font:inherit}
-a{color:inherit}
-
-/* ---------- Base ---------- */
-html,body{
-  font-family:"Pretendard Variable",system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  color:var(--text);
-  background:#fafafa;
-  line-height:1.55;
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,system-ui,Segoe UI,Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  font-size: clamp(14px, 2.5vw, 17px);
+  line-height: 1.65;
 }
 
-/* ---------- Header / Logo ---------- */
-header{padding:24px 16px 8px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
-.logo img{width:36px;height:36px;object-fit:contain}
-.subtitle{margin:8px 0 12px;color:var(--text-soft)}
+/* ---------- 공통 컴포넌트 ---------- */
+header{
+  padding: 22px 16px 10px;
+  position: relative;
+}
+.logo{ display:flex; align-items:center; gap:10px; }
+.logo img{ width: clamp(32px, 7vw, 44px); height:auto; }
+.logo span{ font-weight:800; font-size: clamp(18px,4.8vw,26px); letter-spacing:-.2px; }
+.subtitle{ color:var(--text-soft); margin:6px 0 14px; }
 
-/* CTA */
 .cta{
-  appearance:none;border:none;background:var(--text);color:#fff;border-radius:999px;
-  padding:12px 16px;font-weight:800;box-shadow:0 3px 10px rgba(0,0,0,.08);
+  display:inline-block; border:none; border-radius:999px;
+  padding:12px 18px; font-weight:700; cursor:pointer;
+  background: var(--mint-300); color:#fff; box-shadow: var(--shadow);
+  transition: transform .06s ease, filter .2s ease; margin: 2px 0 12px;
 }
-.cta:hover{opacity:.95;cursor:pointer}
+.cta:active{ transform: scale(.98); }
 
-/* ---------- 상단 칩 스크롤 ---------- */
-.scroll-wrap{display:flex;align-items:center;gap:6px;margin-top:14px}
+/* 상단 고정 메인 버튼 */
+.top-main-btn{
+  position: fixed; right: 14px; bottom: 16px; z-index: 50;
+  display:flex; align-items:center; gap:8px;
+  background:#fff; color:#2b2b2b; border:1px solid var(--line);
+  border-radius:999px; padding:10px 14px; box-shadow: var(--shadow);
+  text-decoration:none; font-weight:700;
+}
+
+/* 스크롤 칩 영역 */
+.scroll-wrap{ display:flex; align-items:center; gap:8px; }
 .nav-btn{
-  height:44px;width:44px;border-radius:999px;background:#fff;border:1px solid var(--mint-300);
-  box-shadow:0 3px 10px rgba(0,0,0,.05);
+  width:34px; height:34px; border-radius:999px; border:1px solid var(--line);
+  background:#fff; box-shadow: var(--shadow);
 }
-.nav-btn:hover{filter:brightness(0.98);cursor:pointer}
-
 .scroll-tests{
-  display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
-  padding:8px;border:1px solid var(--mint-300);border-radius:12px;background:#fff;height:60px;align-items:center;
+  display:flex; overflow:auto; gap:8px; scroll-behavior:smooth; padding:6px 2px;
+  -webkit-overflow-scrolling: touch;
 }
 .test-chip{
-  flex:0 0 auto;padding:10px 14px;border-radius:999px;background:var(--mint-100);
-  border:1px solid var(--mint-300);font-weight:700;color:var(--text);
+  flex:0 0 auto; border:none; border-radius:999px;
+  padding:10px 14px; font-weight:700; background:#fff; color:var(--text-soft);
+  border:1px solid var(--line); box-shadow: var(--shadow);
 }
-.test-chip:active{transform:scale(.98)}
 
-/* ---------- 메인 카드 그리드 ---------- */
+/* 카드 그리드 */
 main{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;padding:16px
+  display:grid; gap:16px; padding: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 .card{
-  background:#fff;border:1px solid var(--mint-200);border-radius:16px;padding:14px;
-  box-shadow:0 4px 16px rgba(0,0,0,.04);
-  transition:transform .12s ease, box-shadow .2s ease;
-  outline:1px solid rgba(94,73,61,.07); /* thin brown outline vibe */
+  background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: clamp(12px,2.5vw,18px);
+  display:flex; flex-direction:column; gap:10px;
 }
-.card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
-.card .chip{display:inline-block;font-size:12px;background:var(--mint-100);border:1px solid var(--mint-300);border-radius:999px;padding:6px 10px;margin-bottom:6px}
-.card .anim{display:flex;justify-content:center;align-items:center;height:160px;margin-bottom:6px}
-.card .anim img{width:160px;height:160px;object-fit:contain}
-.card h3{margin:4px 0 6px}
-.card .desc{color:var(--text-soft);margin:0 0 10px}
-.card .start{
-  appearance:none;border:none;background:var(--text);color:#fff;border-radius:12px;
-  padding:10px 12px;font-weight:800
+.card .chip{
+  display:inline-block; font-size:12px; color:#6b5b50; background:#fff;
+  border:1px solid var(--line); border-radius:999px; padding:4px 10px; width:max-content;
 }
-.card .start:hover{opacity:.95;cursor:pointer}
+.card .anim{ display:flex; justify-content:center; align-items:center; min-height: 120px; }
+.card h3{ margin:2px 0 0; font-size: clamp(15px,2.8vw,18px); }
+.card .desc{ color:var(--text-soft); margin: 2px 0 8px; }
+.start{
+  align-self:flex-start; border:none; border-radius:999px; padding:10px 14px;
+  font-weight:800; background:var(--sky-300); color:#fff; cursor:pointer; box-shadow:var(--shadow);
+  transition: transform .06s ease, filter .2s ease;
+}
+.start:active{ transform: scale(.98); }
 
-/* ---------- Footer ---------- */
-footer{padding:24px 16px;color:var(--text-soft)}
+footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 
-/* ---------- 상단 고정 메인 버튼 ---------- */
-.top-main-btn{
-  position:fixed;top:14px;right:14px;z-index:9999;
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 14px;border-radius:999px;
-  background:#ffffffcc;backdrop-filter:blur(6px);
-  border:1px solid var(--mint-300);
-  box-shadow:var(--shadow);
-  color:#1f3b39;font-weight:800;text-decoration:none;
-  transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
-}
-.top-main-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12);background:#fff}
-@media(max-width:480px){
-  .top-main-btn{top:10px;right:10px;padding:9px 12px}
-  .top-main-btn span{font-size:14px}
-}
-
-/* =========================================================
-   테스트 공통 UI
-   ========================================================= */
-main.test{max-width:820px;margin:0 auto;padding:16px}
-.meta{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
-.bar{flex:1;height:8px;background:var(--mint-100);border-radius:999px;margin-left:10px;overflow:hidden;border:1px solid var(--mint-200)}
-.bar span{display:block;height:100%;width:0;background:var(--mint-500);transition:width .2s}
+/* ---------- 테스트 페이지 공통 ---------- */
+.test{ max-width:900px; margin:0 auto; padding: 10px 12px 80px; }
+.meta{ display:flex; align-items:center; gap:12px; margin:6px 0 10px; }
+.meta #stepLabel{ font-weight:800; min-width: 64px; }
+.bar{ flex:1; height:10px; background:#eef3f2; border-radius:999px; overflow:hidden; }
+.bar span{ display:block; height:100%; width:0%; background:var(--mint-500); transition: width .25s ease; }
 
 .card-q{
-  background:#fff;border:1px solid var(--mint-200);border-radius:16px;padding:14px;
-  outline:1px solid rgba(94,73,61,.07);
+  background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 16px 14px; margin-top: 6px;
 }
-.q-text{font-weight:800;margin:0 0 8px}
-.note{color:var(--text-soft);font-size:12px;margin:10px 2px}
+.q-text{ font-weight:800; margin: 2px 0 10px; }
 
-/* 선택지 기본 */
-.choices{display:grid;gap:8px}
-.choice{
-  appearance:none;border:1px solid var(--mint-300);background:var(--mint-100);
-  border-radius:12px;padding:12px;font-weight:700;color:var(--text);
-  transition:background .2s ease, transform .06s ease, color .2s ease, outline .2s ease;
+/* 선택지 */
+.choices{ margin-top: 6px; }
+.choices .choice{
+  width:100%; display:block; text-align:center;
+  border-radius:14px; padding:14px; margin:8px 0;
+  font-weight:700; border:1px solid var(--line);
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+  transition: background .2s ease, transform .06s ease, color .2s ease, border-color .2s;
+  color: var(--text-soft);
+  background:#ffffff;
 }
-.choice.ghost{background:#fff}
-.choice:hover{transform:scale(.99)}
-.choice.selected{outline:2px solid var(--mint-500)}
-.choice:focus-visible{outline:2px solid var(--mint-400);outline-offset:2px}
+.choice:hover{ transform: scale(.995); }
+.choice.selected{ outline:2px solid #0000; }
 
-.navs{display:flex;gap:8px;margin-top:8px}
-.start{
-  appearance:none;border:none;background:var(--text);color:#fff;border-radius:12px;padding:10px 12px;font-weight:800
+/* 내비 버튼 */
+.navs{ display:flex; gap:8px; margin-top:10px; }
+.ghost{
+  background:#fff; color:var(--text-soft); border:1px solid var(--line);
+  box-shadow: var(--shadow); border-radius: 12px; padding:10px 12px; font-weight:700;
 }
-.start.ghost{background:#fff;color:var(--text);border:1px solid var(--mint-300)}
 
 /* 결과 카드 */
 .result-card{
-  background:#fff;border:1px solid var(--mint-200);border-radius:16px;padding:14px;margin-top:12px;
-  outline:1px solid rgba(94,73,61,.07);
+  background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 16px 14px; margin-top:10px;
 }
-.result-hero{display:flex;gap:12px;align-items:center}
-.result-hero img{width:80px;height:80px;object-fit:contain}
-.result-title{font-weight:900;font-size:18px}
-.result-desc{color:var(--text-soft)}
-.pill{display:inline-block;background:var(--mint-100);border:1px solid var(--mint-300);border-radius:999px;padding:6px 10px;font-weight:700}
-.result-actions{display:flex;gap:8px;margin-top:10px}
+.result-hero{ display:flex; align-items:center; gap:12px; }
+.result-hero img{ width: clamp(40px, 14vw, 72px); }
+.result-title{ font-weight:900; font-size: clamp(18px, 4.5vw, 22px); }
+.result-desc{ color:var(--text-soft); }
 
-/* 상태형 미터 (라벨 중심, 숫자는 보조) */
-.state-meter{display:grid;gap:6px;margin-top:8px}
-.state-meter .row{display:flex;justify-content:space-between;align-items:center}
-.state-meter .bar{flex:1;height:8px;background:var(--mint-100);border:1px solid var(--mint-200);border-radius:999px;margin:0 8px;overflow:hidden}
-.state-meter .fill{display:block;height:100%;width:0;background:var(--mint-400)}
-
-/* 레이더 캔버스(성격 테스트용) */
-.radar-wrap canvas{width:100%;height:auto;max-width:420px;margin:0 auto;display:block}
-
-/* 이미지 onerror 대체 시 깜빡임 완화 */
-img{image-rendering:auto}
-.anim-fallback{display:block}
-
-/* 접근성/모바일 터치 */
-button[type="button"]{min-height:40px}
-@media (max-width:360px){
-  .choice{padding:12px}
-  .test-chip{padding:9px 12px}
+.pill{
+  display:inline-block; background: var(--iv-100);
+  border:1px solid var(--line); border-radius:999px;
+  padding:6px 10px; font-weight:700; color:#6b5b50;
 }
+.mind-remind{ background: var(--mint-100); border:1px dashed var(--mint-300);
+  border-radius:12px; padding:10px; }
+.result-actions{ display:flex; gap:8px; margin-top:12px; }
+.result-actions .start{ background: var(--mint-500); }
+.result-actions .start:nth-child(2){ background: var(--sky-500); }
 
-/* 유틸 */
-.hidden{display:none!important}
+/* ---------- 카테고리 테마 (섹션 또는 body에 클래스 부여) ---------- */
+/* 연애 */
+.card-q.love .choice:nth-child(5n+1){ background: var(--rose-50); }
+.card-q.love .choice:nth-child(5n+2){ background: var(--rose-200); }
+.card-q.love .choice:nth-child(5n+3){ background: var(--rose-100); }
+.card-q.love .choice:nth-child(5n+4){ background: #ffd1b5; }
+.card-q.love .choice:nth-child(5n+5){ background: #f5e1dc; }
+.card-q.love .choice.selected{ background: var(--rose-300); color:#fff; border-color: transparent; }
 
-/* =========================================================
-   카테고리 팔레트 (파일 최하단 유지: 우선순위 보장)
-   - HTML에서 <section id="card" class="card-q [love|hobby|fun|mind]">
-   ========================================================= */
-
-/* 공통(선택지 카드형) */
-.card-q .choices .choice{
-  border-radius:14px;
-  padding:14px;
-  margin:8px 0;
-  font-weight:600;
-  border:none;
-  box-shadow:0 2px 6px rgba(0,0,0,.05);
-  color:var(--text-soft);
-}
-
-/* ① 연애 love */
-.card-q.love .choice:nth-child(5n+1){ background:#FFF1EA; }
-.card-q.love .choice:nth-child(5n+2){ background:#FFD8C4; }
-.card-q.love .choice:nth-child(5n+3){ background:#FFE6E1; }
-.card-q.love .choice:nth-child(5n+4){ background:#FFD1B5; }
-.card-q.love .choice:nth-child(5n+5){ background:#F5E1DC; }
-.card-q.love .choice.selected{ background:#FFBA9D; color:#fff; }
-
-/* ② 취미 hobby (independence, energy, personality) */
+/* 취미(자립/에너지/성격) */
 .card-q.hobby .choice:nth-child(5n+1){ background:#EAF8F1; }
 .card-q.hobby .choice:nth-child(5n+2){ background:#FFFBE6; }
 .card-q.hobby .choice:nth-child(5n+3){ background:#C8F1E3; }
 .card-q.hobby .choice:nth-child(5n+4){ background:#FFF0B8; }
 .card-q.hobby .choice:nth-child(5n+5){ background:#F7FFEC; }
-.card-q.hobby .choice.selected{ background:#A5E3C5; color:#fff; }
+.card-q.hobby .choice.selected{ background:#A5E3C5; color:#fff; border-color: transparent; }
 
-/* ③ 재미 fun (animal, mbti, weather) */
-.card-q.fun .choice:nth-child(5n+1){ background:#EDF7FF; }
-.card-q.fun .choice:nth-child(5n+2){ background:#CFE9FF; }
-.card-q.fun .choice:nth-child(5n+3){ background:#F4EEFF; }
-.card-q.fun .choice:nth-child(5n+4){ background:#FFE6A8; }
-.card-q.fun .choice:nth-child(5n+5){ background:#E2F3FF; }
-.card-q.fun .choice.selected{ background:#A8D6FF; color:#fff; }
+/* 재미(동물/MBTI/날씨) */
+.card-q.fun .choice:nth-child(5n+1){ background: var(--sky-100); }
+.card-q.fun .choice:nth-child(5n+2){ background: var(--sky-200); }
+.card-q.fun .choice:nth-child(5n+3){ background: var(--lav-100); }
+.card-q.fun .choice:nth-child(5n+4){ background: var(--iv-300); }
+.card-q.fun .choice:nth-child(5n+5){ background: #E2F3FF; }
+.card-q.fun .choice.selected{ background: var(--sky-300); color:#fff; border-color: transparent; }
 
-/* ④ 심리건강 mind (mindtalk, plant) */
+/* 심리건강(마음톡/감정vs논리) */
 .card-q.mind .choice:nth-child(5n+1){ background:#E8F6F0; }
 .card-q.mind .choice:nth-child(5n+2){ background:#D8EFE7; }
 .card-q.mind .choice:nth-child(5n+3){ background:#F9F9F7; }
 .card-q.mind .choice:nth-child(5n+4){ background:#C5E6D6; }
 .card-q.mind .choice:nth-child(5n+5){ background:#E3F2EC; }
-.card-q.mind .choice.selected{ background:#9DD8C4; color:#fff; }
+.card-q.mind .choice.selected{ background:#9DD8C4; color:#fff; border-color: transparent; }
+
+/* ---------- 접근성 ---------- */
+.choice{ outline-offset: 2px; }
+.choice:focus-visible,
+.start:focus-visible,
+.nav-btn:focus-visible,
+.test-chip:focus-visible{ outline: 3px solid #00000020; }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 600px){
+  header{ padding:16px 12px 8px; }
+  .subtitle{ font-size:14px; }
+  main{ grid-template-columns: 1fr; gap:12px; padding: 8px 10px; }
+  .card .anim{ min-height: 96px; }
+  .card h3{ font-size: 1.05rem; }
+  .cta{ width:100%; font-size:16px; }
+  footer{ font-size:13px; }
+  .test{ padding: 8px 10px 80px; }
+}
+
+@media (min-width: 601px) and (max-width: 1024px){
+  main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
