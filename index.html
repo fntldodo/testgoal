@@ -15,7 +15,56 @@
 
   <!-- 메인 스타일 -->
   <link rel="stylesheet" href="./css/style.css?v=2025.2">
+
+  <style>
+    /* 카드 이미지 크기 통일 (공통 적용) */
+    .anim {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      aspect-ratio: 1 / 1; /* 정사각형 박스 유지 */
+      overflow: hidden;
+    }
+    .anim img.anim-fallback {
+      width: 70%;           /* 이미지 크기 균일하게 */
+      height: auto;
+      object-fit: contain;  /* 비율 유지 */
+      transition: transform 0.3s ease;
+    }
+    .anim img.anim-fallback:hover {
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      .anim img.anim-fallback {
+        width: 80%;
+      }
+    }
+
+    /* 상단 고정 메인 버튼 (오른쪽 상단 위치 유지용) */
+    .top-main-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: #5e493d;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: all .25s ease;
+    }
+    .top-main-btn:hover {
+      background: #f7f7f7;
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
+
 <body>
   <header>
     <div class="logo">
