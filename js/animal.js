@@ -1,6 +1,6 @@
-// ===================================================
-// 🦊 나는 어떤 동물? — v2025.2 (14문항)
-// ===================================================
+/* ===================================================
+ * 나는 어떤 동물? — v2025.2 (14문항, 상태형 결과, 중립 편중 방지)
+ * =================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   const Q = [
     {k:'A', q:'즉흥적인 제안이 오면 기분이 먼저 움직인다.'},
@@ -31,12 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prev=document.getElementById('prev');
   const skip=document.getElementById('skip');
 
-  function weight(sec){
-    if(sec<1) return 0.9;
-    if(sec<4) return 1.0;
-    if(sec<8) return 1.15;
-    return 1.10;
-  }
+  const weight=(sec)=> sec<1?0.9: sec<4?1.0: sec<8?1.15:1.10;
 
   function render(){
     step.textContent=`${idx+1} / ${Q.length}`;
@@ -49,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="choice ghost" data-s="1" type="button">아니다</button>
       <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
     const prevSel=ans[idx];
-    if(prevSel!==undefined){
-      [...wrap.children].forEach(b=>{ if(Number(b.dataset.s)===prevSel) b.classList.add('selected'); });
-    }
+    if(prevSel!==undefined){ [...wrap.children].forEach(b=>{ if(Number(b.dataset.s)===prevSel) b.classList.add('selected'); }); }
     [...wrap.children].forEach(btn=>{
       btn.addEventListener('click',()=>{
         [...wrap.children].forEach(c=>c.classList.remove('selected'));
@@ -63,67 +56,56 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function choose(s){
-    const sec=(Date.now()-start)/1000;
-    const w=weight(sec);
-    const adj = s + (s*(w-1)*0.2);
+    const sec=(Date.now()-start)/1000, w=weight(sec);
+    const adj=s + (s*(w-1)*0.2);
     ans[idx]=s; times[idx]=sec;
-    const k=Q[idx].k;
-    score[k]+=adj; count[k]+=1;
+    const k=Q[idx].k; score[k]+=adj; count[k]+=1;
     next();
   }
   function next(){ idx++; if(idx<Q.length) render(); else finish(); }
 
-  prev?.addEventListener('click',()=>{
-    if(idx===0) return;
-    idx--; recalc(idx); render();
-  });
-  skip?.addEventListener('click',()=>{
-    ans[idx]=0; times[idx]=(Date.now()-start)/1000; next();
-  });
+  prev?.addEventListener('click',()=>{ if(idx===0) return; idx--; recalc(idx); render(); });
+  skip?.addEventListener('click',()=>{ ans[idx]=0; times[idx]=(Date.now()-start)/1000; next(); });
 
   function recalc(end){
-    score.A=score.N=score.C=score.S=0;
-    count.A=count.N=count.C=count.S=0;
+    score.A=score.N=score.C=score.S=0; count.A=count.N=count.C=count.S=0;
     for(let i=0;i<end;i++){
-      const s=ans[i]??0, k=Q[i].k, sec=times[i]??3;
-      const w=weight(sec), adj=s+(s*(w-1)*0.2);
-      score[k]+=adj; count[k]+=1;
+      const s=ans[i]??0, k=Q[i].k, sec=times[i]??3, w=weight(sec);
+      const adj=s + (s*(w-1)*0.2); score[k]+=adj; count[k]+=1;
     }
   }
 
-  function normalize(){
-    const n={};
-    for(const k of ['A','N','C','S']){
+  const normalize=()=>{
+    const n={}; for(const k of ['A','N','C','S']){
       const avg=(score[k]/Math.max(1,count[k]))/4;
       n[k]=Math.max(0,Math.min(1,avg));
-    }
-    return n;
-  }
+    } return n;
+  };
+
   function tieBreakTop2(k1,k2){
     let d=0;
     for(let i=Math.max(0,Q.length-3); i<Q.length; i++){
-      const ax=Q[i].k;
-      if(ax===k1 || ax===k2){
-        const sec=times[i]??3, w=weight(sec);
-        const s=ans[i]??0;
-        const mag=(s>=3?1:(s===2?0.3:0.1));
-        d += (ax===k1?1:-1)*w*mag;
-      }
+      const ax=Q[i].k; if(ax!==k1 && ax!==k2) continue;
+      const sec=times[i]??3, w=weight(sec), s=ans[i]??0;
+      const mag=(s>=3?1:(s===2?0.3:0.1));
+      d += (ax===k1?1:-1)*w*mag;
     }
     return d>=0? k1:k2;
   }
+
   function classify(){
     const n=normalize();
     const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]);
     const [k1,v1]=arr[0],[k2,v2]=arr[1],[,v3]=arr[2];
     const diff12=v1-v2, spread=v1-v3;
-    let first=(diff12<0.10)?tieBreakTop2(k1,k2):k1;
-    let second=(first===k1? k2:k1);
+    const first = (diff12<0.10)? tieBreakTop2(k1,k2): k1;
+    const second = (first===k1? k2:k1);
+
     const combo=[first,second].sort().join('');
-    const typeMap={ AN:'FOX', AC:'OTTER', AS:'CAT', CN:'DOLPHIN', CS:'PENGUIN', NS:'OWL' };
-    const type=typeMap[combo] || 'FOX';
+    const keyMap={ AN:'FOX', AC:'OTTER', AS:'CAT', CN:'DOLPHIN', CS:'PENGUIN', NS:'OWL' };
+    const type = keyMap[combo] || 'FOX';
     const dominant=(diff12>=0.18 && spread>=0.26);
-    return {type, dominant, n};
+    return {type, tag:dominant?'dominant':'blend', n};
   }
 
   const COPY={
@@ -146,15 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
       desc:'차분한 통찰가예요. 근거 기반으로 새로움을 구조화하고, 계획을 세워 안정적으로 실행합니다. 탐색 시간을 정하면 더 멀리 가요.',
       remind:'탐색 시간 상한을 정하고, 작은 단위로 시범 운행하세요.'}
   };
-  const IMG_MAP={ FOX:'fox.png', OTTER:'otter.png', CAT:'cat.png', DOLPHIN:'dolphin.png', PENGUIN:'penguin.png', OWL:'owl.png' };
 
-  function label(p){
-    if(p>=0.80) return '매우 높음';
-    if(p>=0.60) return '높음';
-    if(p>=0.40) return '보통';
-    if(p>=0.20) return '낮음';
-    return '매우 낮음';
-  }
+  const label = (p)=> p>=0.80?'매우 높음': p>=0.60?'높음': p>=0.40?'보통': p>=0.20?'낮음':'매우 낮음';
+
   function meters(n){
     const rows=[['A','활동성'],['N','새로움'],['C','공감'],['S','신중']];
     return `
@@ -171,18 +147,29 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   }
 
+  const ANIMAL_IMG = {
+    FOX:      '../assets/animals/fox.png',
+    OTTER:    '../assets/animals/otter.png',
+    CAT:      '../assets/animals/cat.png',
+    DOLPHIN:  '../assets/animals/dolphin.png',
+    PENGUIN:  '../assets/animals/penguin.png',
+    OWL:      '../assets/animals/owl.png',
+  };
+
   function finish(){
     card.style.display='none'; bar.style.width='100%';
-    const {type, dominant, n}=classify();
+    const {type, tag, n}=classify();
     const info=COPY[type] || COPY.FOX;
-    const imgFile=IMG_MAP[type] || 'fox.png';
+    const badge = tag==='dominant'
+      ? `<div class="pill">단일 성향 또렷</div>`
+      : `<div class="pill">두 성향의 조화</div>`;
 
-    const badge = `<div class="pill">${dominant ? '단일 성향 또렷' : '두 성향의 조화'}</div>`;
-
-    result.innerHTML=`
+    result.innerHTML = `
       <div class="result-card">
-        <div class="result-hero result-hero--big">
-          <img class="animal-hero" src="../assets/animals/${imgFile}" alt="${info.title}"
+        <div class="result-hero">
+          <img class="animal-hero"
+               src="${ANIMAL_IMG[type] || '../assets/animal.png'}"
+               alt="${info.title}"
                onerror="this.onerror=null; this.src='../assets/animal.png'">
           <div>
             <div class="result-title">${info.title}</div>
@@ -191,11 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <p style="margin:8px 0">${info.desc}</p>
+        <p style="margin:10px 0">${info.desc}</p>
 
         ${meters(n)}
 
-        <div class="mind-remind" style="margin-top:10px;color:var(--text-soft)">
+        <div class="mind-remind" style="margin-top:10px">
           <b>🌿 마음 리마인드:</b> ${info.remind}
         </div>
 
@@ -203,7 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <a class="start" href="../index.html">메인으로</a>
           <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
         </div>
-      </div>`;
+      </div>
+    `;
     result.style.display='block';
   }
 
