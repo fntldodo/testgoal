@@ -1,13 +1,15 @@
 /* [코드 절대 규칙]
    1) 기존 합의 기능은 삭제/덮어쓰기/생략 금지 (사용자 요청 시에만 변경).
    2) 변경은 '추가' 우선, 중복 제거는 사전 확인 후.
+   3) 코드 수정 시 전체 완전본 제공 (생략/축약 금지).
 */
 
 /* =========================================================
-   몽실몽실 심리테스트 style.css v2025.2 — 반응형 & 파스텔
+   몽실몽실 심리테스트 style.css v2025.3 — 반응형 & 파스텔
    - Pretendard Variable 기준
    - 톤: 파스텔 / 라운디드 / 얇은 브라운 라인
    - 카테고리 테마: love / hobby / fun / mind
+   - 확장: 에너지 테스트 배터리 그래픽 & 애니메이션
    ========================================================= */
 
 /* ---------- 리셋 & 기본 ---------- */
@@ -27,7 +29,6 @@ img { display:block; max-width:100%; height:auto; }
   --sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff; --sky-500:#6cb7f0;
   --lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd; --lav-500:#9a8cf5;
   --iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;  --iv-500:#ffcf60;
-
   --rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d; --rose-500:#ff9468;
   --shadow: 0 6px 18px rgba(0,0,0,.06);
   --radius: 18px;
@@ -90,7 +91,6 @@ header{
 .scroll-tests{
   display:flex; overflow:auto; gap:8px; scroll-behavior:smooth; padding:6px 2px;
   -webkit-overflow-scrolling: touch;
-  /* 충돌 방지 */
   touch-action: pan-x;
   overscroll-behavior-inline: contain;
   scrollbar-width: none;
@@ -123,17 +123,14 @@ main{
 .thumb-link { display:block; text-decoration: none; }
 .card .anim{
   display:flex; justify-content:center; align-items:center;
-  width:100%;
-  min-height: 120px;
+  width:100%; min-height: 120px;
 }
 .card .anim img{
   width: clamp(88px, 18vw, 120px);
   height: auto;
   object-fit: contain;
-  /* 이미지만 눌러도 링크 동작하도록 pointer 이벤트 허용 */
   pointer-events: auto;
 }
-
 .card h3{ margin:2px 0 0; font-size: clamp(15px,2.8vw,18px); }
 .card .desc{ color:var(--text-soft); margin: 2px 0 8px; }
 .start{
@@ -200,7 +197,7 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 .result-actions .start{ background: var(--mint-500); }
 .result-actions .start:nth-child(2){ background: var(--sky-500); }
 
-/* ---------- 카테고리 테마 (섹션 또는 body에 클래스 부여) ---------- */
+/* ---------- 카테고리 테마 ---------- */
 /* 연애 */
 .card-q.love .choice:nth-child(5n+1){ background: var(--rose-50); }
 .card-q.love .choice:nth-child(5n+2){ background: var(--rose-200); }
@@ -271,4 +268,67 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 /* 태블릿 카드 폭 보정 */
 @media (min-width: 601px) and (max-width: 1024px){
   main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
+
+/* =========================================================
+   ⚡ [추가] 에너지 테스트 전용 배터리 그래픽
+   - energy.js의 renderBattery()와 연동
+   - 깜빡이는 애니메이션 포함
+   ========================================================= */
+.battery {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  margin:16px 0 12px;
+}
+.battery-pack {
+  display:flex;
+  gap:4px;
+  padding:6px;
+  border:2px solid var(--mint-500);
+  border-radius:10px;
+  background:#fff;
+  position:relative;
+  box-shadow:inset 0 0 4px rgba(0,0,0,0.05);
+}
+.battery-pack::after {
+  content:'';
+  position:absolute;
+  right:-6px;
+  top:50%;
+  transform:translateY(-50%);
+  width:4px;
+  height:12px;
+  border-radius:2px;
+  background:var(--mint-500);
+}
+.batt-cell {
+  width:28px;
+  height:16px;
+  border-radius:4px;
+  background:#eef3f2;
+  overflow:hidden;
+  position:relative;
+}
+.batt-cell .fill {
+  position:absolute;
+  top:0;
+  left:0;
+  height:100%;
+  background:var(--mint-500);
+  transition:width 0.6s ease;
+}
+.batt-cell.blink .fill {
+  animation:blinkFill 1.2s infinite ease-in-out;
+}
+@keyframes blinkFill {
+  0%,100% {opacity:1;}
+  50% {opacity:0.4;}
+}
+.percent-label {
+  font-weight:700;
+  font-size:0.9rem;
+  color:var(--mint-700,#3ca774);
+  margin-top:6px;
 }
