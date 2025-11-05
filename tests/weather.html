@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>마음 일기예보 - 몽실몽실</title>
+  <title>마음 일기예보 ☁️ - 몽실몽실 심리테스트</title>
 
-  <!-- AdSense (head 안 1회) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
+    crossorigin="anonymous"></script>
 
   <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- 공통 스타일 -->
+  <!-- CSS -->
   <link rel="stylesheet" href="../css/style.css?v=2025.2">
 </head>
 <body>
@@ -24,37 +25,37 @@
   </a>
 
   <header>
-    <div class="logo">
-      <img src="../assets/weather/weather_sunny.png" alt="마음 일기예보" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
-      <span>마음 일기예보</span>
+    <div class="logo" data-link="weather">
+      <img src="../assets/weather/weather_sunny.png" alt="마음 일기예보 로고"
+           onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+      <span>마음 일기예보 ☁️</span>
     </div>
-    <p class="subtitle">15문항 · 6가지 날씨 메타포 · 상태 라벨 + 마음 리마인드</p>
+    <p class="subtitle">14문항 · 5지선다(0~4) · 감정상태 기반 결과</p>
   </header>
 
   <main class="test">
     <div class="meta">
-      <div id="stepLabel">1 / 15</div>
-      <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
+      <div id="stepLabel">1 / 14</div>
+      <div class="bar"><span id="barFill"></span></div>
     </div>
 
-    <!-- 카테고리: 심리건강 -->
     <section class="card-q fun" id="card">
-
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
+
       <div class="navs">
         <button id="prev" class="start ghost" type="button">← 이전</button>
         <button id="skip" class="start ghost" type="button">건너뛰기</button>
       </div>
-      <p class="note">* 자기 이해용 도구이며, 임상 진단이 아닙니다.</p>
+
+      <p class="note">* 감정 흐름을 가볍게 관찰하는 도구입니다. 진단 목적이 아닙니다.</p>
     </section>
 
-    <section id="result" class="mind" style="display:none"></section>
+    <section id="result" style="display:none"></section>
   </main>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 공통/로직 -->
   <script src="../js/error-proof.js?v=2025.2" defer></script>
   <script src="../js/weather.js?v=2025.2" defer></script>
 </body>
