@@ -1,11 +1,10 @@
 /* ===================================================
- * 마인드톡(한마디) — 몽실몽실 v2025.2 (마음 리마인드 버전)
+ * 마인드톡(한마디) — 몽실몽실 v2025.3 (자연 서술 + 마음 리마인드 개선)
  * ---------------------------------------------------
  * - 12문항 / 5지선다(0~4) + 응답시간 가중(±20%, 선택 우선)
  * - 축: 안도(RELIEF) / 동기(MOTIV) / 연결(CONNECT)
  * - 중립 편중 방지: 상위2축만 반영 + 최근3문항 타이브레이커
  * - 결과: 제목/인용문/설명/감정상태 요약/마음 리마인드/시각요소/버튼
- * - 수치 직접 노출 금지(상태 라벨만, %는 보조 라벨일 때만)
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,18 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     {k:'CONNECT',q:'힘들 땐 주변 사람에게 도움을 청할 수 있다.'},
     {k:'CONNECT',q:'하루에 한 번이라도 진심 어린 문장을 건넨다.'},
     {k:'CONNECT',q:'관계의 온도를 유지하려 작게라도 노력한다.'},
-    // 균형용(축 분산 완화)
     {k:'RELIEF', q:'“지금 이만큼이면 충분해”라는 마음을 기억한다.'},
     {k:'MOTIV',  q:'시작을 위한 준비동작(5분 정리/호흡)을 사용한다.'},
     {k:'CONNECT',q:'내 마음을 한 문장으로 설명해보려 한다.'}
   ];
 
-  // 상태
   let idx=0, startTime=Date.now();
   const score={RELIEF:0,MOTIV:0,CONNECT:0}, count={RELIEF:0,MOTIV:0,CONNECT:0};
-  const ans=[], times=[], recent=[]; // recent: {i,k,s}
+  const ans=[], times=[], recent=[];
 
-  // DOM
   const stepLabel=document.getElementById('stepLabel');
   const barFill=document.getElementById('barFill');
   const qText=document.getElementById('qText');
@@ -66,23 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getWeight(sec){
-    if(sec<1) return 0.9;      // 너무 빠르면 -10%
-    if(sec<4) return 1.0;      // 정상
-    if(sec<8) return 1.15;     // 숙고 +
-    return 1.1;                // 과숙고 소폭 +
+    if(sec<1) return 0.9;
+    if(sec<4) return 1.0;
+    if(sec<8) return 1.15;
+    return 1.1;
   }
 
   function choose(s){
     const elapsed=(Date.now()-startTime)/1000;
     const k=Q[idx].k, w=getWeight(elapsed);
-    const adjusted=s + (s*(w-1)*0.2); // ±20% 캡, 선택 우선
+    const adjusted=s + (s*(w-1)*0.2);
     score[k]+=adjusted; count[k]+=1;
     ans[idx]=s; times[idx]=elapsed;
-
-    // 최근 3문항 큐
     recent.push({i:idx,k,s,sec:elapsed});
     if(recent.length>3) recent.shift();
-
     next();
   }
 
@@ -114,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 정규화(0~1)
   function norm(){
     return {
       RELIEF:(score.RELIEF/Math.max(1,count.RELIEF))/4,
@@ -123,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // 타이브레이커: 상위2가 근소하면 최근 3문항+시간 보조로 방향 결정
   function tieBreak(topA, topB){
     let d=0;
     recent.forEach(r=>{
@@ -134,13 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return d>=0 ? topA : topB;
   }
 
-  // 분류: 상위2축만 반영(중립 편중 방지)
   function classify(){
     const n=norm();
     const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]);
     const [k1,v1]=arr[0], [k2,v2]=arr[1], diff=v1-v2;
-
-    // 근소차(0.08 미만)면 타이브레이커
     const main = (diff<0.08) ? tieBreak(k1,k2) : k1;
 
     if(main==='RELIEF') return '안도형';
@@ -149,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return '안도형';
   }
 
-  // 상태 라벨
   function label(p){
     if(p>=0.8) return '매우 풍족';
     if(p>=0.6) return '풍족';
@@ -158,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return '매우 부족';
   }
 
-  // 상태 미터(라벨 중심, %는 보조)
   function meters(n){
     const items=[
       {k:'RELIEF', name:'안도', val:n.RELIEF},
@@ -181,12 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 결과 카피
+  /* --- 자연스럽게 다듬은 결과 서술 --- */
   const COPY={
     '안도형':{
       title:'☁️ 안도형 한마디',
-      quote:'“지금 이만큼이면 충분해.”',
-      desc:'스스로를 다독이는 힘이 바탕이 되는 타입. 마음의 안전감이 만들어지면 시작도 속도도 부드럽게 이어집니다.',
+      quote:'“지금 이만큼이면 충분해요.”',
+      desc:'마음을 다독이는 힘이 큰 타입이에요. 스스로를 인정할 때, 그 여유가 다시 추진력이 됩니다. 오늘은 천천히 숨 고르며 자신을 격려해보세요.',
       mood:['긴장 — 느슨해짐','호흡 — 안정','속도 — 천천히'],
       remindList:[
         '호흡 4-6, 세 번',
@@ -196,8 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     '동기형':{
       title:'🔆 동기형 한마디',
-      quote:'“작게라도, 지금 시작!”',
-      desc:'작은 실행에서 에너지를 회수하는 타입. 완벽보다 진행, 시도에서 성취감이 자랍니다.',
+      quote:'“지금, 작게라도 시작해요.”',
+      desc:'작은 움직임에서 에너지를 얻는 타입이에요. 완벽보다 시도를 우선하면 흐름이 생깁니다. 오늘은 “딱 10분만”의 용기가 충분해요.',
       mood:['의욕 — 점화','단위 — 작게','연속 — 유지'],
       remindList:[
         '2분 정리 후 스타트',
@@ -207,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     '연결형':{
       title:'🤝 연결형 한마디',
-      quote:'“마음을 한 줄로 나누자.”',
-      desc:'관계의 따뜻함이 에너지가 되는 타입. 짧은 안부와 경청이 나와 상대 모두를 덮어 줍니다.',
+      quote:'“따뜻한 한 줄이 누군가의 오늘을 살려요.”',
+      desc:'관계의 온기가 나를 살리고, 나의 다정함이 타인을 살립니다. 작은 인사나 한 줄의 메시지가 오늘 하루의 공기를 부드럽게 바꿔줄 거예요.',
       mood:['관계 — 온기','언어 — 다정','리듬 — 잔잔'],
       remindList:[
         '안부 메시지 한 줄',
@@ -218,16 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // 한 줄 위로 문장 생성(상태 기반)
   function makeLine(type){
-    if(type==='안도형')   return '오늘의 당신, 이미 충분히 잘하고 있어요.';
-    if(type==='동기형')   return '작게 시작하면, 금방 흐름이 붙을 거예요.';
-    if(type==='연결형')   return '따뜻한 한 줄이 누군가의 오늘을 살려요—당신부터요.';
+    if(type==='안도형')   return '당신의 마음은 이미 충분히 괜찮아요.';
+    if(type==='동기형')   return '작은 시도가 곧 흐름이 됩니다.';
+    if(type==='연결형')   return '당신의 다정함이 오늘을 따뜻하게 만듭니다.';
     return '지금의 나에게 다정함을 허락해요.';
   }
 
   function finish(){
-    card.style.display='none'; barFill.style.width='100%';
+    card.style.display='none';
+    barFill.style.width='100%';
 
     const type=classify();
     const n=norm();
@@ -245,11 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <p style="margin:8px 0">${info.desc}</p>
+        <p style="margin:8px 0; line-height:1.7;">${info.desc}</p>
 
         <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
 
-        <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
+        <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft);line-height:1.6;">
           <b>🌿 마음 리마인드:</b>
           ${info.remindList.map(t=>`<div class="pill" style="margin:4px 6px 0 0;display:inline-block">${t}</div>`).join('')}
         </div>
@@ -265,6 +251,5 @@ document.addEventListener('DOMContentLoaded', () => {
     resultBox.style.display='block';
   }
 
-  // 시작
   render();
 });
