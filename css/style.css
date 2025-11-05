@@ -332,3 +332,5 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
   color:var(--mint-700,#3ca774);
   margin-top:6px;
 }
+/* === 자립 지수 체크: 미터 보조 스타일 (추가) === */
+.state-meter .meter-dim{ opacity:.7; }
