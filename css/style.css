@@ -291,3 +291,12 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
   user-select: none;
   -webkit-user-select: none;
 }
+/* === MBTI 결과 가독성 개선 === */
+.result-hero--mbti img { width: 64px; height: auto; }
+.pair-list { display: grid; gap: 8px; margin: 10px 0; }
+.pair-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 8px 10px;
+}
+.pair-row .pill { margin: 0; }
