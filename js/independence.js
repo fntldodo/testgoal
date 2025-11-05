@@ -1,9 +1,10 @@
 /* ===================================================
- * 자립 지수 체크 — 몽실몽실 v2025.2 (마음 리마인드)
+ * 자립 지수 체크 — 몽실몽실 v2025.2.2 (마음 리마인드)
  * - 5지선다(0~4) / 응답시간 보조 ±20%(선택 우선)
  * - 균형 희귀화, 상위2 하이브리드, 타이브레이커
- * - 결과: 2~3줄 설명, 자연스러운 리마인드, 미터 오른쪽 키워드
- *   (루틴→유연함 / 결정→선명함 / 평온→적정)
+ * - 결과: 2~3줄 설명 + 자연스러운 리마인드
+ * - 미터 오른쪽 키워드: 루틴→유연함 / 결정→선명함 / 평온→적정
+ * - [FIX] 하이브리드 키를 DR/ER/DE로 정정 (정렬 결과와 일치)
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,10 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if(w!==k1){ [k1,k2]=[k2,k1]; }
     }
 
+    // 상위 2축이 근접하면 하이브리드
     if(Math.abs(v1-v2)<0.10){
-      const pair=[k1,k2].sort().join('');
-      const map={ RD:'ROUTINE-DECIDER', RE:'ROUTINE-CALMER', DE:'DECIDER-CALMER' };
-      return {type:map[pair], n};
+      const pair=[k1,k2].sort().join(''); // 'DR', 'ER', 'DE' 형태
+      const map={ DR:'ROUTINE-DECIDER', ER:'ROUTINE-CALMER', DE:'DECIDER-CALMER' };
+      return {type:map[pair] || 'ROUTINE-DECIDER', n};
     }
 
     return {type:{R:'ROUTINE',D:'DECIDER',E:'CALMER'}[k1], n};
@@ -244,40 +246,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- 결과 ---------- */
   function finish(){
-    card.style.display='none';
-    bar.style.width='100%';
+    try{
+      card.style.display='none';
+      bar.style.width='100%';
 
-    const {type, n} = classify();
-    const info = COPY[type];
-    const moodSummary = `• ${info.mood.join('  • ')}`;
+      const {type, n} = classify();
+      const info = COPY[type] || COPY['BALANCE'];
+      const moodSummary = `• ${info.mood.join('  • ')}`;
 
-    box.innerHTML = `
-      <div class="result-card">
-        <div class="result-hero">
-          <img src="../assets/independence.png" alt="자립 캐릭터" onerror="this.style.display='none'">
-          <div>
-            <div class="result-title">${info.title}</div>
-            <div class="result-desc">${info.quote}</div>
+      box.innerHTML = `
+        <div class="result-card">
+          <div class="result-hero">
+            <img src="../assets/independence.png" alt="자립 캐릭터" onerror="this.style.display='none'">
+            <div>
+              <div class="result-title">${info.title}</div>
+              <div class="result-desc">${info.quote}</div>
+            </div>
+          </div>
+
+          <p style="margin:8px 0">${info.desc}</p>
+          <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
+
+          <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
+            <b>🌿 마음 리마인드:</b>
+            ${info.remind.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('')}
+          </div>
+
+          ${meters(n)}
+
+          <div class="result-actions">
+            <a class="start" href="../index.html">메인으로</a>
+            <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
           </div>
         </div>
-
-        <p style="margin:8px 0">${info.desc}</p>
-        <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
-
-        <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b>
-          ${info.remind.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('')}
-        </div>
-
-        ${meters(n)}
-
-        <div class="result-actions">
-          <a class="start" href="../index.html">메인으로</a>
-          <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
-        </div>
-      </div>
-    `;
-    box.style.display='block';
+      `;
+      box.style.display='block';
+    }catch(err){
+      console.error('[independence finish]', err);
+      box.innerHTML = `<div class="result-card"><p>결과 표시 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.</p></div>`;
+      box.style.display='block';
+    }
   }
 
   render();
