@@ -7,7 +7,7 @@
  * =================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    /* ---------- 문항 ---------- */
+    // ---------- 문항 ----------
     const Q = [
       {axis:'EI', a:'E', q:'사람 많은 자리에서 에너지가 오른다.'},
       {axis:'EI', a:'I', q:'혼자만의 시간이 꼭 필요하다.'},
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
       {axis:'JP', a:'J', q:'할 일을 미리 정리하고 진행한다.'}
     ];
 
-    /* ---------- DOM ---------- */
+    // ---------- DOM ----------
     const step = document.getElementById('stepLabel');
     const bar  = document.getElementById('barFill');
     const qTxt = document.getElementById('qText');
@@ -36,18 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const prev = document.getElementById('prev');
     const skip = document.getElementById('skip');
 
-    // 필수 엘리먼트 점검
     if (!step || !bar || !qTxt || !wrap || !card || !result) {
       console.error('[MBTI] 필수 DOM 요소 누락');
       return;
     }
 
-    /* ---------- 상태 ---------- */
+    // ---------- 상태 ----------
     let idx = 0, start = Date.now();
     const ans = [], times = [];
     const S = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
 
-    /* ---------- 유틸 ---------- */
+    // ---------- 유틸 ----------
     function weight(sec){
       if (sec < 1) return 0.9;
       if (sec < 4) return 1.0;
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return 1.10;
     }
 
-    /* ---------- 렌더 ---------- */
+    // ---------- 렌더 ----------
     function render(){
       step.textContent = `${idx+1} / ${Q.length}`;
       bar.style.width = `${(idx/Q.length)*100}%`;
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
       `;
 
-      // 이전 선택 표시
       const prevSel = ans[idx];
       if (prevSel !== undefined) {
         [...wrap.children].forEach(b=>{
@@ -77,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // 클릭 이벤트
       [...wrap.children].forEach(btn=>{
         btn.addEventListener('click', ()=>{
           [...wrap.children].forEach(c=>c.classList.remove('selected'));
@@ -89,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       start = Date.now();
     }
 
-    /* ---------- 응답 ---------- */
+    // ---------- 응답 ----------
     function choose(s){
       const sec = (Date.now() - start) / 1000;
       const w = weight(sec);
@@ -127,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    /* ---------- 결정 ---------- */
+    // ---------- 결정 ----------
     function pickPair(l,r){
       const lv=S[l], rv=S[r];
       if (Math.abs(lv-rv) < 0.01){
@@ -155,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return '매우 약함';
     }
 
-    /* ---------- 결과 ---------- */
+    // ---------- 결과 ----------
     function finish(){
       try {
         card.style.display='none';
@@ -220,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
           r:'균형을 유지하기 위해서라도, 때로는 “기울어보기”가 필요해요.'
         };
 
-        // 페어 라벨(2열 칩) — CSS의 .pairs-grid, .pair가 스타일링
         const pairsHTML = [
           {n:'E/I',l:'E',r:'I'},
           {n:'S/N',l:'S',r:'N'},
