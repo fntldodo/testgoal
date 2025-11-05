@@ -1,13 +1,13 @@
 /* ===================================================
- * 자립 지수 체크 — 몽실몽실 v2025.2 (마음 리마인드)
+ * 자립 지수 체크 — 몽실몽실 v2025.3 (마음 리마인드 안정형)
+ * ---------------------------------------------------
+ * [코드 절대 규칙 적용]
+ * 1) 기존 기능은 삭제/덮어쓰기/생략 금지.
+ * 2) 변경은 추가 우선, 중복 제거는 사전 확인 후.
  * ---------------------------------------------------
  * - 5지선다(0~4) / 응답시간 보조 ±20%(선택 우선)
- * - 균형(BALANCE) 남발 방지:
- *   · BALANCE: 3축 모두 0.35~0.65 & spread<0.12일 때만 (희귀)
- *   · 상위 2축 하이브리드: ROUTINE-DECIDER / ROUTINE-CALMER / DECIDER-CALMER
- *   · tie-break: diff<0.10이면 최근 3문항+시간보조로 경계 상/하향
- * - 결과 카드: 제목/인용문/설명/감정상태 요약/마음 리마인드/상태 미터/버튼
- * - 숫자 점수 직접 노출 금지(라벨 중심, %는 보조)
+ * - BALANCE 남발 방지: spread<0.12 & 3축 0.35~0.65 한정
+ * - 결과 안전화: classify·finish Fallback 보강
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     {k:'E', q:'몸 컨디션(수면/식사/운동)으로 마음을 관리한다.'},
   ];
 
-  // 상태
+  // 상태값
   let idx = 0, startTime = Date.now();
   const score = {R:0, D:0, E:0};
   const count = {R:0, D:0, E:0};
-  const ans   = Array(Q.length).fill(undefined); // 0~4
+  const ans   = Array(Q.length).fill(undefined);
   const times = Array(Q.length).fill(0);
 
   // DOM
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prevBtn   = document.getElementById('prev');
   const skipBtn   = document.getElementById('skip');
 
+  /* ---------- 질문 렌더 ---------- */
   function render(){
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
     barFill.style.width   = `${(idx/Q.length)*100}%`;
@@ -74,19 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getWeight(sec){
-    if(sec < 1)  return 0.9;   // 너무 빠름 -10%
-    if(sec < 4)  return 1.0;   // 정상
-    if(sec < 8)  return 1.15;  // 숙고 +15%
-    return 1.10;               // 과숙고 +10%
+    if(sec < 1)  return 0.9;
+    if(sec < 4)  return 1.0;
+    if(sec < 8)  return 1.15;
+    return 1.10;
   }
 
   function choose(s){
     const elapsed = (Date.now()-startTime)/1000;
     times[idx] = elapsed;
-
-    const k = Q[idx].k;
-    const w = getWeight(elapsed);
-    const adjusted = s + (s*(w-1)*0.2); // 보조 ±20% 캡(선택 우선)
+    const k = Q[idx].k, w = getWeight(elapsed);
+    const adjusted = s + (s*(w-1)*0.2);
     ans[idx] = s;
     score[k]+= adjusted;
     count[k]+= 1;
@@ -95,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function next(){
     idx++;
-    if(idx<Q.length) render(); else finish();
+    if(idx<Q.length) render();
+    else finish();
   }
 
   prevBtn?.addEventListener('click', ()=>{
@@ -119,16 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ------------ 분류 로직 (BALANCE 억제 + tie-break) --------------- */
+  /* ---------- 분류 로직 (tie-break + balance 방지 + fallback) ---------- */
   function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
-  function normalized(){ // 축평균 0~1
+  function normalized(){
     const R=(score.R/Math.max(1,count.R))/4;
     const D=(score.D/Math.max(1,count.D))/4;
     const E=(score.E/Math.max(1,count.E))/4;
     return {R:clamp(R,0,1), D:clamp(D,0,1), E:clamp(E,0,1)};
   }
 
-  function tieBreak(k1,k2){ // 최근 3문항 + 시간보조
+  function tieBreak(k1,k2){
     let bias=0;
     for(let i=Q.length-1; i>=0 && i>=Q.length-3; i--){
       const s=ans[i] ?? 0; const sec=times[i] ?? 3; const w=getWeight(sec);
@@ -143,34 +143,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function classify(){
     const n=normalized();
-    const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]); // desc
+    const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]);
     let [k1,v1]=arr[0], [k2,v2]=arr[1], [k3,v3]=arr[2];
     const diff12=v1-v2, spread=v1-v3;
-
-    // BALANCE: 모두 중간대역 & 매우 근접
     const allMid=(x)=> x>=0.35 && x<=0.65;
+
+    // (1) BALANCE 레어형
     if(spread<0.12 && allMid(n.R) && allMid(n.D) && allMid(n.E)){
       return {type:'BALANCE', top:[k1,k2], n};
     }
 
-    // 상·차상위가 매우 근접하면 tie-break로 정교화
+    // (2) 근소차 tie-break
     if(diff12<0.10){
       const winner = tieBreak(k1,k2);
       if(winner!==k1){ [k1,k2]=[k2,k1]; [v1,v2]=[v2,v1]; }
     }
 
-    // 최종 판정(근접이면 하이브리드)
+    // (3) 하이브리드
     if(Math.abs(v1-v2)<0.10){
       const pair=[k1,k2].sort().join('');
       const map={ RD:'ROUTINE-DECIDER', RE:'ROUTINE-CALMER', DE:'DECIDER-CALMER' };
-      return {type:map[pair], top:[k1,k2], n};
+      return {type:map[pair] || 'BALANCE', top:[k1,k2], n};
     }
 
+    // (4) 단일형
     const singleMap={R:'ROUTINE', D:'DECIDER', E:'CALMER'};
-    return {type:singleMap[k1], top:[k1,k2], n};
+    return {type: singleMap[k1] || 'BALANCE', top:[k1,k2], n};
   }
 
-  /* ------------ 결과 카피 --------------- */
+  /* ---------- 결과 카피 ---------- */
   const COPY = {
     'ROUTINE': {
       title:'🗓️ 루틴몽실형',
@@ -223,7 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  function labelByPct(p){ // 0~100 → 상태라벨
+  /* ---------- 상태 미터 ---------- */
+  function labelByPct(p){
     if(p>=76) return '높음';
     if(p>=56) return '적정';
     if(p>=36) return '보통';
@@ -231,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return '아주 낮음';
   }
 
-  function meters(n){ // n: {R,D,E} 0~1
+  function meters(n){
     const items = [
       {k:'R', name:'루틴', val:Math.round(n.R*100)},
       {k:'D', name:'결정', val:Math.round(n.D*100)},
@@ -250,14 +252,21 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /* ---------- 결과 출력 (오류 방어 + 기본값 보정) ---------- */
   function finish(){
     card.style.display='none';
     barFill.style.width='100%';
 
     const res = classify();
-    const info = COPY[res.type];
+    const info = COPY[res.type] || {
+      title:'☁️ 분석 중',
+      quote:'“데이터가 조금 부족해요.”',
+      desc:'응답이 적거나 균형적으로 분포되어 결과 산출이 어렵습니다. 다음엔 문항을 조금 더 다양하게 선택해보세요 🌱',
+      mood:['루틴 — 관찰중','결정 — 관찰중','평온 — 관찰중'],
+      remind:['오늘은 휴식형 하루로','가벼운 루틴 1개만 시도해보기']
+    };
 
-    const moodSummary = `• ${info.mood[0]}  • ${info.mood[1]}  • ${info.mood[2]}`;
+    const moodSummary = info.mood ? `• ${info.mood.join('  • ')}` : '';
 
     resultBox.innerHTML = `
       <div class="result-card">
@@ -270,17 +279,14 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <p style="margin:8px 0">${info.desc}</p>
-
-        <!-- 감정상태 요약(2줄 이내) -->
         <div class="pill" style="margin:8px 0 2px">${moodSummary}</div>
 
-        <!-- 마음 리마인드(조언 금지, 응원/제안 톤) -->
         <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b> ${info.remind.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('')}
+          <b>🌿 마음 리마인드:</b>
+          ${info.remind?.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('') || ''}
         </div>
 
-        <!-- 상태 미터(라벨 중심, %는 보조) -->
-        ${meters(res.n)}
+        ${res.n ? meters(res.n) : ''}
 
         <div class="result-actions">
           <a class="start" href="../index.html">메인으로</a>
