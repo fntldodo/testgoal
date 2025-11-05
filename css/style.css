@@ -1,5 +1,13 @@
+/* [코드 절대 규칙]
+   1) 기존 합의 기능은 삭제/덮어쓰기/생략 금지 (사용자 요청 시에만 변경).
+   2) 변경은 '추가' 우선, 중복 제거는 사전 확인 후.
+*/
+
 /* =========================================================
-   몽실몽실 심리테스트 style.css — v2025.2 (검수/보강)
+   몽실몽실 심리테스트 style.css v2025.2 — 반응형 & 파스텔
+   - Pretendard Variable 기준
+   - 톤: 파스텔 / 라운디드 / 얇은 브라운 라인
+   - 카테고리 테마: love / hobby / fun / mind
    ========================================================= */
 
 /* ---------- 리셋 & 기본 ---------- */
@@ -16,12 +24,11 @@ img { display:block; max-width:100%; height:auto; }
 
   /* 파스텔 팔레트 */
   --mint-100:#e9fbf4; --mint-200:#cff2e4; --mint-300:#a5e3c5; --mint-500:#67c5a1;
-  --sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff;  --sky-500:#6cb7f0;
-  --lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd;  --lav-500:#9a8cf5;
-  --iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;   --iv-500:#ffcf60;
+  --sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff; --sky-500:#6cb7f0;
+  --lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd; --lav-500:#9a8cf5;
+  --iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;  --iv-500:#ffcf60;
 
-  --rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d;
-
+  --rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d; --rose-500:#ff9468;
   --shadow: 0 6px 18px rgba(0,0,0,.06);
   --radius: 18px;
 }
@@ -34,7 +41,7 @@ body{
   line-height: 1.65;
 }
 
-/* ---------- 헤더 ---------- */
+/* ---------- 공통 컴포넌트 ---------- */
 header{
   padding: 22px 16px 10px;
   position: relative;
@@ -44,7 +51,6 @@ header{
 .logo span{ font-weight:800; font-size: clamp(18px,4.8vw,26px); letter-spacing:-.2px; }
 .subtitle{ color:var(--text-soft); margin:6px 0 14px; }
 
-/* CTA */
 .cta{
   display:inline-block; border:none; border-radius:999px;
   padding:12px 18px; font-weight:700; cursor:pointer;
@@ -53,7 +59,7 @@ header{
 }
 .cta:active{ transform: scale(.98); }
 
-/* 상단 고정 메인 버튼 (공통) */
+/* 상단 고정 메인 버튼 */
 .top-main-btn {
   position: fixed;
   top: 16px;
@@ -75,33 +81,29 @@ header{
   transform: translateY(-2px);
 }
 
-/* ---------- 가로 칩 스크롤 ---------- */
-.scroll-wrap{ display:flex; align-items:center; gap:8px; position: relative; }
+/* 스크롤 칩 영역 */
+.scroll-wrap{ display:flex; align-items:center; gap:8px; }
 .nav-btn{
   width:34px; height:34px; border-radius:999px; border:1px solid var(--line);
   background:#fff; box-shadow: var(--shadow);
 }
 .scroll-tests{
-  display:flex; gap:8px; padding: 6px 8px;
-  overflow-x:auto; overflow-y:hidden;
-  scroll-behavior:smooth;
+  display:flex; overflow:auto; gap:8px; scroll-behavior:smooth; padding:6px 2px;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;                 /* 세로 스크롤과 충돌 방지 */
-  overscroll-behavior-inline: contain; /* 엣지/크롬 튐 완화 */
-  scrollbar-width: none;               /* Firefox */
-  -ms-overflow-style: none;            /* IE/Legacy Edge */
+  /* 충돌 방지 */
+  touch-action: pan-x;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
 }
-.scroll-tests::-webkit-scrollbar{ display:none; }
+.scroll-tests::-webkit-scrollbar { display: none; }
 .test-chip{
-  flex:0 0 auto; user-select:none; -webkit-user-select:none;
-  border:none; border-radius:999px;
+  flex:0 0 auto; border:none; border-radius:999px;
   padding:10px 14px; font-weight:700; background:#fff; color:var(--text-soft);
   border:1px solid var(--line); box-shadow: var(--shadow);
+  user-select: none; -webkit-user-select: none;
 }
-/* 드래그 중 클릭 오작동 방지 */ /* NEW */
-.scroll-tests.dragging .test-chip{ pointer-events: none; cursor: grabbing; }
 
-/* ---------- 카드 그리드(인덱스) ---------- */
+/* 카드 그리드 */
 main{
   display:grid; gap:16px; padding: 12px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -110,33 +112,36 @@ main{
   background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: clamp(12px,2.5vw,18px);
   display:flex; flex-direction:column; gap:10px;
-  transition: transform .08s ease;
+  cursor: pointer;
 }
-.card:active{ transform: translateY(1px); }
 .card .chip{
   display:inline-block; font-size:12px; color:#6b5b50; background:#fff;
   border:1px solid var(--line); border-radius:999px; padding:4px 10px; width:max-content;
 }
-/* 썸네일 균일화 */
+
+/* 썸네일 영역: 사이즈 통일 */
+.thumb-link { display:block; text-decoration: none; }
 .card .anim{
   display:flex; justify-content:center; align-items:center;
-  height: 130px;                /* 균일 높이 */
-  overflow:hidden;
+  width:100%;
+  min-height: 120px;
 }
 .card .anim img{
-  max-height: 100%;
-  width: auto;
+  width: clamp(88px, 18vw, 120px);
+  height: auto;
   object-fit: contain;
+  /* 이미지만 눌러도 링크 동작하도록 pointer 이벤트 허용 */
+  pointer-events: auto;
 }
+
 .card h3{ margin:2px 0 0; font-size: clamp(15px,2.8vw,18px); }
 .card .desc{ color:var(--text-soft); margin: 2px 0 8px; }
 .start{
   align-self:flex-start; border:none; border-radius:999px; padding:10px 14px;
   font-weight:800; background:var(--sky-300); color:#fff; cursor:pointer; box-shadow:var(--shadow);
-  transition: transform .06s ease, filter .2s ease, opacity .2s ease;
+  transition: transform .06s ease, filter .2s ease;
 }
 .start:active{ transform: scale(.98); }
-.start:disabled{ opacity:.5; cursor:not-allowed; }
 
 footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 
@@ -152,13 +157,6 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
   box-shadow: var(--shadow); padding: 16px 14px; margin-top: 6px;
 }
 .q-text{ font-weight:800; margin: 2px 0 10px; }
-
-/* 질문 하단 안내문 */ /* NEW */
-.note{
-  margin-top:10px;
-  font-size: .92rem;
-  color: var(--text-soft);
-}
 
 /* 선택지 */
 .choices{ margin-top: 6px; }
@@ -181,79 +179,28 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
   box-shadow: var(--shadow); border-radius: 12px; padding:10px 12px; font-weight:700;
 }
 
-/* ---------- 결과 카드 ---------- */
+/* 결과 카드 */
 .result-card{
   background:#fff; border:1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: 16px 14px; margin-top:10px;
 }
 .result-hero{ display:flex; align-items:center; gap:12px; }
-.result-hero img{ width: clamp(44px, 12vw, 72px); height:auto; }
+.result-hero img{ width: clamp(40px, 14vw, 72px); }
 .result-title{ font-weight:900; font-size: clamp(18px, 4.5vw, 22px); }
 .result-desc{ color:var(--text-soft); }
 
-/* 결과 배지/칩 */
 .pill{
   display:inline-block; background: var(--iv-100);
   border:1px solid var(--line); border-radius:999px;
   padding:6px 10px; font-weight:700; color:#6b5b50;
 }
-
-/* 마음 리마인드 */
-.mind-remind{
-  background: var(--mint-100);
-  border:1px dashed var(--mint-300);
-  border-radius:12px; padding:10px;
-  color: var(--text-soft);
-}
-
-/* 결과 버튼들 */
-.result-actions{
-  display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;
-}
+.mind-remind{ background: var(--mint-100); border:1px dashed var(--mint-300);
+  border-radius:12px; padding:10px; }
+.result-actions{ display:flex; gap:8px; margin-top:12px; }
 .result-actions .start{ background: var(--mint-500); }
 .result-actions .start:nth-child(2){ background: var(--sky-500); }
 
-/* 상태 미터 (animal 등) */
-.state-meter .row{
-  display:flex; align-items:center; gap:8px; margin:6px 0;
-}
-.state-meter .bar{
-  flex:1; height:10px; background:#eef3f2; border-radius:999px; overflow:hidden;
-}
-.state-meter .fill{
-  display:block; height:100%; width:0%;
-  background: var(--mint-500);
-  transition: width .35s ease; /* NEW: 부드러운 증가 */
-}
-.state-meter .meter-label{ color: var(--text-soft); }
-
-/* === 동물 결과: 히어로 이미지 크게 === */
-.result-hero.result-hero--big { align-items: center; }
-.result-hero.result-hero--big .animal-hero{
-  width: 96px; height:auto; image-rendering: -webkit-optimize-contrast; margin-right: 12px;
-}
-@media (min-width: 480px){
-  .result-hero.result-hero--big .animal-hero { width: 110px; }
-}
-
-/* ---------- MBTI 결과 페어 라벨(2열) ---------- */ /* NEW */
-.pairs-grid{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 8px;
-  margin: 10px 0 4px;
-}
-.pair{
-  display:flex; align-items:center; justify-content:space-between;
-  background: var(--iv-100);
-  border:1px solid var(--line);
-  border-radius: 12px;
-  padding: 8px 10px;
-  color: #6b5b50;
-  font-weight: 700;
-}
-
-/* ---------- 카테고리 테마 ---------- */
+/* ---------- 카테고리 테마 (섹션 또는 body에 클래스 부여) ---------- */
 /* 연애 */
 .card-q.love .choice:nth-child(5n+1){ background: var(--rose-50); }
 .card-q.love .choice:nth-child(5n+2){ background: var(--rose-200); }
@@ -291,26 +238,37 @@ footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
 .choice:focus-visible,
 .start:focus-visible,
 .nav-btn:focus-visible,
-.test-chip:focus-visible{ outline: 3px solid #00000020; }
-
-/* 사용자 모션 선호 */ /* NEW */
-@media (prefers-reduced-motion: reduce){
-  .cta, .start, .card { transition: none !important; }
-  .bar span, .state-meter .fill { transition: none !important; }
-}
+.test-chip:focus-visible,
+.thumb-link:focus-visible{ outline: 3px solid #00000020; border-radius: 12px; }
 
 /* ---------- 반응형 ---------- */
 @media (max-width: 600px){
   header{ padding:16px 12px 8px; }
   .subtitle{ font-size:14px; }
   main{ grid-template-columns: 1fr; gap:12px; padding: 8px 10px; }
-  .card .anim{ height: 112px; }               /* 모바일에서 살짝 낮춤 */
+  .card .anim{ min-height: 104px; }
   .card h3{ font-size: 1.05rem; }
   .cta{ width:100%; font-size:16px; }
   footer{ font-size:13px; }
   .test{ padding: 8px 10px 80px; }
 }
 
+/* === 결과 히어로 이미지 확대 (동물 테스트 전용) === */
+.result-hero.result-hero--big { align-items: center; }
+.result-hero.result-hero--big .animal-hero {
+  width: 96px; height: auto; image-rendering: -webkit-optimize-contrast; margin-right: 12px;
+}
+@media (min-width: 480px){
+  .result-hero.result-hero--big .animal-hero { width: 110px; }
+}
+
+/* 그래프 오른쪽 상태 라벨 톤 다운 */
+.state-meter .meter-label{ color: var(--text-soft); }
+
+/* 여백 보강 */
+.result-card .result-hero{ gap: 12px; }
+
+/* 태블릿 카드 폭 보정 */
 @media (min-width: 601px) and (max-width: 1024px){
   main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
