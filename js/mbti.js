@@ -3,7 +3,7 @@
  * ---------------------------------------------------
  * - 5지선다(0~4) / 시간가중 ±20%(선택 우선)
  * - 4축 쌍(E/I, S/N, T/F, J/P)
- * - 결과: 대문자 4글자 + 3~4문장 설명 + 마음 리마인드
+ * - 결과: 코드 4글자 + 설명 + 마음 리마인드
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,167 +25,126 @@ document.addEventListener('DOMContentLoaded', () => {
     {axis:'JP', a:'J', q:'할 일을 미리 정리하고 진행한다.'}
   ];
 
-  let idx=0, start=Date.now();
-  const ans=[], times=[];
+  let idx = 0, start = Date.now();
+  const ans = [], times = [];
   const S = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-  const step=document.getElementById('stepLabel'), bar=document.getElementById('barFill'),
-        qTxt=document.getElementById('qText'), wrap=document.getElementById('choiceWrap'),
-        card=document.getElementById('card'), result=document.getElementById('result'),
-        prev=document.getElementById('prev'), skip=document.getElementById('skip');
+
+  const step = document.getElementById('stepLabel'),
+        bar  = document.getElementById('barFill'),
+        qTxt = document.getElementById('qText'),
+        wrap = document.getElementById('choiceWrap'),
+        card = document.getElementById('card'),
+        result = document.getElementById('result'),
+        prev = document.getElementById('prev'),
+        skip = document.getElementById('skip');
 
   function weight(sec){
-    if(sec<1) return 0.9;
-    if(sec<4) return 1.0;
-    if(sec<8) return 1.15;
+    if (sec < 1) return 0.9;
+    if (sec < 4) return 1.0;
+    if (sec < 8) return 1.15;
     return 1.10;
   }
 
   function render(){
-    step.textContent=`${idx+1} / ${Q.length}`;
-    bar.style.width=`${(idx/Q.length)*100}%`;
-    qTxt.textContent=Q[idx].q;
-    wrap.innerHTML=`
+    step.textContent = `${idx+1} / ${Q.length}`;
+    bar.style.width  = `${(idx/Q.length)*100}%`;
+    qTxt.textContent = Q[idx].q;
+
+    wrap.innerHTML = `
       <button class="choice" data-s="4">매우 그렇다</button>
       <button class="choice" data-s="3">그렇다</button>
       <button class="choice" data-s="2">보통이다</button>
       <button class="choice ghost" data-s="1">아니다</button>
-      <button class="choice ghost" data-s="0">전혀 아니다</button>`;
-    const prevSel=ans[idx];
-    if(prevSel!==undefined){
-      [...wrap.children].forEach(b=>{if(Number(b.dataset.s)===prevSel)b.classList.add('selected');});
+      <button class="choice ghost" data-s="0">전혀 아니다</button>
+    `;
+
+    const prevSel = ans[idx];
+    if (prevSel !== undefined) {
+      [...wrap.children].forEach(b => {
+        if (Number(b.dataset.s) === prevSel) b.classList.add('selected');
+      });
     }
-    [...wrap.children].forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        [...wrap.children].forEach(c=>c.classList.remove('selected'));
+
+    [...wrap.children].forEach(btn => {
+      btn.addEventListener('click', () => {
+        [...wrap.children].forEach(c => c.classList.remove('selected'));
         btn.classList.add('selected');
-        setTimeout(()=>choose(Number(btn.dataset.s)),150);
+        setTimeout(() => choose(Number(btn.dataset.s)), 150);
       });
     });
-    start=Date.now();
+
+    start = Date.now();
   }
 
   function choose(s){
-    const sec=(Date.now()-start)/1000, w=weight(sec), adj=s+(s*(w-1)*0.2);
-    ans[idx]=s; times[idx]=sec; S[Q[idx].a]+=adj; next();
+    const sec = (Date.now()-start)/1000;
+    const w   = weight(sec);
+    const adj = s + (s*(w-1)*0.2); // 선택 우선, 시간 보조
+    ans[idx] = s;
+    times[idx] = sec;
+    S[Q[idx].a] += adj;
+    next();
   }
-  function next(){ idx++; if(idx<Q.length)render(); else finish(); }
-  prev?.addEventListener('click',()=>{if(idx===0)return;idx--;recalc(idx);render();});
-  skip?.addEventListener('click',()=>{ans[idx]=0;times[idx]=(Date.now()-start)/1000;next();});
+
+  function next(){ idx++; if (idx < Q.length) render(); else finish(); }
+
+  prev?.addEventListener('click', () => {
+    if (idx === 0) return;
+    idx--;
+    recalc(idx);
+    render();
+  });
+
+  skip?.addEventListener('click', () => {
+    ans[idx] = 0;
+    times[idx] = (Date.now()-start)/1000;
+    next();
+  });
 
   function recalc(end){
-    for(let k in S)S[k]=0;
-    for(let i=0;i<end;i++){
-      const sec=times[i]??3,w=weight(sec),s=ans[i]??0,adj=s+(s*(w-1)*0.2);
-      S[Q[i].a]+=adj;
+    for (let k in S) S[k] = 0;
+    for (let i=0;i<end;i++){
+      const sec = times[i] ?? 3;
+      const w   = weight(sec);
+      const s   = ans[i] ?? 0;
+      const adj = s + (s*(w-1)*0.2);
+      S[Q[i].a] += adj;
     }
   }
 
-  function pickPair(l,r){
-    const lv=S[l], rv=S[r];
-    if(Math.abs(lv-rv)<0.01){
-      let d=0; for(let i=Math.max(0,idx-3);i<idx;i++){
-        const a=Q[i]?.a; if(a===l||a===r){
-          const w=weight(times[i]??3); d+=(a===l?1:-1)*w;
+  function pickPair(l, r){
+    const lv = S[l], rv = S[r];
+    if (Math.abs(lv - rv) < 0.01){
+      // 최근 3문항 시간가중 타이브레이커
+      let d = 0;
+      for (let i=Math.max(0, idx-3); i<idx; i++){
+        const a = Q[i]?.a;
+        if (a === l || a === r){
+          const w = weight(times[i] ?? 3);
+          d += (a === l ? 1 : -1) * w;
         }
       }
-      return d>=0?l:r;
+      return d >= 0 ? l : r;
     }
-    return (lv>=rv)?l:r;
+    return (lv >= rv) ? l : r;
   }
 
-  function labelPair(l,r){
-    const lv=S[l],rv=S[r],total=(lv+rv)||1,dom=Math.max(lv,rv)/total;
-    if(dom>=0.75)return'매우 강함';
-    if(dom>=0.60)return'강함';
-    if(dom>=0.45)return'균형';
-    if(dom>=0.30)return'약함';
-    return'매우 약함';
+  function labelPair(l, r){
+    const lv=S[l], rv=S[r], total=(lv+rv)||1, dom=Math.max(lv,rv)/total;
+    if (dom >= 0.75) return '매우 강함';
+    if (dom >= 0.60) return '강함';
+    if (dom >= 0.45) return '균형';
+    if (dom >= 0.30) return '약함';
+    return '매우 약함';
   }
 
   function finish(){
-    card.style.display='none'; bar.style.width='100%';
-    const code=`${pickPair('E','I')}${pickPair('S','N')}${pickPair('T','F')}${pickPair('J','P')}`;
+    card.style.display = 'none';
+    bar.style.width = '100%';
+
+    const code = `${pickPair('E','I')}${pickPair('S','N')}${pickPair('T','F')}${pickPair('J','P')}`;
 
     const M = {
       ISTJ:{t:'🧭 원칙 수호자',q:'“질서는 나의 언어, 성실은 나의 방식.”',
-      d:'실질적이고 책임감이 강한 유형이에요. 계획과 규칙 속에서 안정감을 느끼며, 약속을 지키는 일에 자부심을 가집니다. 때로는 융통성이 부족해 보일 수 있지만, 그만큼 신뢰를 주는 타입이에요.',
-      r:'오늘은 규칙보다 기분을 10% 더 반영해보세요. 예상 밖의 여유가 좋은 균형이 됩니다.'},
-      ISFJ:{t:'🍯 따뜻한 수호자',q:'“누군가의 평온이 곧 나의 평온.”',
-      d:'섬세하고 헌신적인 성향으로 주변 사람을 잘 돌보는 유형이에요. 신뢰받는 존재로서 안정된 관계를 중시합니다. 다만 “내 마음의 공간”을 챙기는 시간도 필요해요.',
-      r:'오늘은 타인을 돌보기 전, 나를 위해 따뜻한 차 한 잔을 내려보세요.'},
-      INFJ:{t:'🌙 통찰형 조화자',q:'“의미 없는 일엔 에너지를 쓰지 않는다.”',
-      d:'깊이 있는 통찰력과 직관으로 사람의 본질을 꿰뚫어요. 이상적이면서도 현실적인 조화를 추구하지만, 감정소모가 클 수 있어요.',
-      r:'오늘은 생각을 잠시 멈추고, ‘지금 내 감정’을 글 한 줄로 적어보세요.'},
-      INTJ:{t:'🛰️ 계획 건축가',q:'“목표 없는 하루는 방향 잃은 항해다.”',
-      d:'전략적 사고와 효율을 중시하는 유형이에요. 장기적 비전을 세우며 독립적으로 움직이지만, 때때로 감정 표현이 부족해 보일 수 있어요.',
-      r:'하루 중 10분은 “논리” 대신 “감정”을 들여다보는 시간으로 남겨보세요.'},
-      ISTP:{t:'🧰 현실 탐구자',q:'“직접 해봐야 직성이 풀린다.”',
-      d:'문제 해결과 실용적 접근을 좋아해요. 자유로운 사고로 새로운 기술이나 방법을 시도하지만, 감정 표현에는 서툴 수 있습니다.',
-      r:'오늘은 ‘해결’보다 ‘공유’에 집중해보세요. 감정도 실험의 일부예요.'},
-      ISFP:{t:'🍃 부드러운 실천가',q:'“조용히, 그러나 꾸준히.”',
-      d:'따뜻하고 자유로운 감성형이에요. 아름다움과 조화를 중요시하며, 타인의 기분을 세심히 살핍니다.',
-      r:'오늘 하루는 “싫은 걸 피하기보다 좋은 걸 선택하기”로 방향을 바꿔보세요.'},
-      INFP:{t:'🌸 마음 디자이너',q:'“진심은 천천히 전해진다.”',
-      d:'이상적이고 감수성이 풍부한 유형이에요. 타인의 감정을 깊이 이해하지만, 내면 고민이 많을 수 있어요.',
-      r:'내일이 아닌 오늘, 마음이 끌리는 일 하나를 바로 해보세요.'},
-      INTP:{t:'🔍 개념 탐구자',q:'“왜?를 던지는 게 나의 습관.”',
-      d:'논리와 아이디어를 즐기는 분석형이에요. 창의적인 통찰로 문제를 새롭게 바라보지만, 실행이 더딜 수 있어요.',
-      r:'오늘은 생각 대신 “작은 실험” 하나를 실행해보세요.'},
-      ESTP:{t:'⚡ 에너지 액션러',q:'“지금, 바로 행동!”',
-      d:'즉흥적이고 모험심이 강한 유형이에요. 상황 판단이 빠르고 사교적이지만, 때로는 깊은 고민을 건너뛰기 쉬워요.',
-      r:'오늘은 “잠깐 멈춤 10초”를 선물하세요. 속도를 조절하면 더 오래 달릴 수 있어요.'},
-      ESFP:{t:'🎉 분위기 메이커',q:'“함께 있을 때 가장 나답다.”',
-      d:'사람들과 어울리는 걸 좋아하고 유쾌한 에너지를 전파해요. 즉흥적이지만 다정하며, 밝은 분위기의 중심이 됩니다.',
-      r:'오늘은 “혼자서도 즐거운 시간”을 만들어보세요. 나도 내 친구예요.'},
-      ENFP:{t:'🌈 아이디어 스파크러',q:'“영감은 연결 속에서 피어난다.”',
-      d:'열정과 창의력이 넘치는 자유로운 영혼이에요. 다양한 가능성을 즐기지만, 집중력이 흩어질 수 있어요.',
-      r:'오늘 하루 “가장 나를 흥미롭게 하는 일 하나”만 남겨두세요.'},
-      ENTP:{t:'🧠 발상 해커',q:'“틀을 깨야 진짜가 보인다.”',
-      d:'새로운 아이디어와 토론을 즐기며 변화를 두려워하지 않아요. 논쟁적일 수 있지만 그만큼 창의적이에요.',
-      r:'오늘은 “비판” 대신 “제안”으로 대화를 시작해보세요.'},
-      ESTJ:{t:'🏗️ 실행 관리자',q:'“계획 없는 일은 불안하다.”',
-      d:'체계와 효율을 중시하며 책임감이 강한 리더형이에요. 일처리가 빠르고 명확하지만, 유연함이 부족할 때도 있어요.',
-      r:'오늘은 계획표에 “휴식 30분”을 정식으로 넣어보세요.'},
-      ESFJ:{t:'🤝 다정한 조율자',q:'“모두가 편해야 나도 편하다.”',
-      d:'사람들의 감정을 세심하게 살피는 협력형이에요. 친절하고 배려심이 깊지만, 때로는 스스로를 후순위로 미루기도 해요.',
-      r:'오늘은 “나만을 위한 30분”을 반드시 확보하세요.'},
-      ENFJ:{t:'🌞 영감 리더',q:'“함께 성장할 때 빛난다.”',
-      d:'타인의 가능성을 발견하고 끌어주는 리더형이에요. 공감력과 추진력을 겸비했지만, 과하게 책임질 때가 있어요.',
-      r:'오늘은 “내 마음의 여백”을 위해 휴대폰을 1시간만 덮어보세요.'},
-      ENTJ:{t:'🚀 전략 지휘자',q:'“방향이 명확하면 속도는 따라온다.”',
-      d:'목표 지향적이고 결단력 있는 리더형이에요. 효율과 성과를 중시하지만, 감정의 미세한 신호를 놓칠 수 있어요.',
-      r:'오늘은 “효율” 대신 “온기”를 한 문장 안에 섞어보세요.'}
-    };
-
-    const info=M[code]||{t:'☁️ 균형몽실형',q:'“상황에 맞게 톤을 바꾸는 유연한 나.”',d:'모든 축이 고르게 발달한 균형형이에요. 어떤 상황에서도 조화롭게 적응하며 안정감을 줍니다.',r:'균형을 유지하기 위해서라도, 때로는 “기울어보기”가 필요해요.'};
-
-    const pairs=[
-      {n:'E/I',l:'E',r:'I'},{n:'S/N',l:'S',r:'N'},
-      {n:'T/F',l:'T',r:'F'},{n:'J/P',l:'J',r:'P'}
-    ].map(p=>`<div style="display:flex;justify-content:space-between;margin:6px 0">
-        <span><b>${p.n}</b></span>
-        <span class="pill">${labelPair(p.l,p.r)}</span>
-      </div>`).join('');
-
-    result.innerHTML=`
-      <div class="result-card">
-        <div class="result-hero">
-          <img src="../assets/mbti.png" alt="MBTI 아이콘" onerror="this.src='../assets/mongsil.png'">
-          <div><div class="result-title">${info.t} (${code})</div>
-          <div class="result-desc">${info.q}</div></div>
-        </div>
-        <p>${info.d}</p>
-        <div class="pill">${pairs}</div>
-        <div class="mind-remind" style="margin:10px 0;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b> ${info.r}
-        </div>
-        <div class="result-actions">
-          <a class="start" href="../index.html">메인으로</a>
-          <button class="start" onclick="location.reload()">다시 테스트</button>
-        </div>
-      </div>`;
-    result.style.display='block';
-  }
-
-  render();
-});
+        d:'실질적이고 책임감이 강한 유형이에요. 계획과 규칙 속에서 안정감을 느끼며, 약속을 지키는 일에 자부심을 가집니다. 때로는 융통성이 부족해 보일 수 있지만, 그만큼 신뢰를 주는 타입이에요.',
+        r:'오늘은 규칙보다 기분을 10% 더 반영해보세요. 예상 밖의 여유가 좋은 균형
