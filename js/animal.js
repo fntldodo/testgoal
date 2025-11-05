@@ -1,5 +1,10 @@
 /* ===================================================
- * 나는 어떤 동물? — v2025.2 (14문항, 상태형 결과, 중립 편중 방지)
+ * 나는 어떤 동물? — v2025.4 (14문항, 상태형 결과, 중립 편중 방지 + 무효응답 보정 + 평형형 이모티콘)
+ * ---------------------------------------------------
+ * [코드 절대 규칙 적용]
+ * 1) 기존 기능 삭제·덮어쓰기·생략 금지.
+ * 2) 수정은 추가 중심, 중복 제거 전 사전 확인.
+ * 3) 코드 수정 시 전체 완전본 제공.
  * =================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   const Q = [
@@ -93,20 +98,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return d>=0? k1:k2;
   }
 
+  /* -------------------- classify() 무효응답 보정 -------------------- */
   function classify(){
     const n=normalize();
     const arr=Object.entries(n).sort((a,b)=>b[1]-a[1]);
-    const [k1,v1]=arr[0],[k2,v2]=arr[1],[,v3]=arr[2];
+    const [k1,v1]=arr[0],[k2,v2]=arr[1],[,v3]=arr[2],[,v4]=arr[3];
     const diff12=v1-v2, spread=v1-v3;
+
+    const avgAll = (v1+v2+v3+v4)/4;
+    const uniform = Math.abs(v1 - v4) < 0.03;
+    const skipped = ans.filter(a=>a===0 || a===undefined).length;
+    const allSkipped = skipped >= Q.length * 0.6;
+
+    if(allSkipped || avgAll < 0.15 || uniform){
+      return { type:'NEUTRAL', tag:'lowdata', n };
+    }
+
     const first = (diff12<0.10)? tieBreakTop2(k1,k2): k1;
     const second = (first===k1? k2:k1);
-
     const combo=[first,second].sort().join('');
+
     const keyMap={ AN:'FOX', AC:'OTTER', AS:'CAT', CN:'DOLPHIN', CS:'PENGUIN', NS:'OWL' };
     const type = keyMap[combo] || 'FOX';
+
     const dominant=(diff12>=0.18 && spread>=0.26);
-    return {type, tag:dominant?'dominant':'blend', n};
+    return { type, tag:dominant?'dominant':'blend', n };
   }
+  /* -------------------------------------------------------------------- */
 
   const COPY={
     FOX:{title:'🦊 여우형', quote:'“일단 해보고 배우자!”',
@@ -126,7 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
       remind:'규칙 + 작은 예외 규칙을 두고, 감정 체크를 일정에 넣어요.'},
     OWL:{title:'🦉 부엉이형', quote:'“빨리보다 정확하게.”',
       desc:'차분한 통찰가예요. 근거 기반으로 새로움을 구조화하고, 계획을 세워 안정적으로 실행합니다. 탐색 시간을 정하면 더 멀리 가요.',
-      remind:'탐색 시간 상한을 정하고, 작은 단위로 시범 운행하세요.'}
+      remind:'탐색 시간 상한을 정하고, 작은 단위로 시범 운행하세요.'},
+
+    /* [추가] 평형형 (무효/중립형) */
+    NEUTRAL:{
+      title:'🫧 평형형',
+      quote:'“아직 내 마음의 동물이 잠든 듯 조용하네요.”',
+      desc:'지금은 네 가지 성향이 고르게 섞여 있어요. 한쪽이 두드러지기보단 잠시 정비 중일 수 있습니다. 조급해하지 말고, 마음의 여백을 만들어 보세요.',
+      remind:'오늘은 “휴식형 하루”를 선언하고, 가벼운 산책이나 음악을 들어보세요.'
+    }
   };
 
   const label = (p)=> p>=0.80?'매우 높음': p>=0.60?'높음': p>=0.40?'보통': p>=0.20?'낮음':'매우 낮음';
@@ -154,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOLPHIN:  '../assets/animals/dolphin.png',
     PENGUIN:  '../assets/animals/penguin.png',
     OWL:      '../assets/animals/owl.png',
+    NEUTRAL:  '🫧' // 이미지 대신 이모티콘 표시
   };
 
   function finish(){
@@ -162,15 +189,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const info=COPY[type] || COPY.FOX;
     const badge = tag==='dominant'
       ? `<div class="pill">단일 성향 또렷</div>`
-      : `<div class="pill">두 성향의 조화</div>`;
+      : tag==='lowdata'
+        ? `<div class="pill">데이터 부족 / 중립형</div>`
+        : `<div class="pill">두 성향의 조화</div>`;
+
+    // 평형형일 때 이모티콘 직접 표시
+    const heroImg = type==='NEUTRAL'
+      ? `<div style="font-size:56px;line-height:1;text-align:center;">🫧</div>`
+      : `<img class="animal-hero"
+              src="${ANIMAL_IMG[type] || '../assets/animal.png'}"
+              alt="${info.title}"
+              onerror="this.onerror=null; this.src='../assets/animal.png'">`;
 
     result.innerHTML = `
       <div class="result-card">
         <div class="result-hero">
-          <img class="animal-hero"
-               src="${ANIMAL_IMG[type] || '../assets/animal.png'}"
-               alt="${info.title}"
-               onerror="this.onerror=null; this.src='../assets/animal.png'">
+          ${heroImg}
           <div>
             <div class="result-title">${info.title}</div>
             <div class="result-desc">${info.quote}</div>
@@ -190,6 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <a class="start" href="../index.html">메인으로</a>
           <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
         </div>
+        ${type==='NEUTRAL'?`<p style="text-align:center;color:var(--text-soft);margin-top:8px">
+          * 다음엔 문항을 조금 더 다양하게 선택해보세요 🌱</p>`:''}
       </div>
     `;
     result.style.display='block';
