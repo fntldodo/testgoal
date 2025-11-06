@@ -1,14 +1,13 @@
 /* ===================================================
- * 감정 vs 논리 테스트 — 몽실몽실 v2025.2 (마음 리마인드)
+ * 감정 vs 논리 테스트 — 몽실몽실 v2025.3 (6결과·식물매칭)
  * ---------------------------------------------------
- * - 12문항 / 5지선다(0~4) + 응답시간 보조 ±20%(선택 우선)
- * - 분류: 감정형(E) / 논리형(L) / 조화형(B)
- * - 결과: 제목/인용/설명/리마인드/식물매칭(assets/plants/*.png)
- * - 절대규칙: 기존 기능 삭제·축소 금지 / 변경은 추가 방식
+ * - 12문항 / 5지선다(0~4) + 반응시간 보조(±20%, 선택 우선)
+ * - 결과 6종: rose / fern / cactus / dandelion / bamboo / pine
+ * - 절대규칙: 기존 구조 유지, 기능은 '추가'만
  * =================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ---------- 문항 ----------
+  // ---------- 문항(12) ----------
   const Q = [
     {k:"E", q:"대화 중 상대의 감정에 쉽게 공감한다."},
     {k:"E", q:"감정 표현을 솔직히 하는 편이다."},
@@ -25,12 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // ---------- 상태 ----------
-  let idx = 0;
-  const score = {E:0, L:0, B:0};
-  const count = {E:0, L:0, B:0};
-  const ans = [];
-  const times = [];
-  let startTime = Date.now();
+  let idx = 0, startTime = Date.now();
+  const score = {E:0, L:0, B:0}, count = {E:0, L:0, B:0};
+  const ans = [], times = [];
 
   // ---------- DOM ----------
   const stepLabel = document.getElementById("stepLabel");
@@ -42,8 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevBtn   = document.getElementById("prev");
   const skipBtn   = document.getElementById("skip");
 
-  // ---------- 시간가중 ----------
-  function getWeight(sec){
+  // ---------- 시간 가중(±20% 캡) ----------
+  function weight(sec){
     if(sec < 1) return 0.9;
     if(sec < 4) return 1.0;
     if(sec < 8) return 1.15;
@@ -53,8 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------- 렌더 ----------
   function render(){
     stepLabel.textContent = `${idx+1} / ${Q.length}`;
-    barFill.style.width   = `${(idx/Q.length)*100}%`;
-    qText.textContent     = Q[idx].q;
+    barFill.style.width    = `${(idx/Q.length)*100}%`;
+    qText.textContent      = Q[idx].q;
 
     wrap.innerHTML = `
       <button class="choice" data-s="4" type="button">매우 그렇다</button>
@@ -67,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const prevSel = ans[idx];
     if(prevSel !== undefined){
       [...wrap.children].forEach(b=>{
-        if(Number(b.dataset.s)===prevSel) b.classList.add("selected");
+        if(Number(b.dataset.s) === prevSel) b.classList.add("selected");
       });
     }
 
@@ -84,15 +80,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- 응답 ----------
   function choose(s){
-    const elapsed = (Date.now()-startTime)/1000;
-    const w   = getWeight(elapsed);
+    const sec = (Date.now() - startTime)/1000;
+    const w   = weight(sec);
     const k   = Q[idx].k;
-    const adj = s + (s*(w-1)*0.2); // 선택 우선, ±20% 캡
 
-    score[k]+= adj;
-    count[k]+= 1;
-    ans[idx]  = s;
-    times[idx]= elapsed;
+    const adj = s + (s*(w-1)*0.2); // 선택 우선, 뒤엎지 않음
+    score[k] += adj;
+    count[k] += 1;
+
+    ans[idx]   = s;
+    times[idx] = sec;
 
     if(++idx < Q.length) render();
     else finish();
@@ -101,14 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
   prevBtn?.addEventListener("click", ()=>{
     if(idx===0) return;
     idx--;
-    // 재계산(절대규칙: 기능 유지)
+    // 재계산(절대규칙: 기존 로직 유지)
     score.E=score.L=score.B=0; count.E=count.L=count.B=0;
     for(let i=0;i<idx;i++){
       const s = ans[i] ?? 0;
-      const w = getWeight(times[i] ?? 3);
       const k = Q[i].k;
+      const w = weight(times[i] ?? 3);
       const adj = s + (s*(w-1)*0.2);
-      score[k]+= adj; count[k]+=1;
+      score[k]+=adj; count[k]+=1;
     }
     render();
   });
@@ -119,92 +116,135 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------- 정규화 ----------
+  function norm01(v){ return Math.max(0, Math.min(1, v)); }
   function normalize(){
     return {
-      E: (score.E/Math.max(1,count.E))/4,
-      L: (score.L/Math.max(1,count.L))/4,
-      B: (score.B/Math.max(1,count.B))/4
+      E: norm01((score.E/Math.max(1,count.E))/4),
+      L: norm01((score.L/Math.max(1,count.L))/4),
+      B: norm01((score.B/Math.max(1,count.B))/4) // 균형 감각 참고용
     };
   }
 
-  // ---------- 분류 ----------
-  function classify(){
-    const n   = normalize();
-    const arr = Object.entries(n).sort((a,b)=>b[1]-a[1]); // desc
-    const [k1,v1] = arr[0], [k2,v2] = arr[1];
-    const diff = v1 - v2; // 강도
-
-    let type;
-    if (Math.abs(v1-v2) < 0.08) type = "조화형";
-    else if (k1==="E") type = "감정형";
-    else if (k1==="L") type = "논리형";
-    else type = "조화형";
-
-    return { type, diff, n };
-  }
-
-  // ---------- 식물 매핑 (assets/plants/*.png) ----------
-  // 강도(diff) 0.10 이상이면 '강', 아니면 '부드러움' 버전 사용
-  const PLANT_MAP = {
-    "감정형": { strong:"../assets/plants/rose.png",      soft:"../assets/plants/dandelion.png" },
-    "논리형": { strong:"../assets/plants/cactus.png",    soft:"../assets/plants/pine.png" },
-    "조화형": { strong:"../assets/plants/fern.png",      soft:"../assets/plants/bamboo.png" }
+  // ---------- 분류(6종) ----------
+  // 파일 존재: bamboo.png, cactus.png, dandelion.png, fern.png, pine.png, rose.png
+  const TYPE = {
+    rose:      {title:"🌹 감정형(따뜻)",  img:"../assets/plants/rose.png"},
+    fern:      {title:"🌿 감정형(섬세)",  img:"../assets/plants/fern.png"},
+    cactus:    {title:"🌵 논리형(분석)",  img:"../assets/plants/cactus.png"},
+    dandelion: {title:"🌼 논리형(실용)",  img:"../assets/plants/dandelion.png"},
+    bamboo:    {title:"🎋 조화형(유연)",  img:"../assets/plants/bamboo.png"},
+    pine:      {title:"🌲 조화형(안정)",  img:"../assets/plants/pine.png"}
   };
 
-  // ---------- 카피 ----------
-  const RESULT = {
-    "감정형":{
-      title:"💧 감정형 몽실",
-      quote:"“마음이 먼저 움직여야 세상이 따라온다.”",
-      desc:"감정의 온도에 따라 세상을 느끼는 감성 중심형. 직감과 공감에 강하며, 다른 사람의 기분을 빠르게 읽습니다.",
-      mood:["감정 — 풍부","논리 — 유연","균형 — 감성 우세"],
-      remind:"감정은 나침반이에요. 다만 방향은 내가 잡는 것, 숨 고르고 천천히 🌿"
+  function classify6(n){
+    const e=n.E, l=n.L;
+    const diff = e - l;
+    const gap  = Math.abs(diff);
+    const mean = (e + l)/2;
+
+    // 균형대역
+    if(gap < 0.10){
+      return mean >= 0.55 ? "bamboo" : "pine";
+    }
+    // 감정 우세
+    if(diff > 0){
+      if(e >= 0.65 && l <= 0.45) return "rose";
+      return "fern";
+    }
+    // 논리 우세
+    if(l >= 0.65 && e <= 0.45) return "cactus";
+    return "dandelion";
+  }
+
+  // ---------- 결과 카피 ----------
+  const COPY = {
+    rose: {
+      quote:'“마음의 온기가 방향을 정해요.”',
+      desc:'따뜻한 공감이 큰 힘이 되는 타입. 사람과 순간에 민감하고, 진심 어린 표현으로 관계의 온도를 올립니다.',
+      remind:['감정을 문장 1줄로 적기','반응 전 호흡 3회']
     },
-    "논리형":{
-      title:"🧠 논리형 몽실",
-      quote:"“감정도 분석의 일부일 뿐.”",
-      desc:"상황을 구조적으로 해석하고 판단하는 이성 중심형. 불필요한 감정 소모를 줄이며 명확한 근거로 결정합니다.",
-      mood:["감정 — 절제","논리 — 강함","균형 — 분석적"],
-      remind:"감정은 무시가 아니라 데이터예요. 느낄 시간도 결과에 포함시켜요 ☕"
+    fern: {
+      quote:'“섬세함은 힘이다.”',
+      desc:'상대의 뉘앙스를 잘 읽고 조율하는 타입. 다만 과기대(과도한 기대/대입)를 줄이면 균형이 더 좋아집니다.',
+      remind:['느낌/사실 분리해서 적기','과몰입 신호 체크(어깨, 속도)']
     },
-    "조화형":{
-      title:"🌸 조화형 몽실",
-      quote:"“이해와 판단, 둘 다 내 안에 있다.”",
-      desc:"감정과 논리를 함께 존중하는 균형형. 상황에 따라 유연하게 전환하며, 관계에서도 안정된 조율을 보입니다.",
-      mood:["감정 — 조화","논리 — 조화","균형 — 안정적"],
-      remind:"하루 끝, 마음과 생각이 같은 말을 하고 있나요? 그게 평온의 기준이에요 ☁️"
+    cactus: {
+      quote:'“빨리보다 정확하게.”',
+      desc:'근거와 구조로 판단하는 타입. 효율적이지만, 감정 데이터도 결과의 일부임을 기억하면 설득력이 커집니다.',
+      remind:['결정 전 30초 정지','감정 한 단어 기록 → 반영']
+    },
+    dandelion: {
+      quote:'“가볍게, 그러나 명확하게.”',
+      desc:'실용과 판단에 강해 실행이 빠릅니다. 때로는 여유를 두고 감정 신호를 들으면 관계가 더 부드러워집니다.',
+      remind:['해야할 일 1개만 착수','대화 전 톤·속도 10% 낮추기']
+    },
+    bamboo: {
+      quote:'“바람 따라 흔들려도, 다시 곧게.”',
+      desc:'감정과 논리를 상황에 맞게 전환하는 유연형. 리듬을 일정하게만 유지해도 퍼포먼스가 안정적입니다.',
+      remind:['25-3 타이머 1세트','하루 끝 체크: 마음=생각?']
+    },
+    pine: {
+      quote:'“느리지만 멀리 간다.”',
+      desc:'안정과 일관성을 중시하는 균형형. 속도가 느려 보여도 흔들림이 적고, 꾸준한 누적이 강점입니다.',
+      remind:['루틴 1개만 고정','과제 난이도 80%로 조정']
     }
   };
 
-  // ---------- 결과 렌더 ----------
+  function pillList(list){
+    return list.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('');
+  }
+
+  // ---------- 결과 ----------
   function finish(){
     card.style.display = "none";
     barFill.style.width = "100%";
 
-    const { type, diff, n } = classify();
-    const info = RESULT[type];
-    const mood = `• ${info.mood.join("  • ")}`;
+    const n   = normalize();
+    const key = classify6(n);
+    const info= COPY[key];
+    const meta= TYPE[key];
 
-    // 식물 이미지 선택(강/부드러움)
-    const plantSet = PLANT_MAP[type] ?? {strong:"../assets/plant.png", soft:"../assets/plant.png"};
-    const imgSrc   = (diff >= 0.10 ? plantSet.strong : plantSet.soft);
+    const moodSummary = (()=>{
+      const ePct = Math.round(n.E*100);
+      const lPct = Math.round(n.L*100);
+      // 그래프 라벨용 간단 설명(중복 제거, 카드 하단 라벨로 이동)
+      return [
+        `감정 — ${ePct}%`,
+        `논리 — ${lPct}%`
+      ];
+    })();
 
     resultBox.innerHTML = `
       <div class="result-card mind">
         <div class="result-hero">
-          <img src="${imgSrc}" alt="${info.title}"
+          <img src="${meta.img}" alt="${meta.title}"
                onerror="this.onerror=null; this.src='../assets/plant.png'">
           <div>
-            <div class="result-title">${info.title}</div>
-            <div class="result-desc">${info.quote}</div>
+            <div class="result-title">${meta.title}</div>
+            <div class="result-desc">“${info.quote}”</div>
           </div>
         </div>
 
         <p style="margin:8px 0">${info.desc}</p>
-        <div class="pill" style="margin:8px 0 2px">${mood}</div>
 
-        <div class="mind-remind" style="margin:6px 0 10px;color:var(--text-soft)">
-          <b>🌿 마음 리마인드:</b> ${info.remind}
+        <!-- 마음 리마인드: 문장형, 2개만 -->
+        <div class="mind-remind" style="margin:8px 0 10px;color:var(--text-soft)">
+          <b>🌿 마음 리마인드:</b> ${pillList(info.remind)}
+        </div>
+
+        <!-- 상태 미터(라벨: 수치 옆 설명) -->
+        <div class="state-meter">
+          ${[['감정',n.E],['논리',n.L]].map(([name,val])=>{
+            const pct = Math.round(val*100);
+            const tag = pct>=76?'매우 높음': pct>=56?'높음': pct>=36?'보통': pct>=21?'낮음':'아주 낮음';
+            return `
+              <div class="row">
+                <span><b>${name}</b></span>
+                <div class="bar"><span class="fill" style="width:${pct}%"></span></div>
+                <span class="meter-label">${tag} (${pct}%)</span>
+              </div>
+            `;
+          }).join('')}
         </div>
 
         <div class="result-actions">
@@ -213,9 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     `;
+
     resultBox.style.display = "block";
   }
 
-  // 시작
+  // ---------- 시작 ----------
   render();
 });
