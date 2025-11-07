@@ -1,105 +1,355 @@
+/* [코드 절대 규칙]
+
+1. 기존 합의 기능은 삭제/덮어쓰기/생략 금지 (사용자 요청 시에만 변경).
+
+
+2. 변경은 '추가' 우선, 중복 제거는 사전 확인 후.
+
+
+3. 코드 수정 시 전체 완전본 제공 (생략/축약 금지).
+*/
+
+
 
 /* =========================================================
-   몽실몽실 심리테스트 style.css v2025.3 — 추가형 확장 전용
-   (스코프 body.v2025-3 내부에서만 작동)
-   ========================================================= */
+몽실몽실 심리테스트 style.css v2025.3 — 반응형 & 파스텔
 
-/* ---------- 스코프 시작 ---------- */
-body.v2025-3 {
+Pretendard Variable 기준
 
-  /* ---------- 확장용 변수 ---------- */
-  --line: #5e493d22;
-  --text-soft: #5e5e5e;
+톤: 파스텔 / 라운디드 / 얇은 브라운 라인
 
-  --mint-100:#e9fbf4; --mint-200:#cff2e4; --mint-300:#a5e3c5; --mint-500:#67c5a1;
-  --sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff; --sky-500:#6cb7f0;
-  --lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd; --lav-500:#9a8cf5;
-  --iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;  --iv-500:#ffcf60;
-  --rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d; --rose-500:#ff9468;
-  --shadow: 0 6px 18px rgba(0,0,0,.06);
-  --radius: 18px;
+카테고리 테마: love / hobby / fun / mind
 
-  /* ---------- 확장 버튼 (기존 top-main-btn 영향 X) ---------- */
-  .top-main-btn.v2025-3 {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 999;
-    background: #fff;
-    color: #5e493d;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: all .25s ease;
-  }
-  .top-main-btn.v2025-3:hover {
-    background: #f7f7f7;
-    transform: translateY(-2px);
-  }
+확장: 에너지 테스트 배터리 그래픽 & 애니메이션
+========================================================= */
 
-  /* ---------- 확장용 카드 레이아웃 ---------- */
-  main.v2025-3 {
-    display: grid;
-    gap: 16px;
-    padding: 12px;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  }
 
-  .card.v2025-3 {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: clamp(12px,2.5vw,18px);
-  }
+/* ---------- 리셋 & 기본 ---------- */
 
-  /* ---------- 추가 테마 확장 ---------- */
-  .card-q.love .choice.selected{ background: var(--rose-300); color:#fff; border-color: transparent; }
-  .card-q.hobby .choice.selected{ background:#A5E3C5; color:#fff; border-color: transparent; }
-  .card-q.fun .choice.selected{ background: var(--sky-300); color:#fff; border-color: transparent; }
-  .card-q.mind .choice.selected{ background:#9DD8C4; color:#fff; border-color: transparent; }
+{ box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+img { display:block; max-width:100%; height:auto; }
 
-  /* ---------- 결과 카드 확장 ---------- */
-  .result-card.v2025-3 {
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
-  }
 
-  /* ---------- 추가: 배터리 그래픽 (에너지 테스트용) ---------- */
-  .battery {
-    display:flex; align-items:center; justify-content:center; flex-direction:column;
-    margin:16px 0 12px;
-  }
-  .battery-pack {
-    display:flex; gap:4px; padding:6px;
-    border:2px solid var(--mint-500);
-    border-radius:10px; background:#fff; position:relative;
-    box-shadow:inset 0 0 4px rgba(0,0,0,0.05);
-  }
-  .battery-pack::after {
-    content:''; position:absolute; right:-6px; top:50%;
-    transform:translateY(-50%);
-    width:4px; height:12px; border-radius:2px; background:var(--mint-500);
-  }
-  .batt-cell {
-    width:28px; height:16px; border-radius:4px; background:#eef3f2;
-    overflow:hidden; position:relative;
-  }
-  .batt-cell .fill {
-    position:absolute; top:0; left:0; height:100%;
-    background:var(--mint-500);
-    transition:width 0.6s ease;
-  }
-  .batt-cell.blink .fill { animation: blinkFill 1.2s infinite ease-in-out; }
-  @keyframes blinkFill { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .percent-label {
-    font-weight:700; font-size:0.9rem;
-    color:var(--mint-700,#3ca774); margin-top:6px;
-  }
+:root{
+--bg: #f7faf9;
+--card: #ffffff;
+--line: #5e493d22;       /* 얇은 브라운 */
+--text: #2b2b2b;
+--text-soft:#5e5e5e;
 
-  /* ---------- 추가: 자립 지수 미터 ---------- */
-  .state-meter .meter-dim { opacity:.7; }
-
+/* 파스텔 팔레트 */
+--mint-100:#e9fbf4; --mint-200:#cff2e4; --mint-300:#a5e3c5; --mint-500:#67c5a1;
+--sky-100:#edf7ff;  --sky-200:#cfe9ff;  --sky-300:#a8d6ff; --sky-500:#6cb7f0;
+--lav-100:#f4eeff;  --lav-200:#e7dbff;  --lav-300:#cdbbfd; --lav-500:#9a8cf5;
+--iv-100:#fffdf7;   --iv-200:#fff5dc;   --iv-300:#ffe6a8;  --iv-500:#ffcf60;
+--rose-50:#fff1ea;  --rose-100:#ffe6e1; --rose-200:#ffd8c4; --rose-300:#ffba9d; --rose-500:#ff9468;
+--shadow: 0 6px 18px rgba(0,0,0,.06);
+--radius: 18px;
 }
-/* ---------- 스코프 끝 ---------- */
+
+body{
+background: var(--bg);
+color: var(--text);
+font-family: "Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,system-ui,Segoe UI,Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+font-size: clamp(14px, 2.5vw, 17px);
+line-height: 1.65;
+}
+
+/* ---------- 공통 컴포넌트 ---------- */
+header{
+padding: 22px 16px 10px;
+position: relative;
+}
+.logo{ display:flex; align-items:center; gap:10px; }
+.logo img{ width: clamp(32px, 7vw, 44px); height:auto; }
+.logo span{ font-weight:800; font-size: clamp(18px,4.8vw,26px); letter-spacing:-.2px; }
+.subtitle{ color:var(--text-soft); margin:6px 0 14px; }
+
+.cta{
+display:inline-block; border:none; border-radius:999px;
+padding:12px 18px; font-weight:700; cursor:pointer;
+background: var(--mint-300); color:#fff; box-shadow: var(--shadow);
+transition: transform .06s ease, filter .2s ease; margin: 2px 0 12px;
+}
+.cta:active{ transform: scale(.98); }
+
+/* 상단 고정 메인 버튼 */
+.top-main-btn {
+position: fixed;
+top: 16px;
+right: 16px;
+z-index: 999;
+display: flex;
+align-items: center;
+gap: 6px;
+background: #fff;
+color: #5e493d;
+border-radius: 999px;
+padding: 8px 14px;
+font-weight: 600;
+box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+transition: all .25s ease;
+}
+.top-main-btn:hover {
+background: #f7f7f7;
+transform: translateY(-2px);
+}
+
+/* 스크롤 칩 영역 */
+.scroll-wrap{ display:flex; align-items:center; gap:8px; }
+.nav-btn{
+width:34px; height:34px; border-radius:999px; border:1px solid var(--line);
+background:#fff; box-shadow: var(--shadow);
+}
+.scroll-tests{
+display:flex; overflow:auto; gap:8px; scroll-behavior:smooth; padding:6px 2px;
+-webkit-overflow-scrolling: touch;
+touch-action: pan-x;
+overscroll-behavior-inline: contain;
+scrollbar-width: none;
+}
+.scroll-tests::-webkit-scrollbar { display: none; }
+.test-chip{
+flex:0 0 auto; border:none; border-radius:999px;
+padding:10px 14px; font-weight:700; background:#fff; color:var(--text-soft);
+border:1px solid var(--line); box-shadow: var(--shadow);
+user-select: none; -webkit-user-select: none;
+}
+
+/* 카드 그리드 */
+main{
+display:grid; gap:16px; padding: 12px;
+grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.card{
+background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+box-shadow: var(--shadow); padding: clamp(12px,2.5vw,18px);
+display:flex; flex-direction:column; gap:10px;
+cursor: pointer;
+}
+.card .chip{
+display:inline-block; font-size:12px; color:#6b5b50; background:#fff;
+border:1px solid var(--line); border-radius:999px; padding:4px 10px; width:max-content;
+}
+
+/* 썸네일 영역: 사이즈 통일 */
+.thumb-link { display:block; text-decoration: none; }
+.card .anim{
+display:flex; justify-content:center; align-items:center;
+width:100%; min-height: 120px;
+}
+.card .anim img{
+width: clamp(88px, 18vw, 120px);
+height: auto;
+object-fit: contain;
+pointer-events: auto;
+}
+.card h3{ margin:2px 0 0; font-size: clamp(15px,2.8vw,18px); }
+.card .desc{ color:var(--text-soft); margin: 2px 0 8px; }
+.start{
+align-self:flex-start; border:none; border-radius:999px; padding:10px 14px;
+font-weight:800; background:var(--sky-300); color:#fff; cursor:pointer; box-shadow:var(--shadow);
+transition: transform .06s ease, filter .2s ease;
+}
+.start:active{ transform: scale(.98); }
+
+footer{ padding: 24px 12px; text-align:center; color:var(--text-soft); }
+
+/* ---------- 테스트 페이지 공통 ---------- */
+.test{ max-width:900px; margin:0 auto; padding: 10px 12px 80px; }
+.meta{ display:flex; align-items:center; gap:12px; margin:6px 0 10px; }
+.meta #stepLabel{ font-weight:800; min-width: 64px; }
+.bar{ flex:1; height:10px; background:#eef3f2; border-radius:999px; overflow:hidden; }
+.bar span{ display:block; height:100%; width:0%; background:var(--mint-500); transition: width .25s ease; }
+
+.card-q{
+background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+box-shadow: var(--shadow); padding: 16px 14px; margin-top: 6px;
+}
+.q-text{ font-weight:800; margin: 2px 0 10px; }
+
+/* 선택지 */
+.choices{ margin-top: 6px; }
+.choices .choice{
+width:100%; display:block; text-align:center;
+border-radius:14px; padding:14px; margin:8px 0;
+font-weight:700; border:1px solid var(--line);
+box-shadow:0 2px 6px rgba(0,0,0,.05);
+transition: background .2s ease, transform .06s ease, color .2s ease, border-color .2s;
+color: var(--text-soft);
+background:#ffffff;
+}
+.choice:hover{ transform: scale(.995); }
+.choice.selected{ outline:2px solid #0000; }
+
+/* 내비 버튼 */
+.navs{ display:flex; gap:8px; margin-top:10px; }
+.ghost{
+background:#fff; color:var(--text-soft); border:1px solid var(--line);
+box-shadow: var(--shadow); border-radius: 12px; padding:10px 12px; font-weight:700;
+}
+
+/* 결과 카드 */
+.result-card{
+background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+box-shadow: var(--shadow); padding: 16px 14px; margin-top:10px;
+}
+.result-hero{ display:flex; align-items:center; gap:12px; }
+.result-hero img{ width: clamp(40px, 14vw, 72px); }
+.result-title{ font-weight:900; font-size: clamp(18px, 4.5vw, 22px); }
+.result-desc{ color:var(--text-soft); }
+
+.pill{
+display:inline-block; background: var(--iv-100);
+border:1px solid var(--line); border-radius:999px;
+padding:6px 10px; font-weight:700; color:#6b5b50;
+}
+.mind-remind{ background: var(--mint-100); border:1px dashed var(--mint-300);
+border-radius:12px; padding:10px; }
+.result-actions{ display:flex; gap:8px; margin-top:12px; }
+.result-actions .start{ background: var(--mint-500); }
+.result-actions .start:nth-child(2){ background: var(--sky-500); }
+
+/* ---------- 카테고리 테마 ---------- /
+/ 연애 */
+.card-q.love .choice:nth-child(5n+1){ background: var(--rose-50); }
+.card-q.love .choice:nth-child(5n+2){ background: var(--rose-200); }
+.card-q.love .choice:nth-child(5n+3){ background: var(--rose-100); }
+.card-q.love .choice:nth-child(5n+4){ background: #ffd1b5; }
+.card-q.love .choice:nth-child(5n+5){ background: #f5e1dc; }
+.card-q.love .choice.selected{ background: var(--rose-300); color:#fff; border-color: transparent; }
+
+/* 취미(자립/에너지/성격) */
+.card-q.hobby .choice:nth-child(5n+1){ background:#EAF8F1; }
+.card-q.hobby .choice:nth-child(5n+2){ background:#FFFBE6; }
+.card-q.hobby .choice:nth-child(5n+3){ background:#C8F1E3; }
+.card-q.hobby .choice:nth-child(5n+4){ background:#FFF0B8; }
+.card-q.hobby .choice:nth-child(5n+5){ background:#F7FFEC; }
+.card-q.hobby .choice.selected{ background:#A5E3C5; color:#fff; border-color: transparent; }
+
+/* 재미(동물/MBTI/날씨) */
+.card-q.fun .choice:nth-child(5n+1){ background: var(--sky-100); }
+.card-q.fun .choice:nth-child(5n+2){ background: var(--sky-200); }
+.card-q.fun .choice:nth-child(5n+3){ background: var(--lav-100); }
+.card-q.fun .choice:nth-child(5n+4){ background: var(--iv-300); }
+.card-q.fun .choice:nth-child(5n+5){ background: #E2F3FF; }
+.card-q.fun .choice.selected{ background: var(--sky-300); color:#fff; border-color: transparent; }
+
+/* 심리건강(마음톡/감정vs논리) */
+.card-q.mind .choice:nth-child(5n+1){ background:#E8F6F0; }
+.card-q.mind .choice:nth-child(5n+2){ background:#D8EFE7; }
+.card-q.mind .choice:nth-child(5n+3){ background:#F9F9F7; }
+.card-q.mind .choice:nth-child(5n+4){ background:#C5E6D6; }
+.card-q.mind .choice:nth-child(5n+5){ background:#E3F2EC; }
+.card-q.mind .choice.selected{ background:#9DD8C4; color:#fff; border-color: transparent; }
+
+/* ---------- 접근성 ---------- */
+.choice{ outline-offset: 2px; }
+.choice:focus-visible,
+.start:focus-visible,
+.nav-btn:focus-visible,
+.test-chip:focus-visible,
+.thumb-link:focus-visible{ outline: 3px solid #00000020; border-radius: 12px; }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 600px){
+header{ padding:16px 12px 8px; }
+.subtitle{ font-size:14px; }
+main{ grid-template-columns: 1fr; gap:12px; padding: 8px 10px; }
+.card .anim{ min-height: 104px; }
+.card h3{ font-size: 1.05rem; }
+.cta{ width:100%; font-size:16px; }
+footer{ font-size:13px; }
+.test{ padding: 8px 10px 80px; }
+}
+
+/* === 결과 히어로 이미지 확대 (동물 테스트 전용) === */
+.result-hero.result-hero--big { align-items: center; }
+.result-hero.result-hero--big .animal-hero {
+width: 96px; height: auto; image-rendering: -webkit-optimize-contrast; margin-right: 12px;
+}
+@media (min-width: 480px){
+.result-hero.result-hero--big .animal-hero { width: 110px; }
+}
+
+/* 그래프 오른쪽 상태 라벨 톤 다운 */
+.state-meter .meter-label{ color: var(--text-soft); }
+
+/* 여백 보강 */
+.result-card .result-hero{ gap: 12px; }
+
+/* 태블릿 카드 폭 보정 */
+@media (min-width: 601px) and (max-width: 1024px){
+main{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
+
+/* =========================================================
+⚡ [추가] 에너지 테스트 전용 배터리 그래픽
+
+energy.js의 renderBattery()와 연동
+
+깜빡이는 애니메이션 포함
+========================================================= /
+.battery {
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+margin:16px 0 12px;
+}
+.battery-pack {
+display:flex;
+gap:4px;
+padding:6px;
+border:2px solid var(--mint-500);
+border-radius:10px;
+background:#fff;
+position:relative;
+box-shadow:inset 0 0 4px rgba(0,0,0,0.05);
+}
+.battery-pack::after {
+content:'';
+position:absolute;
+right:-6px;
+top:50%;
+transform:translateY(-50%);
+width:4px;
+height:12px;
+border-radius:2px;
+background:var(--mint-500);
+}
+.batt-cell {
+width:28px;
+height:16px;
+border-radius:4px;
+background:#eef3f2;
+overflow:hidden;
+position:relative;
+}
+.batt-cell .fill {
+position:absolute;
+top:0;
+left:0;
+height:100%;
+background:var(--mint-500);
+transition:width 0.6s ease;
+}
+.batt-cell.blink .fill {
+animation:blinkFill 1.2s infinite ease-in-out;
+}
+@keyframes blinkFill {
+0%,100% {opacity:1;}
+50% {opacity:0.4;}
+}
+.percent-label {
+font-weight:700;
+font-size:0.9rem;
+color:var(--mint-700,#3ca774);
+margin-top:6px;
+}
+/ === 자립 지수 체크: 미터 보조 스타일 (추가) === */
+.state-meter .meter-dim{ opacity:.7; }
+
+
+여기있는거 이상없이 추가만된거맞지??
