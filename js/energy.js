@@ -11,8 +11,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  /* ---------- 문항 (14) ---------- */
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     // P — 신체/루틴 (6)
     {k:'P', q:'수면 시간이 규칙적이며 기상 후 개운함을 느끼는 편이다.'},
     {k:'P', q:'하루 20분 이상 가벼운 움직임(걷기/스트레칭)을 한다.'},
