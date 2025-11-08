@@ -7,9 +7,9 @@
  * 3) 코드 수정 시 전체 완전본 제공.
  * =================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
   document.body.classList.add('layout-v2');
-  document.body.setAttribute('data-theme','fun');
+  document.body.setAttribute('data-theme','fun'); // 동물 테스트
+
 
   const Q = [
     {k:'A', q:'즉흥적인 제안이 오면 기분이 먼저 움직인다.'},
