@@ -1,34 +1,155 @@
-/* 레이아웃 V2는 스코프(.layout-v2) 안에서만 동작 — 기존 테스트 영향 X */
-.layout-v2 .q-wrap{
-  max-width: 820px; margin: 0 auto; padding: clamp(8px, 2vw, 16px);
-}
-.layout-v2 .q-card{
-  background:#fff; border:1px solid var(--line, #5e493d22);
-  border-radius: var(--radius, 18px); box-shadow: var(--shadow, 0 6px 18px rgba(0,0,0,.06));
-  padding: clamp(14px, 2.4vw, 18px);
-}
-.layout-v2 .q-title{ font-weight: 800; margin: 6px 2px 12px; line-height: 1.5; }
-.layout-v2 .answers{ display:flex; flex-direction:column; gap: 12px; margin-top: 10px; }
+/* =========================================================
+ * layout.question.v2.css — 몽실몽실 질문 레이아웃 V2
+ * ---------------------------------------------------------
+ * [코드 절대 규칙]
+ * 1) 기존 스타일 삭제·덮어쓰기 최소화.
+ * 2) .layout-v2 스코프 안에서만 동작 (옵트인 방식).
+ * 3) 색상은 기존 카테고리 테마(style.css)에 위임.
+ *    여기서는 레이아웃·여백·폰트 크기 중심으로만 조정.
+ * ========================================================= */
 
-.layout-v2 .choice{
-  width:100%; border-radius: 14px; padding: 14px 16px; text-align:center;
-  border:1px solid var(--line, #5e493d22);
-  background: var(--choice-bg, #fff);
+/* 
+ * 이 파일은 .layout-v2 클래스를 가진 조상 안에서만 작동합니다.
+ * 예)
+ *  - body.layout-v2 .test ...
+ *  - #plant-app.layout-v2 .card-q ...
+ */
+
+/* ---------- 공통 래퍼 ---------- */
+.layout-v2 .test{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 12px 80px;
+}
+
+/* 메타(진행률 영역) */
+.layout-v2 .meta{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.layout-v2 .meta #stepLabel{
+  font-weight: 800;
+  min-width: 64px;
+}
+
+/* 기존 .bar 스타일은 style.css 것을 활용 (여기서는 보정만) */
+.layout-v2 .meta .bar{
+  flex: 1;
+}
+
+/* ---------- 질문 카드 ---------- */
+.layout-v2 .card-q{
+  background: #fff;
+  border-radius: var(--radius, 18px);
+  border: 1px solid var(--line, #5e493d22);
+  box-shadow: var(--shadow, 0 6px 18px rgba(0,0,0,.06));
+  padding: clamp(14px, 2.4vw, 18px);
+  margin-top: 8px;
+}
+
+/* 질문 텍스트 */
+.layout-v2 .card-q .q-text{
+  font-weight: 800;
+  margin: 4px 2px 12px;
+  line-height: 1.6;
+}
+
+/* 안내 문구 */
+.layout-v2 .card-q .note{
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--text-soft, #5e5e5e);
+}
+
+/* ---------- 선택지 영역 ---------- */
+.layout-v2 .choices{
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 기본 버튼 레이아웃 (색상은 카테고리 테마에서 지정) */
+.layout-v2 .choices .choice{
+  width: 100%;
+  display: block;
+  text-align: center;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-weight: 700;
+  border: 1px solid var(--line, #5e493d22);
+  background: #ffffff;
   color: var(--text-soft, #5e5e5e);
   box-shadow: 0 2px 6px rgba(0,0,0,.05);
-  transition: transform .06s ease, background .2s ease, border-color .2s ease;
+  transition:
+    background .2s ease,
+    transform .06s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
+  cursor: pointer;
   touch-action: manipulation;
 }
-.layout-v2 .choice:active{ transform: scale(.99); }
-.layout-v2 .choice.selected{
-  /* 색상은 카테고리 theme가 제공 — 아래 변수만 읽는다 */
-  background: var(--choice-selected-bg, #a5e3c5);
-  color: #fff; border-color: transparent;
+
+/* hover/active는 부드럽게 — 색상은 기존 카테고리 규칙 유지 */
+.layout-v2 .choices .choice:hover{
+  transform: scale(.995);
+}
+.layout-v2 .choices .choice:active{
+  transform: scale(.99);
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
 }
 
-.layout-v2 .navs{ display:flex; gap:8px; margin-top: 14px; }
+/* 선택 상태: 색은 기존 .card-q.fun/.love/.mind 규칙을 따르도록
+   여기서는 굵기·테두리만 살짝 보정 */
+.layout-v2 .choices .choice.selected{
+  font-weight: 800;
+  border-color: transparent;
+}
 
+/* ghost 버튼은 스타일 유지하되, 여백만 보정 */
+.layout-v2 .navs{
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.layout-v2 .navs .ghost{
+  flex: 1;
+  justify-content: center;
+}
+
+/* ---------- 결과 카드와의 간격 ---------- */
+.layout-v2 #result .result-card{
+  margin-top: 12px;
+}
+
+/* ---------- 반응형 보정 ---------- */
 @media (max-width: 640px){
-  .layout-v2 .q-wrap{ padding: 8px 10px 80px; }
-  .layout-v2 .choice{ padding: 14px; }
+  .layout-v2 .test{
+    padding: 8px 10px 80px;
+  }
+  .layout-v2 .card-q{
+    padding: 14px 12px;
+  }
+  .layout-v2 .choices .choice{
+    padding: 13px 12px;
+    font-size: 0.95rem;
+  }
+  .layout-v2 .navs{
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 960px){
+  .layout-v2 .test{
+    padding: 12px 16px 90px;
+  }
+}
+
+/* 매우 큰 화면에서 카드 폭 제한 */
+@media (min-width: 1200px){
+  .layout-v2 .test{
+    max-width: 880px;
+  }
 }
