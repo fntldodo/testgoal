@@ -1,8 +1,8 @@
 <!--
 [코드 절대 규칙]
-1) 기존 합의 기능은 삭제/덮어쓰기/생략 금지 (사용자 요청 시에만 변경)
-2) 변경은 '추가' 우선, 중복 제거는 사전 확인 후
-3) 코드 수정 시 전체 완전본 제공 (생략/축약 금지)
+1) 기존 합의 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경
+2) 기존 코드는 보존하고 '추가'만 수행 (중복 제거는 사전 확인 후)
+3) 페이지는 항상 전체 완전본 제공
 -->
 <!DOCTYPE html>
 <html lang="ko">
@@ -11,53 +11,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>내 안의 도파민 공장장 - 몽실몽실</title>
 
-  <!-- AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
-    crossorigin="anonymous"></script>
+  <!-- AdSense (head 필수) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
 
   <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- 공통 스타일 -->
+  <!-- 프로젝트 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css?v=2025.3">
-  <!-- 도트 그래픽 (선택) -->
+
+  <!-- 도트 히어로(결과 썸네일용) -->
   <link rel="stylesheet" href="../css/dot-hero.css?v=2025.3">
+
+  <!-- 도트 로고(헤더용) -->
+  <link rel="stylesheet" href="../css/dot-logo.css?v=2025.3">
 </head>
-<body class="v2025-3">
-  <button class="top-main-btn" onclick="location.href='../index.html'">☁️ 메인으로</button>
+<body class="v2025-3" id="dopamine-app">
+  <a class="top-main-btn" href="../index.html">☁️ 메인으로</a>
 
   <section class="test">
     <header>
       <div class="logo">
-        <img src="../assets/brain.png" alt="도파민" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+        <!-- PNG 로고(폴백용). 도트 로고 모듈이 켜지면 숨김 처리됨 -->
+        <img src="../assets/brain.png" alt="도파민"
+             onerror="this.onerror=null; this.src='../assets/mongsil.png'">
         <span>내 안의 ‘도파민 공장장’</span>
       </div>
       <p class="subtitle">자극과 평온, 그 사이의 밸런스를 찾아요.</p>
     </header>
 
     <div class="meta">
-      <div id="stepLabel">1 / 12</div>
+      <div id="stepLabel">0 / 0</div>
       <div class="bar"><span id="barFill"></span></div>
     </div>
 
-    <div id="card" class="card-q hobby">
+    <!-- 질문 카드: hobby 테마 컬러 적용 -->
+    <div id="card" class="card-q hobby" style="display:block">
       <div id="qText" class="q-text">문항이 로드되는 중...</div>
       <div id="choiceWrap" class="choices"></div>
 
       <div class="navs">
-        <button id="prev" class="ghost">← 이전</button>
-        <button id="skip" class="ghost">건너뛰기</button>
+        <button id="prev" class="ghost" type="button">← 이전</button>
+        <button id="skip" class="ghost" type="button">건너뛰기</button>
       </div>
     </div>
 
-    <div id="result" style="display:none;"></div>
+    <!-- 결과 -->
+    <div id="result" style="display:none"></div>
   </section>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 스크립트 -->
+  <!-- 공통 에러 보호 -->
   <script defer src="../js/error-proof.js?v=2025.3"></script>
+
+  <!-- 도트 히어로(결과 그래픽) 엔진 -->
   <script defer src="../js/dot-hero.js?v=2025.3"></script>
+
+  <!-- 도파민 테스트 본 로직 (안전 부트스트랩 포함) -->
   <script defer src="../js/dopamine.js?v=2025.3a"></script>
+
+  <!-- 도트 그래픽 UI/저장 버튼 보강(추가형) -->
+  <script defer src="../js/dopamine-dotui.js?v=2025.3"></script>
+
+  <!-- 헤더 로고를 도트로 출력(추가형) -->
+  <script defer src="../js/dopamine-logo.js?v=2025.3"></script>
 </body>
 </html>
