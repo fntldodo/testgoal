@@ -526,3 +526,5 @@ body.v2025-3 {
   box-shadow:0 2px 6px rgba(0,0,0,.05);
 }
 #plant-app .choices .choice:hover{ background:#fffdf7; border-color:#e1d8cf; }
+/* style.css 맨 아래 */
+@import url('theme.css?v=2025.3');
