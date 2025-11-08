@@ -1,0 +1,71 @@
+/* =========================================================
+   ☁️ 몽실몽실 심리테스트 색상 테마 v2025.3 — 확장형 통합판
+   ---------------------------------------------------------
+   • 카테고리 4종 : love / hobby / fun / mind
+   • 선택 전 배경 / 선택 후 하이라이트 / hover 보정 포함
+   • plant.html, animal.html, mbti.html 등 30종 확장 호환
+   ========================================================= */
+
+/* 공통 선택지 초기값 */
+.choice {
+  transition: background .2s ease, transform .06s ease, color .2s ease, border-color .2s ease;
+}
+
+/* ===================== 💗 love (연애) ===================== */
+.card.love .choice:nth-child(5n+1):not(.selected){ background:#FFF1EA; }
+.card.love .choice:nth-child(5n+2):not(.selected){ background:#FFE6E1; }
+.card.love .choice:nth-child(5n+3):not(.selected){ background:#FFD8C4; }
+.card.love .choice:nth-child(5n+4):not(.selected){ background:#FFD1B5; }
+.card.love .choice:nth-child(5n+5):not(.selected){ background:#F5E1DC; }
+.card.love .choice.selected{
+  background: var(--rose-300);
+  color:#fff; border-color:transparent;
+}
+
+/* ===================== 🌿 hobby (자립·성격·에너지) ===================== */
+.card.hobby .choice:nth-child(5n+1):not(.selected){ background:#EAF8F1; }
+.card.hobby .choice:nth-child(5n+2):not(.selected){ background:#FFFBE6; }
+.card.hobby .choice:nth-child(5n+3):not(.selected){ background:#C8F1E3; }
+.card.hobby .choice:nth-child(5n+4):not(.selected){ background:#FFF0B8; }
+.card.hobby .choice:nth-child(5n+5):not(.selected){ background:#F7FFEC; }
+.card.hobby .choice.selected{
+  background:#A5E3C5; color:#fff; border-color:transparent;
+}
+
+/* ===================== 🐾 fun (동물·MBTI·날씨) ===================== */
+.card.fun .choice:nth-child(5n+1):not(.selected){ background:#EDF7FF; }
+.card.fun .choice:nth-child(5n+2):not(.selected){ background:#CFE9FF; }
+.card.fun .choice:nth-child(5n+3):not(.selected){ background:#F4EEFF; }
+.card.fun .choice:nth-child(5n+4):not(.selected){ background:#FFE6A8; }
+.card.fun .choice:nth-child(5n+5):not(.selected){ background:#E2F3FF; }
+.card.fun .choice.selected{
+  background: var(--sky-300);
+  color:#fff; border-color:transparent;
+}
+
+/* ===================== 🌱 mind (정신건강·감정vs논리) ===================== */
+.card.mind .choice:nth-child(5n+1):not(.selected){ background:#E8F6F0; }
+.card.mind .choice:nth-child(5n+2):not(.selected){ background:#D8EFE7; }
+.card.mind .choice:nth-child(5n+3):not(.selected){ background:#F9F9F7; }
+.card.mind .choice:nth-child(5n+4):not(.selected){ background:#C5E6D6; }
+.card.mind .choice:nth-child(5n+5):not(.selected){ background:#E3F2EC; }
+.card.mind .choice.selected{
+  background:#9DD8C4; color:#fff; border-color:transparent;
+}
+
+/* ===================== 공통 hover / focus ===================== */
+.choice:hover:not(.selected){
+  transform: scale(.995);
+  filter: brightness(1.03);
+}
+.choice.selected {
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+
+/* ===================== 확장 예시 (plant-app 스코프 적용) ===================== */
+#plant-app .card.mind .choice:nth-child(5n+1):not(.selected){ background:#E8F6F0; }
+#plant-app .card.mind .choice.selected{
+  background: linear-gradient(0deg,#fff9ea,#ffffff);
+  border-color:#e6cfa4; color:#3a2f28;
+  box-shadow:0 6px 16px rgba(0,0,0,.08), inset 0 0 0 999px rgba(255,207,96,.06);
+}
