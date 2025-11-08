@@ -8,7 +8,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     {k:'RELIEF', q:'요즘 “괜찮다”라는 말을 스스로에게 잘 건넬 수 있다.'},
     {k:'RELIEF', q:'잠시 멈추고 숨 고르면 마음이 풀리는 편이다.'},
     {k:'RELIEF', q:'실수해도 스스로를 과하게 비난하지 않는다.'},
