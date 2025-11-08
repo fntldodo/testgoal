@@ -1,0 +1,126 @@
+/* ---------------------------------------------------------
+ * 몽실 픽셀 아이콘 v2025.3 — 추가형(기존 자산은 폴백으로 유지)
+ * .pixel-icon 기본 크기: 2px 그리드. box-shadow로 점 찍기.
+ * --------------------------------------------------------- */
+.pixel-icon{
+  --px: 2px;              /* 기본 픽셀 크기 */
+  width: var(--px);
+  height: var(--px);
+  background: transparent;
+  position: relative;
+  image-rendering: pixelated;
+  margin: 0;
+  display: inline-block;
+}
+
+/* 카드 썸네일에 넣을 때 적당한 여백/크기 */
+.pixel-card{
+  margin: 6px auto;
+  transform: scale(1.0);
+}
+.pixel-48 { --px: 3px; }     /* 조금 더 큼 */
+.pixel-64 { --px: 4px; }     /* 더 큼 */
+
+/* 공통 색상 */
+:root{
+  --p-brown: #5e493d;        /* 윤곽 라인 */
+  --p-rose:  #FF6F61;
+  --p-sky:   #00BCD4;
+  --p-mint:  #8BC34A;
+  --p-gold:  #FFC107;
+  --p-ink:   #333;
+}
+
+/* ============ 1) knowledge-tower (지식 부자) ============ */
+/* 책 더미+타워 느낌의 픽셀 로고 */
+.pixel-icon.knowledge-tower{
+  box-shadow:
+    /* 책 더미 (좌측) */
+    calc(0*var(--px)) calc(10*var(--px)) var(--p-ink),
+    calc(1*var(--px)) calc(10*var(--px)) var(--p-ink),
+    calc(2*var(--px)) calc(10*var(--px)) var(--p-ink),
+    calc(0*var(--px)) calc(11*var(--px)) var(--p-sky),
+    calc(1*var(--px)) calc(11*var(--px)) var(--p-sky),
+    calc(2*var(--px)) calc(11*var(--px)) var(--p-sky),
+
+    calc(0*var(--px)) calc(13*var(--px)) var(--p-ink),
+    calc(1*var(--px)) calc(13*var(--px)) var(--p-ink),
+    calc(2*var(--px)) calc(13*var(--px)) var(--p-ink),
+    calc(0*var(--px)) calc(14*var(--px)) var(--p-gold),
+    calc(1*var(--px)) calc(14*var(--px)) var(--p-gold),
+    calc(2*var(--px)) calc(14*var(--px)) var(--p-gold),
+
+    /* 타워 (오른쪽) */
+    calc(6*var(--px))  calc(6*var(--px))  var(--p-ink),
+    calc(6*var(--px))  calc(7*var(--px))  var(--p-ink),
+    calc(6*var(--px))  calc(8*var(--px))  var(--p-ink),
+    calc(6*var(--px))  calc(9*var(--px))  var(--p-ink),
+    calc(6*var(--px))  calc(10*var(--px)) var(--p-ink),
+    calc(7*var(--px))  calc(10*var(--px)) var(--p-ink),
+    calc(8*var(--px))  calc(10*var(--px)) var(--p-ink),
+    calc(7*var(--px))  calc(9*var(--px))  var(--p-sky),
+    calc(8*var(--px))  calc(9*var(--px))  var(--p-sky),
+    calc(7*var(--px))  calc(8*var(--px))  var(--p-gold),
+    calc(8*var(--px))  calc(8*var(--px))  var(--p-gold),
+
+    /* 꼭대기 조명 */
+    calc(7*var(--px))  calc(5*var(--px))  #fff,
+    calc(8*var(--px))  calc(5*var(--px))  #fff;
+}
+
+/* ============ 2) party-spark (인싸 제조기) ============ */
+/* 스파클/폭죽 느낌의 픽셀 로고 */
+.pixel-icon.party-spark{
+  box-shadow:
+    /* 중앙 심볼 */
+    calc(5*var(--px))  calc(8*var(--px)) var(--p-rose),
+    calc(6*var(--px))  calc(8*var(--px)) var(--p-rose),
+    calc(7*var(--px))  calc(8*var(--px)) var(--p-rose),
+
+    /* 불꽃 팔 */
+    calc(6*var(--px))  calc(6*var(--px)) var(--p-gold),
+    calc(4*var(--px))  calc(7*var(--px)) var(--p-gold),
+    calc(8*var(--px))  calc(7*var(--px)) var(--p-gold),
+    calc(6*var(--px))  calc(10*var(--px)) var(--p-gold),
+
+    /* 주변 스파클 */
+    calc(2*var(--px))  calc(5*var(--px))  #ffd3e0,
+    calc(10*var(--px)) calc(5*var(--px))  #ffd3e0,
+    calc(3*var(--px))  calc(12*var(--px)) #ffd3e0,
+    calc(9*var(--px))  calc(12*var(--px)) #ffd3e0,
+
+    /* 바닥 그림자 */
+    calc(5*var(--px))  calc(13*var(--px)) rgba(0,0,0,.15),
+    calc(6*var(--px))  calc(13*var(--px)) rgba(0,0,0,.15),
+    calc(7*var(--px))  calc(13*var(--px)) rgba(0,0,0,.15);
+}
+
+/* ============ 3) avocado-master (아보하 마스터) ============ */
+/* 아보카도 단면 느낌의 픽셀 로고 */
+.pixel-icon.avocado-master{
+  box-shadow:
+    /* 외형(초록) */
+    calc(5*var(--px))  calc(5*var(--px))  var(--p-mint),
+    calc(6*var(--px))  calc(4*var(--px))  var(--p-mint),
+    calc(7*var(--px))  calc(4*var(--px))  var(--p-mint),
+    calc(8*var(--px))  calc(5*var(--px))  var(--p-mint),
+    calc(9*var(--px))  calc(6*var(--px))  var(--p-mint),
+    calc(9*var(--px))  calc(7*var(--px))  var(--p-mint),
+    calc(8*var(--px))  calc(9*var(--px))  var(--p-mint),
+    calc(7*var(--px))  calc(10*var(--px)) var(--p-mint),
+    calc(6*var(--px))  calc(10*var(--px)) var(--p-mint),
+    calc(5*var(--px))  calc(9*var(--px))  var(--p-mint),
+
+    /* 과육(베이지) */
+    calc(6*var(--px))  calc(6*var(--px))  #fff5dc,
+    calc(7*var(--px))  calc(6*var(--px))  #fff5dc,
+    calc(8*var(--px))  calc(6*var(--px))  #fff5dc,
+    calc(6*var(--px))  calc(7*var(--px))  #fff5dc,
+    calc(7*var(--px))  calc(7*var(--px))  #fff5dc,
+    calc(8*var(--px))  calc(7*var(--px))  #fff5dc,
+    calc(7*var(--px))  calc(8*var(--px))  #fff5dc,
+
+    /* 씨(브라운) */
+    calc(7*var(--px))  calc(8*var(--px))  #8d5a41,
+    calc(7*var(--px))  calc(9*var(--px))  #8d5a41;
+}
