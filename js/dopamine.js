@@ -58,8 +58,8 @@
       // ---------- 렌더 ----------
       function render(){
         stepLabel.textContent = `${idx+1} / ${Q.length}`;
-        barFill.style.width    = `${(idx/Q.length)*100}%`;
-        qText.textContent      = Q[idx].q;
+        barFill.style.width   = `${(idx/Q.length)*100}%`;
+        qText.textContent     = Q[idx].q;
 
         wrap.innerHTML = `
           <button class="choice" data-s="4" type="button">매우 그렇다</button>
@@ -190,6 +190,28 @@
 
       function labelOf(p){ return p>=0.76?'매우 높음': p>=0.56?'높음': p>=0.36?'보통': p>=0.21?'낮음':'아주 낮음'; }
 
+      // [추가] 픽셀 아이콘 주입 로직을 별도의 함수로 분리
+      function injectPixelIcon(key){
+        const hero = document.querySelector('.result-hero');
+        if(!hero) return;
+        // 기본으로 PNG가 있으니, 픽셀 아이콘을 첫 요소로 삽입
+        const pix = document.createElement('div');
+        pix.className = 'pixel-icon pixel-64 pixel-card';
+        // 결과키 -> 픽셀 클래스 매핑
+        const map = {
+          ROLLER: 'roller-coaster',
+          KNOW:   'knowledge-tower',
+          SOCIAL: 'party-spark',
+          AVOHA:  'avocado-master'
+        };
+        pix.classList.add(map[key] || 'roller-coaster');
+        hero.insertBefore(pix, hero.firstChild);
+
+        // PNG는 폴백으로 남겨두되, 픽셀 우선 표시
+        const png = hero.querySelector('img');
+        if (png) png.style.display = 'none';
+      }
+
       function finish(){
         card.style.display = "none";
         barFill.style.width = "100%";
@@ -202,32 +224,10 @@
         const hybrid  = result.hybrid;
         const dotKey  = TYPE[key].key;
 
+        // HTML 문자열 생성 (인라인 함수 삭제)
         resultBox.innerHTML = `
-        // [추가] 결과 픽셀아이콘 주입 (주 타입에 따라 클래스 변경)
-(function injectPixelIcon(){
-  const hero = document.querySelector('.result-hero');
-  if(!hero) return;
-  // 기본으로 PNG가 있으니, 픽셀 아이콘을 첫 요소로 삽입
-  const pix = document.createElement('div');
-  pix.className = 'pixel-icon pixel-64 pixel-card';
-  // 결과키 -> 픽셀 클래스 매핑
-  const map = {
-    ROLLER: 'roller-coaster',   // 이미 만들어 둔 클래스
-    KNOW:   'knowledge-tower',
-    SOCIAL: 'party-spark',
-    AVOHA:  'avocado-master'
-  };
-  pix.classList.add(map[key] || 'roller-coaster');
-  hero.insertBefore(pix, hero.firstChild);
-
-  // PNG는 폴백으로 남겨두되, 픽셀 우선 표시
-  const png = hero.querySelector('img');
-  if (png) png.style.display = 'none';
-})();
-
           <div class="result-card hobby">
             <div class="result-hero">
-              <!-- 폴백 IMG (도트가 replace 모드면 숨김) -->
               <img src="../assets/brain.png" alt="${meta.title}"
                    onerror="this.onerror=null; this.src='../assets/mongsil.png'">
               <div>
@@ -266,8 +266,11 @@
         `;
 
         resultBox.style.display = "block";
+        
+        // [수정] HTML 삽입 후, DOM 조작 함수 실행
+        injectPixelIcon(key);
 
-        // 결과 도트 그래픽 삽입
+        // 결과 도트 그래픽 삽입 (기존 로직 유지)
         if (window.MongsilDot?.mount){
           const seed = `N:${Math.round(n.N*100)};S:${Math.round(n.S*100)};K:${Math.round(n.K*100)};B:${Math.round(n.B*100)}`;
           window.MongsilDot.mount({ key: dotKey, seed, mode: 'replace', container: '.result-hero' });
