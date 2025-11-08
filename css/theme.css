@@ -69,3 +69,24 @@
   border-color:#e6cfa4; color:#3a2f28;
   box-shadow:0 6px 16px rgba(0,0,0,.08), inset 0 0 0 999px rgba(255,207,96,.06);
 }
+
+/* mind */
+body[data-theme="mind"]{
+  --choice-bg:#f5fff8;
+  --choice-selected-bg:#9DD8C4;
+}
+/* love */
+body[data-theme="love"]{
+  --choice-bg:#fff6ef;
+  --choice-selected-bg:#ffba9d;
+}
+/* fun */
+body[data-theme="fun"]{
+  --choice-bg:#edf7ff;
+  --choice-selected-bg:#a8d6ff;
+}
+/* hobby */
+body[data-theme="hobby"]{
+  --choice-bg:#fffbe6;
+  --choice-selected-bg:#a5e3c5;
+}
