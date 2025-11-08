@@ -6,7 +6,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     {k:'R', q:'기상·취침 시간이 비교적 일정하다.'},
     {k:'R', q:'할 일/일정을 스스로 계획해 실행한다.'},
     {k:'R', q:'예산·지출을 기록하거나 관리한다.'},
