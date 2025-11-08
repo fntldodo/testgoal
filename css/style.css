@@ -484,3 +484,45 @@ body.v2025-3 {
 #plant-app .card.mind .choices .choice:nth-child(5n+3){ background:#F9F9F7; }
 #plant-app .card.mind .choices .choice:nth-child(5n+4){ background:#C5E6D6; }
 #plant-app .card.mind .choices .choice:nth-child(5n+5){ background:#E3F2EC; }
+/* ===== PLANT 전용(감정vs논리) — 카테고리 색 적용 스코프 ===== */
+/* 선택 전: 카테고리 색 / 선택 시: 하이라이트가 덮어씀 */
+#plant-app .card.mind .choices .choice:nth-child(5n+1):not(.selected){ background:#E8F6F0 !important; }
+#plant-app .card.mind .choices .choice:nth-child(5n+2):not(.selected){ background:#D8EFE7 !important; }
+#plant-app .card.mind .choices .choice:nth-child(5n+3):not(.selected){ background:#F9F9F7 !important; }
+#plant-app .card.mind .choices .choice:nth-child(5n+4):not(.selected){ background:#C5E6D6 !important; }
+#plant-app .card.mind .choices .choice:nth-child(5n+5):not(.selected){ background:#E3F2EC !important; }
+
+/* (참고) 향후 다른 테스트에 재사용할 4카테고리 템플릿 — 지금은 plant만 쓰임 */
+#plant-app .card.love  .choices .choice:nth-child(5n+1):not(.selected){ background:#FFF1EA !important; }
+#plant-app .card.love  .choices .choice:nth-child(5n+2):not(.selected){ background:#FFE6E1 !important; }
+#plant-app .card.love  .choices .choice:nth-child(5n+3):not(.selected){ background:#FFD8C4 !important; }
+#plant-app .card.love  .choices .choice:nth-child(5n+4):not(.selected){ background:#FFD1B5 !important; }
+#plant-app .card.love  .choices .choice:nth-child(5n+5):not(.selected){ background:#F5E1DC !important; }
+
+#plant-app .card.hobby .choices .choice:nth-child(5n+1):not(.selected){ background:#EAF8F1 !important; }
+#plant-app .card.hobby .choices .choice:nth-child(5n+2):not(.selected){ background:#FFFBE6 !important; }
+#plant-app .card.hobby .choices .choice:nth-child(5n+3):not(.selected){ background:#C8F1E3 !important; }
+#plant-app .card.hobby .choices .choice:nth-child(5n+4):not(.selected){ background:#FFF0B8 !important; }
+#plant-app .card.hobby .choices .choice:nth-child(5n+5):not(.selected){ background:#F7FFEC !important; }
+
+#plant-app .card.fun   .choices .choice:nth-child(5n+1):not(.selected){ background:#EDF7FF !important; }
+#plant-app .card.fun   .choices .choice:nth-child(5n+2):not(.selected){ background:#CFE9FF !important; }
+#plant-app .card.fun   .choices .choice:nth-child(5n+3):not(.selected){ background:#F4EEFF !important; }
+#plant-app .card.fun   .choices .choice:nth-child(5n+4):not(.selected){ background:#FFE6A8 !important; }
+#plant-app .card.fun   .choices .choice:nth-child(5n+5):not(.selected){ background:#E2F3FF !important; }
+
+/* 선택 시 하이라이트 — 기존 규칙 유지 + 우선순위 강화 */
+#plant-app .card .choices .choice.selected{
+  background: linear-gradient(0deg,#fff9ea,#ffffff) !important;
+  border-color:#e6cfa4 !important;
+  color:#3a2f28 !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.08), inset 0 0 0 999px rgba(255,207,96,.06);
+}
+
+/* 기본 스타일 보정(흰 배경이 테마를 덮지 않도록) */
+#plant-app .choices .choice{
+  border:1px solid #e9e6e2;
+  color:#4a3c33;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+#plant-app .choices .choice:hover{ background:#fffdf7; border-color:#e1d8cf; }
