@@ -1,16 +1,12 @@
 /* =========================================================
  * 내 안의 ‘도파민 공장장’ — 몽실몽실 v2025.3a (안전 부트스트랩)
- * ---------------------------------------------------------
- * - 카테고리: hobby (생활/성향)
+ * - 카테고리: hobby
  * - 12문항 / 5지선다(0~4) + 반응시간 보조(±20%, 선택 우선)
  * - 결과 4종: 롤러코스터 / 지식 부자 / 인싸 제조기 / 아보하 마스터
- * - 절대규칙: 기존 기능 삭제/변경 없음 → “추가형” 보강 (부트스트랩/가드)
- * - 시각화: dot-hero.js 사용(없어도 동작)
+ * - 기존 기능 삭제/변경 없음. “추가형” 구성.
  * ========================================================= */
-
-/* [추가형] 안전 부트스트랩: DOMContentLoaded 타이밍 이슈/중복 실행 가드 */
 (function bootstrapDopamine(){
-  if (window.__dopamine_booted) return; // 중복 실행 방지
+  if (window.__dopamine_booted) return;
   window.__dopamine_booted = true;
 
   const boot = () => {
@@ -46,13 +42,12 @@
       const prevBtn   = document.getElementById("prev");
       const skipBtn   = document.getElementById("skip");
 
-      // [가드] 필수 DOM 없으면 조용히 종료(다음 부트에서 재시도)
       if (!stepLabel || !barFill || !qText || !wrap || !card || !resultBox) {
         console.warn('[dopamine] 필수 DOM이 아직 없음. DOM 준비 후 재시도');
         return;
       }
 
-      // ---------- 시간 가중(±20% 캡) ----------
+      // ---------- 시간 가중(±20%) ----------
       function weight(sec){
         if(sec < 1) return 0.9;
         if(sec < 4) return 1.0;
@@ -205,13 +200,13 @@
         const info    = COPY[key];
         const meta    = TYPE[key];
         const hybrid  = result.hybrid;
-
-        const dotKey = TYPE[key].key;
+        const dotKey  = TYPE[key].key;
 
         resultBox.innerHTML = `
           <div class="result-card hobby">
             <div class="result-hero">
-              <img src="../assets/brain.png" alt="${info.title||meta.title}"
+              <!-- 폴백 IMG (도트가 replace 모드면 숨김) -->
+              <img src="../assets/brain.png" alt="${meta.title}"
                    onerror="this.onerror=null; this.src='../assets/mongsil.png'">
               <div>
                 <div class="result-title">${meta.title}${hybrid ? ' · ' + TYPE[hybrid].title.replace(/^[^ ]+ /,'') : ''}</div>
@@ -224,14 +219,6 @@
             <div id="res-summary" style="margin:6px 0 10px">
               ${info.summary.map(t=>`<span class="pill" style="margin-right:6px">${t}</span>`).join('')}
               ${hybrid ? `<span class="pill" style="margin-right:6px; background:#f4eeff">하이브리드 성향</span>` : ''}
-            </div>
-
-            <div class="mind-remind" style="margin:8px 0 10px;color:var(--text-soft)">
-              <b>🌿 마음 리마인드:</b>
-              ${info.remind.map(t=>`<div class="remind-item" style="display:flex;gap:8px;align-items:flex-start;margin-top:6px">
-                <span class="remind-bullet" style="width:8px;height:8px;border-radius:999px;background:#e7dbff;margin-top:7px"></span>
-                <span class="remind-text" style="font-size:14px">${t}</span>
-              </div>`).join('')}
             </div>
 
             <div class="state-meter">
@@ -253,15 +240,12 @@
               <a class="start" href="../index.html">메인으로</a>
               <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
             </div>
-
-            <div class="hint" style="margin-top:8px;color:#6b5a50;font-size:12px">
-              동률 시 최근 3문항과 응답속도로 균형을 조정해요.
-            </div>
           </div>
         `;
 
         resultBox.style.display = "block";
 
+        // 결과 도트 그래픽 삽입
         if (window.MongsilDot?.mount){
           const seed = `N:${Math.round(n.N*100)};S:${Math.round(n.S*100)};K:${Math.round(n.K*100)};B:${Math.round(n.B*100)}`;
           window.MongsilDot.mount({ key: dotKey, seed, mode: 'replace', container: '.result-hero' });
@@ -269,10 +253,7 @@
       }
 
       // ---------- 시작 ----------
-      // 카테고리 보강(안전)
-      document.getElementById('card')?.classList.add('hobby');
-
-      // 첫 렌더
+      document.getElementById('card')?.classList.add('hobby'); // 카테고리 테마 보강
       render();
 
     } catch (err) {
@@ -280,7 +261,6 @@
     }
   };
 
-  // DOM 준비 상태에 따라 부트
   if (document.readyState !== 'loading') boot();
   else document.addEventListener('DOMContentLoaded', boot);
 })();
