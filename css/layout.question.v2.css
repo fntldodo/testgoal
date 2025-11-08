@@ -47,6 +47,12 @@
   box-shadow: var(--shadow, 0 6px 18px rgba(0,0,0,.06));
   padding: clamp(14px, 2.4vw, 18px);
   margin-top: 8px;
+
+    /* [추가] V2에서는 카드가 테스트 영역 전체를 쓰도록 */
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* 질문 텍스트 */
