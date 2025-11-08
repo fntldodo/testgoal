@@ -1,3 +1,9 @@
+<!--
+[코드 절대 규칙]
+1) 기존 합의 기능은 삭제/덮어쓰기/생략 금지 (사용자 요청 시에만 변경)
+2) 변경은 '추가' 우선, 중복 제거는 사전 확인 후
+3) 코드 수정 시 전체 완전본 제공 (생략/축약 금지)
+-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -5,58 +11,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>내 안의 도파민 공장장 - 몽실몽실</title>
 
-  <!-- AdSense (필수) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
+    crossorigin="anonymous"></script>
 
   <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- 공통 스타일 + 테마 (이미 프로젝트에 존재한다고 가정) -->
+  <!-- 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css?v=2025.3">
-  <link rel="stylesheet" href="../css/theme.css?v=2025.3">
-
-  <!-- 도트 그래픽(신규, 아래 2개 파일 포함) -->
+  <!-- 도트 그래픽 (선택) -->
   <link rel="stylesheet" href="../css/dot-hero.css?v=2025.3">
-  <script defer src="../js/dot-hero.js?v=2025.3"></script>
-
-  <!-- 에러 보호 스크립트(프로젝트 공통) -->
-  <script defer src="../js/error-proof.js?v=2025.3"></script>
 </head>
-<body id="dopamine-app">
-  <a class="top-main-btn" href="../index.html" aria-label="메인으로">메인으로</a>
+<body class="v2025-3">
+  <button class="top-main-btn" onclick="location.href='../index.html'">☁️ 메인으로</button>
 
-  <header>
-    <div class="logo">
-      <img src="../assets/brain.png" alt="도파민 테스트" onerror="this.onerror=null;this.src='../assets/mongsil.png'">
-      <span>내 안의 ‘도파민 공장장’</span>
-    </div>
-    <p class="subtitle">자극과 쾌락, 그리고 균형. 당신의 보상 회로는 어떤 스타일일까요?</p>
-  </header>
+  <section class="test">
+    <header>
+      <div class="logo">
+        <img src="../assets/brain.png" alt="도파민" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+        <span>내 안의 ‘도파민 공장장’</span>
+      </div>
+      <p class="subtitle">자극과 평온, 그 사이의 밸런스를 찾아요.</p>
+    </header>
 
-  <main class="test">
     <div class="meta">
-      <div id="stepLabel">0 / 0</div>
+      <div id="stepLabel">1 / 12</div>
       <div class="bar"><span id="barFill"></span></div>
     </div>
 
-    <!-- 질문 카드: 카테고리 hobby 적용 -->
-    <section id="card" class="card hobby" style="display:block">
-      <div class="q-text" id="qText">질문이 여기에 표시됩니다.</div>
-      <div class="choices" id="choiceWrap"></div>
+    <div id="card" class="card-q hobby">
+      <div id="qText" class="q-text">문항이 로드되는 중...</div>
+      <div id="choiceWrap" class="choices"></div>
 
       <div class="navs">
-        <button id="prev" type="button" class="ghost">이전</button>
-        <button id="skip" type="button" class="ghost">건너뛰기</button>
+        <button id="prev" class="ghost">← 이전</button>
+        <button id="skip" class="ghost">건너뛰기</button>
       </div>
-    </section>
+    </div>
 
-    <!-- 결과 -->
-    <div id="result" style="display:none"></div>
-  </main>
+    <div id="result" style="display:none;"></div>
+  </section>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
 
-  <!-- 본 테스트 로직 -->
-  <script defer src="../js/dopamine.js?v=2025.3"></script>
+  <!-- 스크립트 -->
+  <script defer src="../js/error-proof.js?v=2025.3"></script>
+  <script defer src="../js/dot-hero.js?v=2025.3"></script>
+  <script defer src="../js/dopamine.js?v=2025.3a"></script>
 </body>
 </html>
