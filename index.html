@@ -47,6 +47,7 @@
         <button class="test-chip" data-link="weather" role="option">마음 일기예보</button>
         <button class="test-chip" data-link="mindtalk" role="option">마음톡</button>
         <button class="test-chip" data-link="energy" role="option">에너지</button>
+        <button class="test-chip" data-link="dopamine" role="option">도파민</button>
       </div>
       <button class="nav-btn next" aria-label="다음" type="button">&#10095;</button>
     </div>
@@ -171,6 +172,22 @@
       <p class="desc">5단계 상태 라벨 · 12~15문항</p>
       <button class="start" type="button">시작하기 →</button>
     </article>
+    <article class="card" data-key="dopamine" tabindex="0" aria-label="내 안의 도파민 공장장"
+         onclick="location.href='./tests/dopamine.html'">
+  <span class="chip">도파민</span>
+  <a class="thumb-link" href="./tests/dopamine.html" aria-label="도파민 테스트 진입">
+    <div class="anim" aria-hidden="true">
+      <!-- 썸네일: brain.png 재사용 (폴백 포함) -->
+      <img class="anim-fallback" src="./assets/brain.png" alt="도파민"
+           loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
+    </div>
+  </a>
+  <h3>내 안의 ‘도파민 공장장’</h3>
+  <p class="desc">롤러코스터·지식 부자·인싸 제조기·아보하 마스터 · 12문항</p>
+  <button class="start" type="button">시작하기 →</button>
+</article>
+
+    
   </main>
 
   <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
