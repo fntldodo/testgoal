@@ -7,9 +7,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 문항: p = +쪽(동의시 점수가 +로 반영될 축의 '첫 글자')
-  // 예) {axis:'EI', p:'E'} => 동의할수록 E 쪽에 가중
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     // E / I
     {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
     {axis:'EI', p:'I', q:'혼자만의 시간이 있어야 생각이 정리된다.'},
