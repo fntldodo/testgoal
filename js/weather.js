@@ -4,7 +4,12 @@
  * ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     {k:'P', q:'오늘은 사소한 일에도 고마움이 느껴진다.'},
     {k:'P', q:'가벼운 기대감이 마음속에서 은근히 올라온다.'},
     {k:'P', q:'내가 하는 일에서 작은 즐거움이 보인다.'},
