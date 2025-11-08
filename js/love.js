@@ -10,7 +10,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     {k:'E', q:'좋아하는 감정을 표현하는 편이다.'},
     {k:'E', q:'상대가 내 감정을 알 수 있게 노력한다.'},
     {k:'E', q:'감정 표현이 솔직한 편이다.'},
