@@ -203,6 +203,28 @@
         const dotKey  = TYPE[key].key;
 
         resultBox.innerHTML = `
+        // [추가] 결과 픽셀아이콘 주입 (주 타입에 따라 클래스 변경)
+(function injectPixelIcon(){
+  const hero = document.querySelector('.result-hero');
+  if(!hero) return;
+  // 기본으로 PNG가 있으니, 픽셀 아이콘을 첫 요소로 삽입
+  const pix = document.createElement('div');
+  pix.className = 'pixel-icon pixel-64 pixel-card';
+  // 결과키 -> 픽셀 클래스 매핑
+  const map = {
+    ROLLER: 'roller-coaster',   // 이미 만들어 둔 클래스
+    KNOW:   'knowledge-tower',
+    SOCIAL: 'party-spark',
+    AVOHA:  'avocado-master'
+  };
+  pix.classList.add(map[key] || 'roller-coaster');
+  hero.insertBefore(pix, hero.firstChild);
+
+  // PNG는 폴백으로 남겨두되, 픽셀 우선 표시
+  const png = hero.querySelector('img');
+  if (png) png.style.display = 'none';
+})();
+
           <div class="result-card hobby">
             <div class="result-hero">
               <!-- 폴백 IMG (도트가 replace 모드면 숨김) -->
