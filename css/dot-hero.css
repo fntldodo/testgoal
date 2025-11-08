@@ -1,0 +1,19 @@
+/* =========================================================
+   몽실 도트 히어로 v2025.3 — 독립형(기존 CSS와 충돌 없음)
+   ========================================================= */
+.dot-hero {
+  width: clamp(120px, 32vw, 180px);
+  height: clamp(120px, 32vw, 180px);
+  border-radius: 22px;
+  border: 1px solid #5e493d22; /* 얇은 브라운 윤곽 */
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.dot-hero canvas { display:block; width:100%; height:100%; }
+
+/* 결과 레이아웃과 자연스럽게 */
+.result-hero { display:flex; align-items:center; gap:12px; }
+.result-hero .dot-hero { flex:0 0 auto; }
