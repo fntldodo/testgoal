@@ -9,7 +9,12 @@
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  document.body.classList.add('layout-v2');
+  document.body.setAttribute('data-theme','fun');
+
   const Q = [
+
     {k:'O', q:'새로운 시도나 아이디어에 끌린다.'},
     {k:'O', q:'예술, 디자인, 철학 등에 흥미가 있다.'},
     {k:'O', q:'다른 관점을 열린 마음으로 듣는다.'},
