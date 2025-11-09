@@ -1,18 +1,20 @@
 /* ===================================================
- * MBTI 빠른 테스트 — v2025.2 (12문항, 상태형 결과, 편중 방지)
+ * MBTI 빠른 테스트 — v2025.2 (다중 모드: 라이트/보통/심화)
  * - 5지선다(0~4) + 응답시간 보조 ±20% (선택 우선, 뒤엎지 않음)
- * - 축: E/I, S/N, T/F, J/P (각 3문항 = 12)
+ * - 축: E/I, S/N, T/F, J/P
  * - 결과: 16유형(ISTJ 등) · 제목/인용문/설명/정서 요약/마음 리마인드/그래프/버튼
  * - 숫자 점수 직접 노출 금지(퍼센트는 라벨과 함께 보조만)
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // [수정-추가] 질문 레이아웃 V2 적용 + 카테고리(동물=fun) 지정
+  // 레이아웃 V2 + 카테고리 지정
   document.body.classList.add('layout-v2');
   document.body.setAttribute('data-theme','fun');
 
-  const Q = [
+  /* ---------------- 질문 세트 정의 ---------------- */
 
+  // 기존 12문항을 "보통(normal)" 세트로 사용
+  const Q_NORMAL = [
     // E / I
     {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
     {axis:'EI', p:'I', q:'혼자만의 시간이 있어야 생각이 정리된다.'},
@@ -34,7 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
     {axis:'JP', p:'J', q:'기한이 있으면 미리미리 처리해두는 편이다.'},
   ];
 
-  // 상태
+  // 라이트/심화 세트는 일단 동일한 12문항으로 시작
+  // 나중에 문항 늘릴 때 여기만 교체하면 됨.
+  const Q_LIGHT = Q_NORMAL;   // 예: 축당 2문항짜리로 줄이고 싶으면 나중에 수정
+  const Q_DEEP  = Q_NORMAL;   // 예: 축당 7~8문항으로 확장 가능
+
+  const QUESTION_SETS = {
+    light:  Q_LIGHT,
+    normal: Q_NORMAL,
+    deep:   Q_DEEP
+  };
+
+  let MODE = 'normal';      // 기본 모드
+  let Q = QUESTION_SETS[MODE];
+
+  /* ---------------- 상태 ---------------- */
   let idx=0, start=Date.now();
   const ans=[], times=[];
   const accum = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
@@ -49,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const result=document.getElementById('result');
   const prev=document.getElementById('prev');
   const skip=document.getElementById('skip');
+  const meta=document.getElementById('meta');
+
+  const modeSelect = document.getElementById('modeSelect');
+  const modeBtns = modeSelect ? modeSelect.querySelectorAll('.mode-btn') : [];
 
   // 응답시간 가중 (±20%, 선택 뒤엎지 않음)
   function weight(sec){
@@ -58,7 +78,47 @@ document.addEventListener('DOMContentLoaded', () => {
     return 1.10;
   }
 
-  // 렌더
+  // 상태 리셋(모드 변경 시 사용)
+  function resetState(){
+    idx = 0;
+    start = Date.now();
+    ans.length = 0;
+    times.length = 0;
+    for(const k in accum){ accum[k] = 0; }
+    for(const k in count){ count[k] = 0; }
+    // 진행률 초기화
+    if(step) step.textContent = `1 / ${Q.length}`;
+    if(bar)  bar.style.width = '0%';
+  }
+
+  /* ---------------- 모드 선택 핸들러 ---------------- */
+  const MODE_LABEL = {
+    light:  '라이트(간단형)',
+    normal: '보통(표준형)',
+    deep:   '심화(정밀형)'
+  };
+
+  modeBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const m = btn.dataset.mode || 'normal';
+      MODE = m;
+      Q = QUESTION_SETS[MODE] || Q_NORMAL;
+
+      // 선택된 버튼에 selected 스타일
+      modeBtns.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      // 모드 카드 숨기고 실제 테스트 노출
+      if(modeSelect) modeSelect.style.display = 'none';
+      if(meta) meta.style.display = '';
+      if(card) card.style.display = '';
+
+      resetState();
+      render();
+    });
+  });
+
+  /* ---------------- 렌더 ---------------- */
   function render(){
     step.textContent=`${idx+1} / ${Q.length}`;
     bar.style.width=`${(idx/Q.length)*100}%`;
@@ -84,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     start=Date.now();
   }
 
-  // 선택
+  /* ---------------- 선택 로직 ---------------- */
   function choose(s){
     const sec=(Date.now()-start)/1000, w=weight(sec);
     const adj = s + (s*(w-1)*0.2); // 보조 가중
@@ -106,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function next(){ idx++; if(idx<Q.length) render(); else finish(); }
 
-  // 이전/건너뛰기
+  /* ---------------- 이전/건너뛰기 ---------------- */
   prev?.addEventListener('click',()=>{
     if(idx===0) return;
     // 재계산(간단화: 처음부터 idx-1까지 다시 누적)
@@ -124,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   skip?.addEventListener('click',()=>{ ans[idx]=0; times[idx]=(Date.now()-start)/1000; next(); });
 
-  // 정규화(0~1)
+  /* ---------------- 정규화/결정 ---------------- */
   function norm(letter){
     const avg = (accum[letter] / Math.max(1, count[letter])) / 4; // 0~4 → 0~1
     return Math.max(0, Math.min(1, avg));
@@ -164,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // 16유형 카피 (짧고 선명하게 + 마음 리마인드)
+  /* ---------------- 16유형 카피 ---------------- */
   const COPY={
     ISTJ:{title:'ISTJ — 신중한 빌더',quote:'“차근차근, 정확하게.”',
       desc:'현실감각이 뛰어나고 책임감이 강한 유형입니다. 규칙과 계획 안에서 안정감을 느끼며, 묵묵히 결과를 만들어냅니다.',
@@ -219,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
       remind:'지표 1개만 정하고 팀과 공유.'},
   };
 
-  // 그래프(중복 라벨 없이, 그래프에만 표시)
+  /* ---------------- 그래프 ---------------- */
   function meters(n){
     const rows = [
       ['E','I','에너지 방향'],
@@ -246,8 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   }
 
+  /* ---------------- 결과 ---------------- */
   function finish(){
-    card.style.display='none'; bar.style.width='100%';
+    card.style.display='none'; 
+    bar.style.width='100%';
 
     const {letters, n} = decide();
     const info = COPY[letters] || {
@@ -267,6 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>
             <div class="result-title">${info.title}</div>
             <div class="result-desc">${info.quote}</div>
+            <p class="result-meta" style="margin-top:4px;color:var(--text-soft)">
+              검사 버전: <b>${MODE_LABEL[MODE] || '보통(표준형)'}</b> · 문항 수: ${Q.length}문항
+            </p>
           </div>
         </div>
 
@@ -288,6 +353,5 @@ document.addEventListener('DOMContentLoaded', () => {
     result.style.display='block';
   }
 
-  // 시작
-  render();
+  // ★ render()는 모드 선택 후에만 호출됨 (초기 자동 호출 X)
 });
