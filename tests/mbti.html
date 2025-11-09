@@ -13,7 +13,7 @@
 
   <!-- 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css?v=2025.2">
-    <!-- [추가] 질문 레이아웃 V2 (도파민형 반응형 구조 적용용) -->
+  <!-- 질문 레이아웃 V2 -->
   <link rel="stylesheet" href="../css/layout.question.v2.css?v=2025.3">
 </head>
 <body>
@@ -31,17 +31,35 @@
            onerror="this.onerror=null; this.src='../assets/mongsil.png'">
       <span>MBTI 빠른 테스트</span>
     </div>
-    <p class="subtitle">12문항 · E/I · S/N · T/F · J/P · 상태형 결과(숫자 미노출)</p>
+    <p class="subtitle">라이트 / 보통 / 심화 선택 · E/I · S/N · T/F · J/P · 상태형 결과(숫자 미노출)</p>
   </header>
 
   <main class="test">
-    <div class="meta">
+    <!-- ★ 추가: 검사 모드 선택 영역 -->
+    <section id="modeSelect" class="card-q fun" style="margin-bottom:12px">
+      <p class="q-text">원하는 검사 난이도를 선택하세요.</p>
+      <div class="choices">
+        <button class="choice mode-btn" data-mode="light" type="button">
+          라이트 · 약 3분<br><span style="font-weight:400">가볍게 재미로</span>
+        </button>
+        <button class="choice mode-btn mode-btn--primary" data-mode="normal" type="button">
+          보통 (추천) · 약 5분<br><span style="font-weight:400">신뢰도와 재미 균형</span>
+        </button>
+        <button class="choice mode-btn" data-mode="deep" type="button">
+          심화 · 약 8~10분<br><span style="font-weight:400">디테일까지 보고 싶을 때</span>
+        </button>
+      </div>
+      <p class="note">* 모든 모드는 같은 16유형 결과를 사용하며, 문항 수와 정밀도가 다릅니다.</p>
+    </section>
+
+    <!-- 진행률 -->
+    <div class="meta" id="meta" style="display:none">
       <div id="stepLabel">1 / 12</div>
       <div class="bar" aria-label="진행률"><span id="barFill"></span></div>
     </div>
 
     <!-- 질문 카드 (카테고리: fun) -->
-    <section class="card-q fun" id="card">
+    <section class="card-q fun" id="card" style="display:none">
       <p class="q-text" id="qText">질문 로딩 중…</p>
       <div class="choices" id="choiceWrap"></div>
       <div class="navs">
