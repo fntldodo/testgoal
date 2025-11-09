@@ -117,8 +117,8 @@
     };
   }
 
- // 파일 존재: bamboo.png, cactus.png, dandelion.png, fern.png, pine.png, rose.png
-const PLANT_BASE = "../assets/plants/";
+  // 파일 존재: bamboo.png, cactus.png, dandelion.png, fern.png, pine.png, rose.png
+  const PLANT_BASE = "../assets/plants/";
   const TYPE = {
     rose:      {title:"🌹 감정형(따뜻)",  ko:"장미",     img:PLANT_BASE+"rose.png"},
     fern:      {title:"🌿 감정형(섬세)",  ko:"양치",     img:PLANT_BASE+"fern.png"},
