@@ -1,26 +1,26 @@
 /* ===================================================
- * MBTI 테스트 — v2025.3-fix
+ * MBTI 테스트 — v2025.4
  * - 강도 선택: 라이트(8) / 보통(12) / 심화(24)
  * - 5지선다(0~4) + 응답시간 가중 ±20%
  * - 축: E/I, S/N, T/F, J/P
- * - 결과: 16유형 · 2줄 설명 + 장점 3줄 + 주의점 3줄 + 그래프(양쪽 퍼센트)
+ * - 결과: 16유형 · 2줄 설명 + 장점 3줄 + 주의점 3줄 + 그래프
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('layout-v2');
   document.body.setAttribute('data-theme','fun');
 
-  /* ---------------- 질문 세트 정의 ---------------- */
+  /* ---------- 질문 세트 ---------- */
 
   const QUESTION_SETS = {
     light: {
       labelShort: '라이트',
-      labelDetail: '라이트(8문항, 가벼운 확인용)',
       note: '* 현재: <b>라이트</b>(8문항, 빠른 경향 확인용) 기준 문항입니다. 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.',
       items: [
+        // 8문항
         {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
         {axis:'EI', p:'I', q:'하루를 마무리할 때는 혼자만의 시간이 꼭 필요하다.'},
-        {axis:'SN', p:'S', q:'추상적인 얘기보다 일상적인 예시가 편하다.'},
+        {axis:'SN', p:'S', q:'추상적인 얘기보다 일상적인 예시가 더 편하다.'},
         {axis:'SN', p:'N', q:'아이디어와 가능성을 떠올리며 상상하는 시간이 즐겁다.'},
         {axis:'TF', p:'T', q:'판단할 때 감정보다 기준·원칙을 먼저 본다.'},
         {axis:'TF', p:'F', q:'결정이 누군가의 감정에 미칠 영향이 크게 신경 쓰인다.'},
@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     normal: {
       labelShort: '보통',
-      labelDetail: '보통(12문항, 표준형)',
       note: '* 현재: <b>보통</b>(12문항, 표준형) 기준 문항입니다. 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.',
       items: [
+        // 12문항 (기존 기본 세트)
         {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
         {axis:'EI', p:'I', q:'혼자만의 시간이 있어야 생각이 정리된다.'},
         {axis:'EI', p:'E', q:'모임에서 먼저 분위기를 띄우는 편이다.'},
@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     deep: {
       labelShort: '심화',
-      labelDetail: '심화(24문항, 자세한 경향 확인용)',
       note: '* 현재: <b>심화</b>(24문항, 세부 경향 확인용) 기준 문항입니다. 자기보고식 경향 파악 도구이며, 임상 진단이 아닙니다.',
       items: [
         // EI 6
@@ -90,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  /* ---------------- 상태 ---------------- */
+  /* ---------- 상태 ---------- */
 
   let currentMode = 'normal';
   let Q = QUESTION_SETS[currentMode].items;
@@ -102,12 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const accum = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
   const count = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
 
-  /* ---------------- DOM ---------------- */
+  /* ---------- DOM ---------- */
 
-  const modeCard   = document.getElementById('modeCard');
-  const testWrap   = document.getElementById('testWrap');
-  const modeNote   = document.getElementById('modeNote');
-  const modeMini   = document.getElementById('modeMini');
+  const modeCard = document.getElementById('modeCard');
+  const testWrap = document.getElementById('testWrap');
+  const modeNote = document.getElementById('modeNote');
+  const modeMini = document.getElementById('modeMini');
 
   const step   = document.getElementById('stepLabel');
   const bar    = document.getElementById('barFill');
@@ -115,10 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const wrap   = document.getElementById('choiceWrap');
   const card   = document.getElementById('card');
   const result = document.getElementById('result');
+
   const prev   = document.getElementById('prev');
   const skip   = document.getElementById('skip');
 
-  /* ---------------- 공통 함수 ---------------- */
+  /* ---------- 공통 유틸 ---------- */
 
   function weight(sec){
     if(sec<1) return 0.9;
@@ -127,19 +127,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return 1.10;
   }
 
-  function resetState() {
+  function resetState(){
     idx = 0;
     start = Date.now();
     ans.length = 0;
     times.length = 0;
-    for(const k in accum) accum[k] = 0;
-    for(const k in count) count[k] = 0;
-    if(card)   card.style.display = 'block';
-    if(result) result.style.display = 'none';
-    if(bar)    bar.style.width = '0%';
+    for(const k in accum) accum[k]=0;
+    for(const k in count) count[k]=0;
+
+    if(card)   card.style.display='block';
+    if(result) result.style.display='none';
+    if(bar)    bar.style.width='0%';
   }
 
-  function updateModeUI() {
+  function updateModeUI(){
     if(modeMini){
       [...modeMini.querySelectorAll('.mode-pill')].forEach(btn=>{
         btn.classList.toggle('active', btn.dataset.mode === currentMode);
@@ -150,10 +151,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ---------------- 질문 렌더 ---------------- */
+  /* ---------- 질문 렌더 ---------- */
 
   function render(){
     if(!step || !bar || !qText || !wrap) return;
+
     step.textContent = `${idx+1} / ${Q.length}`;
     bar.style.width  = `${(idx/Q.length)*100}%`;
     qText.textContent = Q[idx].q;
@@ -169,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevSel = ans[idx];
     if(prevSel !== undefined){
       [...wrap.children].forEach(b=>{
-        if(Number(b.dataset.s) === prevSel) b.classList.add('selected');
+        if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
 
@@ -184,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     start = Date.now();
   }
 
-  /* ---------------- 선택 처리 ---------------- */
+  /* ---------- 선택 처리 ---------- */
 
   function choose(s){
     const sec = (Date.now()-start)/1000;
@@ -194,33 +196,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const {axis,p} = Q[idx];
     const a1 = axis[0], a2 = axis[1];
 
-    if(p === a1){
+    if(p===a1){
       accum[a1]+=adj; count[a1]+=1; count[a2]+=1;
     }else{
       accum[a2]+=adj; count[a2]+=1; count[a1]+=1;
     }
 
-    ans[idx]   = s;
-    times[idx] = sec;
+    ans[idx]=s;
+    times[idx]=sec;
 
     idx++;
-    if(idx < Q.length) render();
-    else finish();
+    if(idx<Q.length) render(); else finish();
   }
 
   prev && prev.addEventListener('click',()=>{
     if(idx===0) return;
     idx--;
+
     for(const k in accum) accum[k]=0;
     for(const k in count) count[k]=0;
 
     for(let i=0;i<idx;i++){
-      const sec = times[i]??3;
-      const s   = ans[i]??0;
-      const w   = weight(sec);
-      const adj = s + (s*(w-1)*0.2);
-      const {axis,p} = Q[i];
-      const a1 = axis[0], a2 = axis[1];
+      const sec=times[i]??3;
+      const s=ans[i]??0;
+      const w=weight(sec);
+      const adj=s + (s*(w-1)*0.2);
+      const {axis,p}=Q[i];
+      const a1=axis[0], a2=axis[1];
       if(p===a1){accum[a1]+=adj; count[a1]+=1; count[a2]+=1;}
       else      {accum[a2]+=adj; count[a2]+=1; count[a1]+=1;}
     }
@@ -231,21 +233,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ans[idx]=0;
     times[idx]=(Date.now()-start)/1000;
     idx++;
-    if(idx < Q.length) render();
-    else finish();
+    if(idx<Q.length) render(); else finish();
   });
 
-  /* ---------------- 점수 계산 ---------------- */
+  /* ---------- 점수 계산 ---------- */
 
   function norm(letter){
-    const avg = (accum[letter] / Math.max(1,count[letter])) / 4;
-    return Math.max(0, Math.min(1, avg));
+    const avg=(accum[letter]/Math.max(1,count[letter]))/4;
+    return Math.max(0,Math.min(1,avg));
   }
 
   function strengthWord(diff){
-    if(diff >= 0.35) return '매우 뚜렷하게';
-    if(diff >= 0.20) return '뚜렷하게';
-    if(diff >= 0.10) return '약간';
+    if(diff>=0.35) return '매우 뚜렷하게';
+    if(diff>=0.20) return '뚜렷하게';
+    if(diff>=0.10) return '약간';
     return '거의 비슷하게';
   }
 
@@ -256,15 +257,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const J = norm('J'), P = norm('P');
 
     function pick(a,b,axisKey){
-      if(Math.abs(a-b) >= 0.05) return a>=b ? axisKey[0] : axisKey[1];
+      if(Math.abs(a-b)>=0.05) return a>=b ? axisKey[0] : axisKey[1];
       let d=0;
       for(let i=0;i<Q.length;i++){
         if(Q[i].axis !== axisKey) continue;
         const sec=times[i]??3, w=weight(sec), s=ans[i]??0;
-        const mag = (s>=3?1:(s===2?0.3:0.1));
-        d += (Q[i].p===axisKey[0] ? 1 : -1) * w * mag;
+        const mag=(s>=3?1:(s===2?0.3:0.1));
+        d += (Q[i].p===axisKey[0]?1:-1)*w*mag;
       }
-      return d>=0 ? axisKey[0] : axisKey[1];
+      return d>=0?axisKey[0]:axisKey[1];
     }
 
     const e = pick(E,I,'EI');
@@ -272,37 +273,354 @@ document.addEventListener('DOMContentLoaded', () => {
     const t = pick(T,F,'TF');
     const j = pick(J,P,'JP');
 
-    return {
-      letters: `${e}${s}${t}${j}`,
-      n: {E,I,S,N,T,F,J,P}
-    };
+    return { letters:`${e}${s}${t}${j}`, n:{E,I,S,N,T,F,J,P} };
   }
 
-  /* ---------------- 16유형 설명 (전부 동일 – 생략 없이 붙여둔 버전) ---------------- */
+  /* ---------- 16유형 카피 (요약 2줄 + 장점 3 + 주의 3) ---------- */
 
-  const COPY = { /* ← 여기에는 아까 준 긴 16유형 객체 그대로 넣어 주세요.
-                    (길어서 답변에 한 번 더 안 붙일게, 위에서 이미 전체 받았으니까
-                    그대로 복붙하면 됩니다) */ };
+  const COPY = {
+    ISTJ:{
+      title:'ISTJ — 신중한 빌더',
+      quote:'“차근차근, 정확하게.”',
+      overview:[
+        '현실 감각이 뛰어나고 책임감이 강한 유형입니다.',
+        '규칙과 계획 안에서 안정감을 느끼며 묵묵히 결과를 내는 편이에요.'
+      ],
+      strengths:[
+        '약속과 기한을 잘 지켜 주변에서 신뢰를 받습니다.',
+        '체계적으로 정보를 정리하고 빠뜨리는 부분이 적어요.',
+        '위기 상황에서도 원칙을 지키며 침착하게 대응합니다.'
+      ],
+      risks:[
+        '계획이 바뀌면 예상보다 스트레스를 많이 받을 수 있습니다.',
+        '새로운 시도보다 “검증된 방식”에만 머무를 때가 있어요.',
+        '감정보다 사실을 우선하다가 오해를 살 수 있습니다.'
+      ],
+      remind:'큰 일도 체크포인트로 잘게 나누고, 완료마다 스스로를 칭찬해 주세요.'
+    },
+    ISFJ:{
+      title:'ISFJ — 따뜻한 지킴이',
+      quote:'“조용히, 하지만 끝까지.”',
+      overview:[
+        '배려가 깊고 성실한 돌봄형 유형입니다.',
+        '눈에 띄지 않아도 주변 사람들을 안정적으로 지켜주는 편이에요.'
+      ],
+      strengths:[
+        '상대의 필요를 잘 캐치하고 섬세하게 챙깁니다.',
+        '한 번 맡은 일은 끝까지 책임지려는 태도가 강해요.',
+        '팀의 분위기를 안정시키는 숨은 버팀목 역할을 합니다.'
+      ],
+      risks:[
+        '싫다고 말하지 못해 과로·정서적 피로가 쌓일 수 있어요.',
+        '갈등을 피하려다 내 마음을 미루는 경우가 생길 수 있습니다.',
+        '변화를 시도하기 전에 “혹시 민폐 아닐까”를 너무 많이 걱정할 수 있어요.'
+      ],
+      remind:'“내 몫의 휴식”도 일정에 넣고, 부탁을 거절하는 연습을 조금씩 해보세요.'
+    },
+    INFJ:{
+      title:'INFJ — 통찰형 조율가',
+      quote:'“깊이 이해하고 바르게 이끌기.”',
+      overview:[
+        '사람과 상황의 숨은 의미를 읽는 데 강점이 있는 유형입니다.',
+        '조용하지만 분명한 가치관으로 변화를 돕는 걸 좋아해요.'
+      ],
+      strengths:[
+        '타인의 심리를 깊이 이해하고 공감 능력이 뛰어납니다.',
+        '가치와 방향성을 제시하며 quietly 리더십을 발휘해요.',
+        '갈등 속에서도 모두가 덜 상처받는 길을 찾으려 합니다.'
+      ],
+      risks:[
+        '자신의 이상과 현실 간 괴리로 번아웃을 겪기 쉽습니다.',
+        '속마음을 쉽게 털어놓지 않아 오해를 살 수 있어요.',
+        '혼자서 너무 많은 걸 책임지려는 경향이 있습니다.'
+      ],
+      remind:'내 이상을 “작은 실험 1개”로 줄여보며 현실과의 접점을 찾아보세요.'
+    },
+    INTJ:{
+      title:'INTJ — 전략가',
+      quote:'“구조화된 혁신.”',
+      overview:[
+        '먼 미래까지 내다보며 전략을 짜는 데 강한 유형입니다.',
+        '비전을 구조화하고 효율적인 시스템을 만드는 걸 좋아해요.'
+      ],
+      strengths:[
+        '복잡한 문제를 구조화해 핵심을 빠르게 파악합니다.',
+        '장기적인 계획을 세우고 꾸준히 밀어붙이는 힘이 강해요.',
+        '불필요한 요소를 걷어내고 본질에 집중하는 능력이 있습니다.'
+      ],
+      risks:[
+        '속도가 느린 사람을 답답하게 여길 수 있습니다.',
+        '감정적인 고려가 부족해 차갑게 보일 수 있어요.',
+        '완벽을 추구하다가 시작이 늦어지는 경우가 생길 수 있습니다.'
+      ],
+      remind:'완벽한 설계보다 “실행 가능한 초안”을 빨리 만들어 가설을 검증해 보세요.'
+    },
+    ISTP:{
+      title:'ISTP — 실전 해결사',
+      quote:'“직접 만져보면 답이 보인다.”',
+      overview:[
+        '차분하고 현실적인 문제 해결에 강한 유형입니다.',
+        '이론보다 직접 다뤄보며 이해하는 걸 선호해요.'
+      ],
+      strengths:[
+        '위기 상황에서도 감정에 휘둘리지 않고 냉정하게 판단합니다.',
+        '도구·시스템을 빠르게 이해하고 효율적인 방법을 찾아요.',
+        '혼자서도 필요한 정보를 찾아 자율적으로 해결합니다.'
+      ],
+      risks:[
+        '감정을 표현하지 않아 무심해 보일 수 있습니다.',
+        '관계 유지에 필요한 자잘한 연락을 번거롭게 느낄 수 있어요.',
+        '하기 싫은 일은 미루다가 마감 직전에 몰아서 처리할 수 있습니다.'
+      ],
+      remind:'혼자 해결한 내용은 “5줄 요약”으로 남에게 공유해, 관계 에너지도 함께 쌓아 보세요.'
+    },
+    ISFP:{
+      title:'ISFP — 따뜻한 장인',
+      quote:'“감각으로 전하는 진심.”',
+      overview:[
+        '조용하지만 감수성이 풍부한 유형입니다.',
+        '말보다는 행동과 분위기로 진심을 표현하는 편이에요.'
+      ],
+      strengths:[
+        '사람과 공간의 분위기를 섬세하게 느끼고 조율합니다.',
+        '자신만의 미감과 가치관을 작품·행동으로 드러내요.',
+        '타인의 개성과 속도를 존중하는 편입니다.'
+      ],
+      risks:[
+        '갈등 상황을 피하려다 속으로만 쌓아둘 수 있어요.',
+        '하기 싫은 걸 부탁받았을 때 거절을 어려워할 수 있습니다.',
+        '장기 계획을 세우기보다 그날 기분에 따라 움직이기 쉽습니다.'
+      ],
+      remind:'작은 결과물이라도 세상에 꺼내어 보여주고, “이건 싫어요”라고 말하는 연습을 해보세요.'
+    },
+    INFP:{
+      title:'INFP — 의미 탐색가',
+      quote:'“가치에 맞게, 나답게.”',
+      overview:[
+        '내면의 신념과 의미를 중요하게 여기는 유형입니다.',
+        '관계와 일 모두 “마음이 동하는가”를 기준으로 보는 편이에요.'
+      ],
+      strengths:[
+        '사람과 상황의 이야기를 깊이 있게 듣고 공감합니다.',
+        '자신의 가치와 연결될 때 큰 몰입과 창의성을 보여요.',
+        '타인의 아픔과 소수자의 관점에 민감하게 반응합니다.'
+      ],
+      risks:[
+        '현실적인 제약 앞에서 쉽게 실망하거나 무력감을 느낄 수 있어요.',
+        '비판을 자기 전체에 대한 평가로 받아들이기 쉽습니다.',
+        '“완벽한 의미”를 찾느라 시작 자체가 늦어질 수 있어요.'
+      ],
+      remind:'오늘 하루, 내 가치와 맞는 행동 1가지만 골라 작게 실천해 보세요.'
+    },
+    INTP:{
+      title:'INTP — 개념 엔지니어',
+      quote:'“원리부터 이해한다.”',
+      overview:[
+        '아이디어와 개념을 다루는 데 강한 분석형 유형입니다.',
+        '겉모습보다 구조·논리를 탐구하는 걸 즐겨요.'
+      ],
+      strengths:[
+        '복잡한 문제를 추상화해 새로운 모델을 만드는 능력이 있습니다.',
+        '다양한 가능성을 열어두고 가설을 세우는 데 강해요.',
+        '지적 호기심이 크고 깊이 파고드는 힘이 있습니다.'
+      ],
+      risks:[
+        '실행보다 생각 단계에 오래 머물며 미루기가 생길 수 있어요.',
+        '관심 없는 일에는 동기부여가 거의 되지 않을 수 있습니다.',
+        '감정 표현이 적어 주변이 “무관심한가?” 오해할 수 있어요.'
+      ],
+      remind:'이해한 개념을 “예시 3개”로 바꿔 설명해 보며, 한 가지라도 바로 적용해 보세요.'
+    },
+    ESTP:{
+      title:'ESTP — 즉흥 실행가',
+      quote:'“지금, 여기에서.”',
+      overview:[
+        '행동력이 강하고 상황 판단이 빠른 유형입니다.',
+        '현장에서 직접 부딪혀 보며 배우는 걸 선호해요.'
+      ],
+      strengths:[
+        '위기 상황에서도 빠르게 결단하고 움직입니다.',
+        '사람들과의 생동감 있는 상호작용을 잘 이끌어요.',
+        '새로운 기회를 포착해 실행으로 연결하는 능력이 있습니다.'
+      ],
+      risks:[
+        '장기적인 리스크를 간과하고 무리한 선택을 할 수 있어요.',
+        '규칙과 절차를 답답하게 느끼며 건너뛰고 싶어질 수 있습니다.',
+        '하기 싫은 반복 작업은 쉽게 질려 미루기 쉽습니다.'
+      ],
+      remind:'즉흥성을 살리되, “중간 체크포인트 2개”만 세우고 움직여 보세요.'
+    },
+    ESFP:{
+      title:'ESFP — 분위기 메이커',
+      quote:'“함께할 때 더 반짝.”',
+      overview:[
+        '현재의 즐거움과 생동감을 소중히 여기는 유형입니다.',
+        '사람들과 어울릴 때 에너지가 커지는 편이에요.'
+      ],
+      strengths:[
+        '주변의 분위기를 빠르게 읽고 즐거운 흐름을 만듭니다.',
+        '상대방을 편안하게 해주는 매력이 있어요.',
+        '변화에 유연하게 적응하며 즉흥적으로 해결책을 찾습니다.'
+      ],
+      risks:[
+        '지루한 반복 업무나 장기 계획에 집중하기 어려울 수 있어요.',
+        '재미를 우선하다가 체력·시간 관리를 놓칠 수 있습니다.',
+        '갈등을 피하려다 필요한 얘기를 미루는 경우가 생길 수 있어요.'
+      ],
+      remind:'재미 일정과 휴식·정리 시간을 함께 캘린더에 넣어 리듬을 만들어 보세요.'
+    },
+    ENFP:{
+      title:'ENFP — 아이디어 스파크',
+      quote:'“가능성에 불붙이기.”',
+      overview:[
+        '연결과 아이디어에 강한 영감형 유형입니다.',
+        '사람·아이디어·가치를 엮어 새로운 그림을 그리는 걸 좋아해요.'
+      ],
+      strengths:[
+        '상황 속에서 다양한 가능성을 빠르게 떠올립니다.',
+        '사람들에게 동기를 불어넣는 말과 에너지가 있습니다.',
+        '새로운 시작과 기획 단계에서 큰 추진력을 보여요.'
+      ],
+      risks:[
+        '시작은 많지만 마무리가 부족하다는 느낌을 받을 수 있어요.',
+        '감정 기복에 따라 집중력이 크게 흔들릴 수 있습니다.',
+        '한 번에 너무 많은 일을 벌려 과부하가 오기 쉽습니다.'
+      ],
+      remind:'아이디어 중 1개만 골라 “24시간 안에 할 수 있는 최소 행동”으로 줄여 실행해 보세요.'
+    },
+    ENTP:{
+      title:'ENTP — 변주형 창조가',
+      quote:'“다르게 보기, 새로 만들기.”',
+      overview:[
+        '틀을 깨고 새로운 관점을 제시하는 데 강한 유형입니다.',
+        '논리와 재치를 동시에 사용하는 토론·실험형이에요.'
+      ],
+      strengths:[
+        '문제의 허점을 찾아 개선 아이디어를 제시합니다.',
+        '다양한 관점을 오가며 유연하게 사고해요.',
+        '논리와 유머를 섞어 사람들을 설득하는 능력이 있습니다.'
+      ],
+      risks:[
+        '논쟁이 즐거워 보여 상대가 “싸우는 건가?” 오해할 수 있어요.',
+        '아이디어만 많고 실제 실행은 미뤄질 수 있습니다.',
+        '권위나 규칙과 충돌하면서 피로를 느끼기 쉽습니다.'
+      ],
+      remind:'반대 시나리오도 1개 작성해 보고, 아이디어 1개는 실제 일정에 꽂아 보세요.'
+    },
+    ESTJ:{
+      title:'ESTJ — 운영 캡틴',
+      quote:'“체계적으로 밀어붙인다.”',
+      overview:[
+        '조직과 실행을 책임감 있게 이끄는 유형입니다.',
+        '현실적인 목표와 규칙을 세우고 관리하는 데 강해요.'
+      ],
+      strengths:[
+        '해야 할 일을 명확히 정하고 추진력을 발휘합니다.',
+        '시간·자원 관리에 능숙해 팀의 효율을 끌어올려요.',
+        '위기 상황에서 방향을 잡고 리더십을 보입니다.'
+      ],
+      risks:[
+        '속도가 느리거나 비효율적으로 보이는 사람에게 엄격해질 수 있어요.',
+        '감정보다 결과를 우선하다가 관계가 소원해질 수 있습니다.',
+        '본인 기준이 너무 강해 유연성이 떨어져 보일 수 있어요.'
+      ],
+      remind:'규칙 옆에 “예외 규칙”도 하나씩 정의해 두면, 본인도 팀도 더 편해집니다.'
+    },
+    ESFJ:{
+      title:'ESFJ — 따뜻한 코디네이터',
+      quote:'“함께 가는 길.”',
+      overview:[
+        '사람 사이를 부드럽게 잇는 관계형 운영자입니다.',
+        '주변의 분위기와 감정 상태에 민감하게 반응해요.'
+      ],
+      strengths:[
+        '다른 사람의 필요를 잘 파악하고 세심히 챙깁니다.',
+        '모임·프로젝트를 안정적으로 운영하는 능력이 있어요.',
+        '협력 분위기를 만들고 갈등을 완화하는 데 강점이 있습니다.'
+      ],
+      risks:[
+        '타인의 기대에 맞추느라 자기 욕구를 뒤로 미룰 수 있어요.',
+        '싫은 소리를 못 해서 속으로만 쌓이는 경우가 생길 수 있습니다.',
+        '“좋은 사람” 이미지 때문에 부담을 느낄 수 있어요.'
+      ],
+      remind:'돌봄과 자기 돌봄의 비율을 주간 단위로 체크해, 내 칸도 채워 주세요.'
+    },
+    ENFJ:{
+      title:'ENFJ — 영감형 리더',
+      quote:'“가능성을 사람과 함께.”',
+      overview:[
+        '사람들의 잠재력을 믿고 이끌어 주는 유형입니다.',
+        '비전과 감수성을 함께 사용하는 리더십을 선호해요.'
+      ],
+      strengths:[
+        '타인의 강점을 발견하고 성장 스토리를 함께 설계합니다.',
+        '공감과 설득을 동시에 사용하는 대화에 능숙해요.',
+        '팀의 분위기와 목표를 정렬시키는 데 강점이 있습니다.'
+      ],
+      risks:[
+        '본인 감정보다 타인을 우선하다가 번아웃을 겪기 쉽습니다.',
+        '도와주고 싶은 마음에 너무 많은 책임을 떠안을 수 있어요.',
+        '비판을 받으면 “내가 좋은 사람이 아닌가?”로 과도하게 해석할 수 있습니다.'
+      ],
+      remind:'격려와 피드백을 분리해 전달하고, 나 자신에게도 같은 방식으로 말 걸어 보세요.'
+    },
+    ENTJ:{
+      title:'ENTJ — 지휘 전략가',
+      quote:'“큰 그림을 실행으로.”',
+      overview:[
+        '목표·자원·일정을 정렬해 성과를 내는 유형입니다.',
+        '크고 복잡한 프로젝트를 지휘하는 데 강한 편이에요.'
+      ],
+      strengths:[
+        '장기 목표를 세우고 사람·자원을 효율적으로 배치합니다.',
+        '결단력과 추진력이 강해 정체된 상황을 돌파합니다.',
+        '성과 기준을 명확히 제시해 방향성을 잡아 줍니다.'
+      ],
+      risks:[
+        '성과 중심이 강해 감정 케어를 놓칠 수 있어요.',
+        '직설적인 표현으로 주변이 위축될 수 있습니다.',
+        '쉬는 시간조차 “비효율”로 느껴 과로하기 쉽습니다.'
+      ],
+      remind:'중요 지표 1개만 정해 팀과 공유하고, 휴식도 “성과 유지 전략”으로 인식해 보세요.'
+    },
+  };
 
-  /* ---------------- 그래프 ---------------- */
+  const DEFAULT_COPY = {
+    title:'밸런스형',
+    quote:'“상황에 맞게 균형을 잡는다.”',
+    overview:[
+      '여러 축에서 큰 편향 없이 균형이 나타나는 유형입니다.',
+      '상황과 역할에 따라 E/I, T/F 등을 유연하게 전환하는 편이에요.'
+    ],
+    strengths:[
+      '다양한 사람과 환경에 무리 없이 적응할 수 있습니다.',
+      '한쪽 관점에 치우치지 않고 여러 입장을 고려합니다.',
+      '역할과 상황에 따라 필요한 얼굴을 골라 쓸 수 있어요.'
+    ],
+    risks:[
+      '자신의 정체성이 모호하게 느껴질 수 있습니다.',
+      '결정을 미루다가 기회를 놓칠 위험이 있어요.',
+      '주변 기대에 맞추다 보면 진짜 원하는 길을 헷갈릴 수 있습니다.'
+    ],
+    remind:'요즘 나에게 가장 맞는 축 하나를 골라, 작은 실험으로 방향성을 확인해 보세요.'
+  };
 
-  function axisRow(n, a, b, name){
-    let va = n[a] ?? 0;
-    let vb = n[b] ?? 0;
-    let pa = Math.round(va*100);
-    let pb = Math.round(vb*100);
+  /* ---------- 그래프 ---------- */
 
-    if(pa+pb === 0){
-      pa = pb = 50;
-    }else{
-      const sum = pa+pb;
-      pa = Math.round(pa/sum*100);
-      pb = 100-pa;
+  function axisRow(n,a,b,name){
+    let va=n[a]??0, vb=n[b]??0;
+    let pa=Math.round(va*100), pb=Math.round(vb*100);
+
+    if(pa+pb===0){ pa=pb=50; }
+    else{
+      const sum=pa+pb;
+      pa=Math.round(pa/sum*100);
+      pb=100-pa;
     }
 
-    const diff = Math.abs(va - vb);
-    const dom  = va >= vb ? a : b;
-    const diffWord = strengthWord(diff);
+    const diff=Math.abs(va-vb);
+    const dom=va>=vb?a:b;
+    const diffWord=strengthWord(diff);
 
     return `
       <div class="axis-row">
@@ -332,16 +650,16 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  /* ---------------- 결과 렌더 ---------------- */
+  /* ---------- 결과 렌더 ---------- */
 
   function finish(){
     if(card) card.style.display='none';
     if(bar)  bar.style.width='100%';
 
-    const {letters, n} = decide();
-    const info = COPY[letters];
+    const {letters,n} = decide();
+    const info = COPY[letters] || DEFAULT_COPY;
 
-    const overviewHtml  = info.overview.map(l=>`<span class="block">${l}</span>`).join('');
+    const overviewHtml = info.overview.map(l=>`<span class="block">${l}</span>`).join('');
     const strengthsHtml = info.strengths.join('<br>');
     const risksHtml     = info.risks.join('<br>');
 
@@ -353,21 +671,21 @@ document.addEventListener('DOMContentLoaded', () => {
                alt="${info.title}"
                onerror="this.onerror=null; this.src='../assets/mbti.png'">
           <div>
-            <div class="result-title">${info.title}</div>
-            <div class="result-desc">${info.quote}</div>
+            <div class="result-title">${letters} — ${info.title}</div>
+            <div class="result-desc">“${info.quote}”</div>
           </div>
         </div>
 
-        <p class="result-desc" style="margin:10px 0">
+        <p class="result-desc mbti-overview" style="margin:10px 0">
           ${overviewHtml}
         </p>
 
-        <div class="result-section">
+        <div class="mbti-result-section">
           <b>✅ 장점</b>
           <p>${strengthsHtml}</p>
         </div>
 
-        <div class="result-section">
+        <div class="mbti-result-section">
           <b>⚠️ 주의할 점</b>
           <p>${risksHtml}</p>
         </div>
@@ -388,12 +706,12 @@ document.addEventListener('DOMContentLoaded', () => {
     result.style.display='block';
   }
 
-  /* ---------------- 모드 전환 ---------------- */
+  /* ---------- 모드 전환 ---------- */
 
-  function setMode(mode, fromMini = false){
+  function setMode(mode, fromMini=false){
     if(!QUESTION_SETS[mode]) return;
 
-    const hasProgress = idx > 0 || (result && result.style.display === 'block');
+    const hasProgress = (idx>0) || (result && result.style.display==='block');
     if(fromMini && hasProgress){
       const ok = window.confirm('검사 강도를 바꾸면 지금까지의 응답은 초기화되고 처음부터 다시 시작합니다.');
       if(!ok) return;
@@ -406,30 +724,29 @@ document.addEventListener('DOMContentLoaded', () => {
     updateModeUI();
     render();
 
-    if(modeCard) modeCard.style.display = 'none';
-    if(testWrap) testWrap.style.display = 'block';
+    if(modeCard) modeCard.style.display='none';
+    if(testWrap) testWrap.style.display='block';
   }
 
-  /* --- ① 큰 강도 선택 버튼에 직접 리스너 연결 --- */
+  /* ---------- 강도 선택 버튼 클릭(PC/모바일 공통) ---------- */
+
   const bigModeButtons = document.querySelectorAll('.mode-option');
   bigModeButtons.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+    btn.addEventListener('click',()=>{
       const mode = btn.dataset.mode || 'normal';
       setMode(mode,false);
     });
   });
 
-  /* --- ② 상단 미니 pill 리스너 --- */
   if(modeMini){
-    modeMini.addEventListener('click',(e)=>{
+    modeMini.addEventListener('click',e=>{
       const btn = e.target.closest('.mode-pill');
       if(!btn) return;
       const mode = btn.dataset.mode;
-      if(mode === currentMode) return;
+      if(mode===currentMode) return;
       setMode(mode,true);
     });
   }
 
-  // 처음엔 모드만 고르는 화면이므로 여기서는 render() 호출 안 함.
+  // 페이지 진입 시: 질문은 아직 렌더하지 않고, 강도 선택만 보여둠.
 });
-
