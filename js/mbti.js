@@ -475,7 +475,4 @@ document.addEventListener('DOMContentLoaded', () => {
   btnNormal?.addEventListener('click',()=> setMode('normal'));
   btnDeep?.addEventListener('click',  ()=> setMode('deep'));
 
-  /* ---------------- 초기 상태 ---------------- */
-  // 기본값: 보통(12문항)으로 바로 세팅
-  setMode('normal');
 });
