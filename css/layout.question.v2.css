@@ -247,3 +247,4 @@ body.layout-v2 main.test > section.card-q {
   margin-right: 0;
 }
 
+.mode-card.hidden { display:none !important; }
