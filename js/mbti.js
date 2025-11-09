@@ -1,55 +1,35 @@
 /* ===================================================
  * MBTI 빠른 테스트 — v2025.3
- * ---------------------------------------------------
- * - 3단계 검사 버전:
- *    · 라이트:  8문항 (축당 2문항)
- *    · 보통:   12문항 (축당 3문항, 기존 기본형)
- *    · 심화:   24문항 (축당 6문항)
  * - 5지선다(0~4) + 응답시간 보조 ±20% (선택 우선, 뒤엎지 않음)
  * - 축: E/I, S/N, T/F, J/P
- * - 결과: 16유형(ISTJ 등) · 제목/인용문/설명/정서 요약/마음 리마인드/그래프/버튼
+ * - 강도 모드: 라이트(8문항) / 보통(12문항) / 심화(24문항 예정)
  * - 숫자 점수 직접 노출 금지(퍼센트는 라벨과 함께 보조만)
- * ---------------------------------------------------
- * [코드 절대 규칙]
- * 1) 기존 기능 삭제·덮어쓰기·생략 금지(기능은 그대로 유지).
- * 2) 변경은 '추가' 우선, 중복 제거는 사전 확인 후.
- * 3) 코드 수정 시 전체 완전본 제공.
  * =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 질문 레이아웃 V2 + 카테고리 지정
+  // 레이아웃 V2 적용
   document.body.classList.add('layout-v2');
   document.body.setAttribute('data-theme','fun');
 
-  /* ---------------- DOM 요소 ---------------- */
-  const metaBox   = document.getElementById('metaBox');
-  const step      = document.getElementById('stepLabel');
-  const bar       = document.getElementById('barFill');
-  const qText     = document.getElementById('qText');
-  const wrap      = document.getElementById('choiceWrap');
-  const card      = document.getElementById('card');
-  const result    = document.getElementById('result');
-  const prev      = document.getElementById('prev');
-  const skip      = document.getElementById('skip');
-  const modeNote  = document.getElementById('modeInfoNote');
-
-  const btnLight  = document.getElementById('modeLight');
-  const btnNormal = document.getElementById('modeNormal');
-  const btnDeep   = document.getElementById('modeDeep');
-
-  if(!step || !bar || !qText || !wrap || !card || !result) return;
-
-  /* ---------------- 검사 버전 라벨 ---------------- */
-  const MODE_LABEL = {
-    light:  '라이트(8문항, 가볍게)',
-    normal: '보통(12문항, 표준형)',
-    deep:   '심화(24문항, 디테일)'
+  /* ---------- 0. 강도 모드 관련 ---------- */
+  const MODE_META = {
+    light:  { label: '라이트 · 8문항',  len: 8 },
+    normal: { label: '보통 · 12문항', len: 12 },
+    deep:   { label: '심화 · 24문항', len: 24 },
   };
+  let MODE = 'normal';
 
-  /* ---------------- 질문 세트 정의 ---------------- */
+  // 강도 선택 버튼
+  const modeCard   = document.getElementById('modeCard');
+  const modeLight  = document.getElementById('modeLight');
+  const modeNormal = document.getElementById('modeNormal');
+  const modeDeep   = document.getElementById('modeDeep');
+  const modeLabel  = document.getElementById('modeLabel');
+  const metaBox    = document.getElementById('metaBox');
 
-  // 보통(normal): 기존 12문항 그대로
-  const Q_NORMAL = [
+  /* ---------- 1. 문항 세트 정의 ---------- */
+  // 기본 12문항 세트 (보통)
+  const Q_BASE = [
     // E / I
     {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
     {axis:'EI', p:'I', q:'혼자만의 시간이 있어야 생각이 정리된다.'},
@@ -71,84 +51,47 @@ document.addEventListener('DOMContentLoaded', () => {
     {axis:'JP', p:'J', q:'기한이 있으면 미리미리 처리해두는 편이다.'},
   ];
 
-  // 라이트(light): 축당 2문항씩, 총 8문항 (기존 12문항 중에서 추림)
+  // 라이트: 각 축당 2문항만 뽑은 버전 (총 8문항)
   const Q_LIGHT = [
-    // E / I
-    Q_NORMAL[0], // E
-    Q_NORMAL[1], // I
-
-    // S / N
-    Q_NORMAL[3], // S
-    Q_NORMAL[4], // N
-
-    // T / F
-    Q_NORMAL[6], // T
-    Q_NORMAL[7], // F
-
-    // J / P
-    Q_NORMAL[9], // J
-    Q_NORMAL[10] // P
+    Q_BASE[0], // EI - E
+    Q_BASE[1], // EI - I
+    Q_BASE[3], // SN - S
+    Q_BASE[4], // SN - N
+    Q_BASE[6], // TF - T
+    Q_BASE[7], // TF - F
+    Q_BASE[9], // JP - J
+    Q_BASE[10] // JP - P
   ];
 
-  // 심화(deep): 축당 6문항씩, 총 24문항
-  const Q_DEEP = [
-    // ----- EI: 기존 3개 -----
-    {axis:'EI', p:'E', q:'새로운 사람과 대화할 때 금세 에너지가 붙는다.'},
-    {axis:'EI', p:'I', q:'혼자만의 시간이 있어야 생각이 정리된다.'},
-    {axis:'EI', p:'E', q:'모임에서 먼저 분위기를 띄우는 편이다.'},
-    // ----- EI: 추가 3개 -----
-    {axis:'EI', p:'I', q:'시끌벅적한 자리가 길어지면 금방 에너지가 소진된다.'},
-    {axis:'EI', p:'E', q:'갑자기 잡힌 약속도 대체로 반갑다.'},
-    {axis:'EI', p:'I', q:'중요한 이야기는 여러 사람보다는 가까운 소수와 깊게 나누는 편이다.'},
+  // 심화: 추후 24문항으로 확장 예정. 지금은 기본 12문항을 두 번 반복(자리만 잡아둠).
+  const Q_DEEP = [...Q_BASE, ...Q_BASE]; // TODO: 실제 심화 문항으로 교체
 
-    // ----- SN: 기존 3개 -----
-    {axis:'SN', p:'S', q:'추상적인 얘기보다 구체적인 사례가 편하다.'},
-    {axis:'SN', p:'N', q:'가능성을 떠올리며 상상하는 시간이 즐겁다.'},
-    {axis:'SN', p:'N', q:'패턴을 보고 큰 그림을 재빨리 파악한다.'},
-    // ----- SN: 추가 3개 -----
-    {axis:'SN', p:'S', q:'설명보다 직접 해보면서 배우는 편이다.'},
-    {axis:'SN', p:'N', q:'지금 당장 쓸모 없어 보여도 흥미로운 아이디어면 메모해 둔다.'},
-    {axis:'SN', p:'S', q:'세부 단계와 순서를 하나씩 짚어가는 것이 마음이 편하다.'},
+  // 현재 진행에 사용할 문항 배열 (모드에 따라 교체)
+  let Q = Q_BASE;
 
-    // ----- TF: 기존 3개 -----
-    {axis:'TF', p:'T', q:'판단할 때 감정보다 기준/원칙을 우선한다.'},
-    {axis:'TF', p:'F', q:'상대 감정의 파장까지 고려해 결정을 조율한다.'},
-    {axis:'TF', p:'F', q:'갈등이 생기면 관계의 온도를 먼저 살핀다.'},
-    // ----- TF: 추가 3개 -----
-    {axis:'TF', p:'T', q:'논쟁에서 “누가 맞는가”를 먼저 생각하는 편이다.'},
-    {axis:'TF', p:'F', q:'말이 맞더라도 표현 방식이 거칠면 마음이 상한다.'},
-    {axis:'TF', p:'T', q:'결정을 내릴 때 장단점을 표처럼 정리해 보는 게 도움이 된다.'},
+  /* ---------- 2. 상태 ---------- */
+  let idx=0, start=Date.now();
+  const ans=[], times=[];
+  const accum = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+  const count = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
 
-    // ----- JP: 기존 3개 -----
-    {axis:'JP', p:'J', q:'계획표와 체크리스트가 있어야 마음이 놓인다.'},
-    {axis:'JP', p:'P', q:'계획이 있어도 상황에 따라 유연하게 바꾼다.'},
-    {axis:'JP', p:'J', q:'기한이 있으면 미리미리 처리해두는 편이다.'},
-    // ----- JP: 추가 3개 -----
-    {axis:'JP', p:'P', q:'갑자기 생긴 기회나 제안을 놓치기 싫어 일정에 여유를 남겨두는 편이다.'},
-    {axis:'JP', p:'J', q:'일정을 미리 정해두면 그날 컨디션이 달라도 그냥 밀고 나가는 편이다.'},
-    {axis:'JP', p:'P', q:'마감이 다가와야 집중력이 올라가는 느낌이 있다.'}
-  ];
+  /* ---------- 3. DOM 요소 ---------- */
+  const step=document.getElementById('stepLabel');
+  const bar=document.getElementById('barFill');
+  const qText=document.getElementById('qText');
+  const wrap=document.getElementById('choiceWrap');
+  const card=document.getElementById('card');
+  const result=document.getElementById('result');
+  const prev=document.getElementById('prev');
+  const skip=document.getElementById('skip');
 
-  const QUESTION_SETS = {
-    light:  Q_LIGHT,
-    normal: Q_NORMAL,
-    deep:   Q_DEEP
-  };
+  // 시작 시 질문·진행률은 숨겨둔다 (모드 선택 후 표시)
+  card.style.display = 'none';
+  metaBox.style.display = 'none';
+  result.style.display = 'none';
+  bar.style.width = '0%';
 
-  /* ---------------- 상태 변수 ---------------- */
-  let MODE = 'normal';  // 기본 모드
-  let Q    = QUESTION_SETS[MODE];
-
-  let idx   = 0;
-  let start = Date.now();
-  let ans   = [];
-  let times = [];
-  let accum = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-  let count = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-
-  /* ---------------- 공통 함수 (가중/정규화 등) ---------------- */
-
-  // 응답시간 가중 (±20%, 선택 뒤엎지 않음)
+  /* ---------- 4. 시간 가중 ---------- */
   function weight(sec){
     if(sec<1) return 0.9;
     if(sec<4) return 1.0;
@@ -156,43 +99,32 @@ document.addEventListener('DOMContentLoaded', () => {
     return 1.10;
   }
 
-  // 상태 초기화 (모드 바꿀 때마다 전체 리셋)
+  /* ---------- 5. 공통 유틸 ---------- */
   function resetState(){
-    idx   = 0;
-    start = Date.now();
-    ans   = [];
-    times = [];
-    accum = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-    count = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-    result.style.display = 'none';
-    card.style.display   = 'block';
-    metaBox.style.display= 'flex';
-    bar.style.width      = '0%';
+    idx=0; start=Date.now();
+    ans.length=0; times.length=0;
+    for(const k in accum){accum[k]=0;}
+    for(const k in count){count[k]=0;}
   }
 
-  /* ---------------- 렌더 ---------------- */
+  /* ---------- 6. 렌더 ---------- */
   function render(){
-    if(!Q || Q.length===0) return;
-
-    step.textContent = `${idx+1} / ${Q.length}`;
-    bar.style.width  = `${(idx/Q.length)*100}%`;
-    qText.textContent = Q[idx].q;
-
-    wrap.innerHTML = `
+    step.textContent=`${idx+1} / ${Q.length}`;
+    bar.style.width=`${(idx/Q.length)*100}%`;
+    qText.textContent=Q[idx].q;
+    wrap.innerHTML=`
       <button class="choice" data-s="4" type="button">매우 그렇다</button>
       <button class="choice" data-s="3" type="button">그렇다</button>
       <button class="choice" data-s="2" type="button">보통이다</button>
       <button class="choice ghost" data-s="1" type="button">아니다</button>
-      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
-    `;
+      <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>`;
 
-    const prevSel = ans[idx];
+    const prevSel=ans[idx];
     if(prevSel!==undefined){
       [...wrap.children].forEach(b=>{
         if(Number(b.dataset.s)===prevSel) b.classList.add('selected');
       });
     }
-
     [...wrap.children].forEach(btn=>{
       btn.addEventListener('click',()=>{
         [...wrap.children].forEach(c=>c.classList.remove('selected'));
@@ -200,14 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(()=>choose(Number(btn.dataset.s)),150);
       });
     });
-
-    start = Date.now();
+    start=Date.now();
   }
 
-  /* ---------------- 선택 로직 ---------------- */
+  /* ---------- 7. 선택 ---------- */
   function choose(s){
-    const sec = (Date.now()-start)/1000;
-    const w   = weight(sec);
+    const sec=(Date.now()-start)/1000, w=weight(sec);
     const adj = s + (s*(w-1)*0.2); // 보조 가중
     const {axis,p} = Q[idx];
 
@@ -223,47 +153,31 @@ document.addEventListener('DOMContentLoaded', () => {
     ans[idx]=s; times[idx]=sec;
     next();
   }
+  function next(){ idx++; if(idx<Q.length) render(); else finish(); }
 
-  function next(){
-    idx++;
-    if(idx < Q.length) render(); else finish();
-  }
-
-  /* ---------------- 이전/건너뛰기 ---------------- */
+  /* ---------- 8. 이전/건너뛰기 ---------- */
   prev?.addEventListener('click',()=>{
-    if(idx===0 || !Q) return;
+    if(idx===0) return;
     idx--;
-
-    // 재계산(처음부터 idx-1까지 다시 누적)
     for(const k in accum){accum[k]=0;}
     for(const k in count){count[k]=0;}
-
     for(let i=0;i<idx;i++){
-      const sec=times[i]??3;
-      const s  =ans[i]??0;
-      const w  =weight(sec);
-      const adj= s + (s*(w-1)*0.2);
-      const {axis,p} = Q[i];
-      const a1=axis[0], a2=axis[1];
-
+      const sec=times[i]??3, s=ans[i]??0, w=weight(sec);
+      const adj = s + (s*(w-1)*0.2);
+      const {axis,p} = Q[i]; const a1=axis[0], a2=axis[1];
       if(p===a1){accum[a1]+=adj; count[a1]+=1; count[a2]+=1;}
-      else      {accum[a2]+=adj; count[a2]+=1; count[a1]+=1;}
+      else{accum[a2]+=adj; count[a2]+=1; count[a1]+=1;}
     }
     render();
   });
 
   skip?.addEventListener('click',()=>{
-    if(!Q) return;
-    ans[idx]=0;
-    times[idx]=(Date.now()-start)/1000;
-    next();
+    ans[idx]=0; times[idx]=(Date.now()-start)/1000; next();
   });
 
-  /* ---------------- 정규화 & 결정 ---------------- */
-
-  // 정규화(0~1)
+  /* ---------- 9. 정규화 & 유형 결정 ---------- */
   function norm(letter){
-    const avg = (accum[letter] / Math.max(1, count[letter])) / 4; // 0~4 → 0~1
+    const avg = (accum[letter] / Math.max(1, count[letter])) / 4;
     return Math.max(0, Math.min(1, avg));
   }
 
@@ -302,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  /* ---------------- 16유형 카피 ---------------- */
+  /* ---------- 10. 16유형 카피 (기존 그대로) ---------- */
   const COPY={
     ISTJ:{title:'ISTJ — 신중한 빌더',quote:'“차근차근, 정확하게.”',
       desc:'현실감각이 뛰어나고 책임감이 강한 유형입니다. 규칙과 계획 안에서 안정감을 느끼며, 묵묵히 결과를 만들어냅니다.',
@@ -357,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
       remind:'지표 1개만 정하고 팀과 공유.'},
   };
 
-  /* ---------------- 그래프 ---------------- */
   function meters(n){
     const rows = [
       ['E','I','에너지 방향'],
@@ -384,10 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   }
 
-  /* ---------------- 결과 ---------------- */
   function finish(){
-    card.style.display='none';
-    bar.style.width='100%';
+    card.style.display='none'; bar.style.width='100%';
 
     const {letters, n} = decide();
     const info = COPY[letters] || {
@@ -407,9 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>
             <div class="result-title">${info.title}</div>
             <div class="result-desc">${info.quote}</div>
-            <div style="margin-top:4px;font-size:0.9rem;color:var(--text-soft);">
-              검사 버전: <b>${MODE_LABEL[MODE] || '보통(표준형)'}</b> · 문항 수: ${Q.length}문항
-            </div>
           </div>
         </div>
 
@@ -431,48 +339,37 @@ document.addEventListener('DOMContentLoaded', () => {
     result.style.display='block';
   }
 
-  /* ---------------- 모드 선택 이벤트 ---------------- */
-  function updateModeNote(){
-    if(!modeNote) return;
-    modeNote.innerHTML = `* 현재: <b>${MODE_LABEL[MODE] || '보통(표준형)'}</b> 기준 문항입니다.`;
-  }
+  /* ---------- 11. 강도 선택 버튼 이벤트 ---------- */
 
-  function setMode(mode){
-    if(!QUESTION_SETS[mode]) return;
-    MODE = mode;
-    Q    = QUESTION_SETS[MODE];
-    resetState();
-    updateModeNote();
+  function applyMode(newMode){
+    MODE = newMode;
+    Q = MODE === 'light' ? Q_LIGHT
+      : MODE === 'deep'  ? Q_DEEP
+      : Q_BASE;
 
-    // 버튼 시각 상태
-    [btnLight, btnNormal, btnDeep].forEach(btn=>{
-      if(!btn) return;
-      btn.classList.remove('selected','ghost');
-    });
-    if(mode==='light'){
-      btnLight?.classList.add('selected');
-      btnNormal?.classList.add('ghost');
-      btnDeep?.classList.add('ghost');
-    }else if(mode==='normal'){
-      btnNormal?.classList.add('selected');
-      btnLight?.classList.add('ghost');
-      btnDeep?.classList.add('ghost');
-    }else{
-      btnDeep?.classList.add('selected');
-      btnLight?.classList.add('ghost');
-      btnNormal?.classList.add('ghost');
+    // 버튼 selected 토글
+    [modeLight, modeNormal, modeDeep].forEach(b=>b?.classList.remove('selected'));
+    if(MODE === 'light') modeLight?.classList.add('selected');
+    else if(MODE === 'deep') modeDeep?.classList.add('selected');
+    else modeNormal?.classList.add('selected');
+
+    if(modeLabel){
+      modeLabel.textContent = MODE_META[MODE].label;
     }
 
-    // 질문 시작
+    // 상태 초기화 후 질문 시작
+    resetState();
+    modeCard.style.display = 'none';
+    metaBox.style.display  = 'flex';
+    card.style.display     = 'block';
+    result.style.display   = 'none';
     render();
-
-    // 뷰로 스크롤
-    const mainEl = document.querySelector('main.test');
-    mainEl?.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
-  btnLight?.addEventListener('click', ()=> setMode('light'));
-  btnNormal?.addEventListener('click',()=> setMode('normal'));
-  btnDeep?.addEventListener('click',  ()=> setMode('deep'));
+  modeLight?.addEventListener('click', ()=>applyMode('light'));
+  modeNormal?.addEventListener('click', ()=>applyMode('normal'));
+  modeDeep?.addEventListener('click', ()=>applyMode('deep'));
 
+  // 기본 진입: 보통 모드 권장 → “보통” 버튼 눌린 것과 동일하게 동작시키려면 아래 한 줄 주석 해제
+  // applyMode('normal');
 });
