@@ -190,26 +190,43 @@
 
       function labelOf(p){ return p>=0.76?'매우 높음': p>=0.56?'높음': p>=0.36?'보통': p>=0.21?'낮음':'아주 낮음'; }
 
-      // [추가] 픽셀 아이콘 주입 로직을 별도의 함수로 분리
+      /* -------------------------------------------------
+       * [수정/추가] 픽셀 아이콘 주입
+       * - 결과 유형별로 서로 다른 픽셀 아이콘 클래스 부여
+       * - 기존 PNG / 도트 요소는 숨기고 픽셀만 노출
+       * ------------------------------------------------- */
       function injectPixelIcon(key){
         const hero = document.querySelector('.result-hero');
         if(!hero) return;
-        // 기본으로 PNG가 있으니, 픽셀 아이콘을 첫 요소로 삽입
-        const pix = document.createElement('div');
-        pix.className = 'pixel-icon pixel-64 pixel-card';
+
         // 결과키 -> 픽셀 클래스 매핑
         const map = {
-          ROLLER: 'roller-coaster',
-          KNOW:   'knowledge-tower',
-          SOCIAL: 'party-spark',
-          AVOHA:  'avocado-master'
+          ROLLER: 'roller-coaster',   // 자극형
+          KNOW:   'knowledge-bulb',   // 지식형
+          SOCIAL: 'megaphone-master', // 인싸형
+          AVOHA:  'peaceful-master'   // 평온·균형형
         };
+
+        const pix = document.createElement('div');
+        pix.className = 'pixel-icon pixel-64 pixel-card';
         pix.classList.add(map[key] || 'roller-coaster');
+
+        // 히어로 맨 앞에 삽입
         hero.insertBefore(pix, hero.firstChild);
 
-        // PNG는 폴백으로 남겨두되, 픽셀 우선 표시
-        const png = hero.querySelector('img');
-        if (png) png.style.display = 'none';
+        // PNG 이미지가 있으면 숨김
+        const img = hero.querySelector('img');
+        if (img) img.style.display = 'none';
+
+        // 텍스트 블록(타이틀/설명)을 제외한 나머지 그래픽 요소는 숨김
+        const kids = [...hero.children];
+        kids.forEach(node=>{
+          if (node === pix) return;
+          // 타이틀이 들어 있는 div는 살려둔다
+          if (node.tagName === 'DIV' && node.querySelector('.result-title')) return;
+          // 도트 히어로 등 기타 그래픽은 화면에서만 숨김 (PNG용 DOM은 남아있음)
+          if (node !== pix) node.style.display = 'none';
+        });
       }
 
       function finish(){
@@ -224,7 +241,7 @@
         const hybrid  = result.hybrid;
         const dotKey  = TYPE[key].key;
 
-        // HTML 문자열 생성 (인라인 함수 삭제)
+        // HTML 문자열 생성
         resultBox.innerHTML = `
           <div class="result-card hobby">
             <div class="result-hero">
@@ -258,6 +275,10 @@
               }).join('')}
             </div>
 
+            <div class="mind-remind" style="margin-top:10px">
+              <b>🌿 마음 리마인드:</b> ${info.remind.join(' / ')}
+            </div>
+
             <div class="result-actions">
               <a class="start" href="../index.html">메인으로</a>
               <button class="start" type="button" onclick="location.reload()">다시 테스트</button>
@@ -266,15 +287,15 @@
         `;
 
         resultBox.style.display = "block";
-        
-        // [수정] HTML 삽입 후, DOM 조작 함수 실행
-        injectPixelIcon(key);
 
         // 결과 도트 그래픽 삽입 (기존 로직 유지)
         if (window.MongsilDot?.mount){
           const seed = `N:${Math.round(n.N*100)};S:${Math.round(n.S*100)};K:${Math.round(n.K*100)};B:${Math.round(n.B*100)}`;
           window.MongsilDot.mount({ key: dotKey, seed, mode: 'replace', container: '.result-hero' });
         }
+
+        // [추가] 픽셀 아이콘 오버레이 (도트/PNG 위에 최종 적용)
+        injectPixelIcon(key);
       }
 
       // ---------- 시작 ----------
