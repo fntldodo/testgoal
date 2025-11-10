@@ -1,226 +1,175 @@
 /* =========================================================
- * pixel-icons.css v2025.3 — 몽실몽실 도트 아이콘 세트
- * - 공통 규칙
- *   - 기존 파동형/실험용 아이콘 제거
- *   - 도파민 테스트 + 메인 카드에서 공유 사용
- * - 스케일 단위: --px (기본 2px)
+ * pixel-icons.css v2025.3b — 몽실몽실 도트 아이콘 세트
+ * - 4종: roller-coaster / knowledge-bulb / peaceful-master / megaphone-master
+ * - 좌표 범위 0~16px 중심의 미니 그리드로 재설계 (카드 밖으로 안 튀어나오게)
+ * - 기존 파동형/테스트용 아이콘은 제거
  * ========================================================= */
 
-:root {
-  --px: 2px; /* 한 "픽셀"의 기본 크기 */
+:root{
+  --px: 2px; /* 한 "픽셀" 크기 */
 }
 
-/* 기본 픽셀 아이콘 베이스 */
-.pixel-icon {
+/* 공통 베이스 */
+.pixel-icon{
   position: relative;
-  display: inline-block;
+  display:inline-block;
   width: var(--px);
   height: var(--px);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
 
-/* 크기 유틸 (스케일로 확대) */
-.pixel-32 {
-  transform: scale(2);
-  transform-origin: top left;
-}
-.pixel-48 {
-  transform: scale(3);
-  transform-origin: top left;
-}
-.pixel-64 {
-  transform: scale(4);
+/* 크기 유틸: 현재는 스케일 효과 제거(기존 마크업 호환용) */
+.pixel-32,
+.pixel-48,
+.pixel-64{
+  transform: none;
   transform-origin: top left;
 }
 
-/* 카드용 정렬 유틸 */
-.pixel-card {
-  margin-right: 10px;
+/* 카드에서 여백용 */
+.pixel-card{
+  margin-right:10px;
 }
 
-/* =========================================================
- * 0) ROLLER COASTER — 도파민 폭주형 (ROLLER)
- * ========================================================= */
-/* 도파민 폭주형 — 레일과 열차를 상징하는 픽셀아트 */
-.pixel-icon.roller-coaster {
-  background: #FF5722;
+/* ---------------------------------------------------------
+ * 1) roller-coaster — 도파민 폭주형 (자극/롤러코스터)
+ * --------------------------------------------------------- */
+.pixel-icon.roller-coaster{
+  background:#FF5722;
   box-shadow:
-    /* 레일 (좌측 세로) */
-    0 calc(4*var(--px)) #000,
-    0 calc(8*var(--px)) #000,
-    0 calc(12*var(--px)) #000,
-    0 calc(16*var(--px)) #000,
-    0 calc(20*var(--px)) #000,
-    0 calc(24*var(--px)) #000,
-    0 calc(28*var(--px)) #000,
-    0 calc(32*var(--px)) #000,
-    0 calc(36*var(--px)) #000,
-    0 calc(40*var(--px)) #000,
-    0 calc(44*var(--px)) #000,
-    0 calc(48*var(--px)) #000,
-    0 calc(52*var(--px)) #000,
-    0 calc(56*var(--px)) #000,
-    0 calc(60*var(--px)) #000,
+    /* 왼쪽 레일 */
+    0               calc(2*var(--px)) #000,
+    0               calc(4*var(--px)) #000,
+    0               calc(6*var(--px)) #000,
+    0               calc(8*var(--px)) #000,
+    0              calc(10*var(--px)) #000,
+    0              calc(12*var(--px)) #000,
 
-    /* 레일 2 (오른쪽 세로) */
-    calc(8*var(--px)) calc(4*var(--px)) #000,
-    calc(8*var(--px)) calc(8*var(--px)) #000,
-    calc(8*var(--px)) calc(12*var(--px)) #000,
-    calc(8*var(--px)) calc(16*var(--px)) #000,
-    calc(8*var(--px)) calc(20*var(--px)) #000,
-    calc(8*var(--px)) calc(24*var(--px)) #000,
-    calc(8*var(--px)) calc(28*var(--px)) #000,
-    calc(8*var(--px)) calc(32*var(--px)) #000,
-    calc(8*var(--px)) calc(36*var(--px)) #000,
-    calc(8*var(--px)) calc(40*var(--px)) #000,
-    calc(8*var(--px)) calc(44*var(--px)) #000,
-    calc(8*var(--px)) calc(48*var(--px)) #000,
-    calc(8*var(--px)) calc(52*var(--px)) #000,
-    calc(8*var(--px)) calc(56*var(--px)) #000,
-    calc(8*var(--px)) calc(60*var(--px)) #000,
+    /* 오른쪽 레일 */
+    calc(4*var(--px)) calc(2*var(--px)) #000,
+    calc(4*var(--px)) calc(4*var(--px)) #000,
+    calc(4*var(--px)) calc(6*var(--px)) #000,
+    calc(4*var(--px)) calc(8*var(--px)) #000,
+    calc(4*var(--px))calc(10*var(--px)) #000,
+    calc(4*var(--px))calc(12*var(--px)) #000,
 
-    /* 열차 (빨강) */
-    calc(10*var(--px)) calc(4*var(--px)) #FF0000,
-    calc(12*var(--px)) calc(4*var(--px)) #FF0000,
-    calc(14*var(--px)) calc(4*var(--px)) #FF0000,
-    calc(10*var(--px)) calc(6*var(--px)) #FF0000,
-    calc(12*var(--px)) calc(6*var(--px)) #FF0000,
-    calc(14*var(--px)) calc(6*var(--px)) #FF0000,
+    /* 열차 (빨간 박스) */
+    calc(6*var(--px)) calc(2*var(--px)) #FF0000,
+    calc(8*var(--px)) calc(2*var(--px)) #FF0000,
+    calc(6*var(--px)) calc(3*var(--px)) #FF0000,
+    calc(8*var(--px)) calc(3*var(--px)) #FF0000,
 
-    /* 곡선 표현 (흰색 구름) */
-    calc(4*var(--px))  calc(24*var(--px)) #FFF,
-    calc(6*var(--px))  calc(24*var(--px)) #FFF,
-    calc(8*var(--px))  calc(24*var(--px)) #FFF,
-    calc(4*var(--px))  calc(26*var(--px)) #FFF,
-    calc(6*var(--px))  calc(26*var(--px)) #FFF,
-    calc(8*var(--px))  calc(26*var(--px)) #FFF,
+    /* 구름 */
+    calc(2*var(--px)) calc(8*var(--px)) #FFFFFF,
+    calc(3*var(--px)) calc(8*var(--px)) #FFFFFF,
+    calc(2*var(--px)) calc(9*var(--px)) #FFFFFF,
+    calc(3*var(--px)) calc(9*var(--px)) #FFFFFF,
 
-    /* 트랙 곡선(주황) */
-    calc(10*var(--px)) calc(30*var(--px)) #FF5722,
-    calc(12*var(--px)) calc(30*var(--px)) #FF5722,
-    calc(14*var(--px)) calc(30*var(--px)) #FF5722,
-    calc(10*var(--px)) calc(32*var(--px)) #FF5722,
-    calc(12*var(--px)) calc(32*var(--px)) #FF5722,
-    calc(14*var(--px)) calc(32*var(--px)) #FF5722;
+    /* 곡선 트랙 (주황) */
+    calc(6*var(--px)) calc(9*var(--px)) #FF5722,
+    calc(7*var(--px))calc(10*var(--px)) #FF5722,
+    calc(8*var(--px))calc(11*var(--px)) #FF5722;
 }
 
-/* =========================================================
- * 1) KNOWLEDGE BULB — 지식 부자형 (KNOW)
- * ========================================================= */
-/* 지식 부자 — 아이디어 전구 픽셀아트 */
-.pixel-icon.knowledge-bulb {
-  background: #FFFF00; /* 전구 빛 */
+/* ---------------------------------------------------------
+ * 2) knowledge-bulb — 지식 부자형 (전구)
+ * --------------------------------------------------------- */
+.pixel-icon.knowledge-bulb{
+  background:#FFFF66;
   box-shadow:
-    /* 전구 윗부분 (노랑) */
-    calc(-2*var(--px)) calc(-4*var(--px)) #FFFF00,
-    calc( 2*var(--px)) calc(-4*var(--px)) #FFFF00,
-    calc(-4*var(--px)) calc(-2*var(--px)) #FFFF00,
-    calc( 4*var(--px)) calc(-2*var(--px)) #FFFF00,
-    calc(-6*var(--px)) 0 #FFFF00,
-    calc( 6*var(--px)) 0 #FFFF00,
-    calc(-8*var(--px)) calc(2*var(--px)) #FFFF00,
-    calc( 8*var(--px)) calc(2*var(--px)) #FFFF00,
+    /* 전구 둥근 머리 */
+    0                 0                 #FFFF66,
+    calc(-1*var(--px)) 0                #FFFF66,
+    calc( 1*var(--px)) 0                #FFFF66,
+    calc(-2*var(--px)) calc(1*var(--px)) #FFFF66,
+    calc( 2*var(--px)) calc(1*var(--px)) #FFFF66,
+    calc(-2*var(--px)) calc(2*var(--px)) #FFFF66,
+    calc( 2*var(--px)) calc(2*var(--px)) #FFFF66,
 
-    /* 전구 중심 (하양 하이라이트) */
-    0 0 #FFFFFF,
-    calc(2*var(--px)) 0 #FFFFFF,
-    0 calc(2*var(--px)) #FFFFFF,
+    /* 하이라이트 */
+    0 calc(1*var(--px)) #FFFFFF,
+    calc(1*var(--px)) calc(2*var(--px)) #FFFFFF,
 
-    /* 소켓 부분 (은색/회색) */
-    calc(-2*var(--px)) calc(6*var(--px)) #888,
-    calc( 2*var(--px)) calc(6*var(--px)) #888,
-    calc(-2*var(--px)) calc(8*var(--px)) #888,
-    calc( 2*var(--px)) calc(8*var(--px)) #888,
-    calc(-4*var(--px)) calc(10*var(--px)) #AAA,
-    calc( 4*var(--px)) calc(10*var(--px)) #AAA,
+    /* 몸통 */
+    calc(-1*var(--px)) calc(3*var(--px)) #FFFF66,
+    0                  calc(3*var(--px)) #FFFF66,
+    calc(1*var(--px))  calc(3*var(--px)) #FFFF66,
+    calc(-1*var(--px)) calc(4*var(--px)) #FFFF66,
+    0                  calc(4*var(--px)) #FFFF66,
+    calc(1*var(--px))  calc(4*var(--px)) #FFFF66,
 
-    /* 밑 부분 (검정) */
-    0 calc(12*var(--px)) #000,
-    calc(-2*var(--px)) calc(14*var(--px)) #000,
-    calc( 2*var(--px)) calc(14*var(--px)) #000,
-    0 calc(16*var(--px)) #000;
+    /* 소켓(회색) */
+    calc(-2*var(--px)) calc(5*var(--px)) #AAAAAA,
+    calc( 0*var(--px)) calc(5*var(--px)) #AAAAAA,
+    calc( 2*var(--px)) calc(5*var(--px)) #AAAAAA,
+
+    /* 밑 부분(검정) */
+    calc(-1*var(--px)) calc(6*var(--px)) #000000,
+    0                  calc(6*var(--px)) #000000,
+    calc(1*var(--px))  calc(6*var(--px)) #000000;
 }
 
-/* =========================================================
- * 2) PEACEFUL MASTER — 아보하/평온 마스터 (AVOHA)
- * ========================================================= */
-/* 평온 마스터 — 잠자는 곰 얼굴 픽셀아트 */
-.pixel-icon.peaceful-master {
-  background: #C39953; /* 곰 얼굴 중앙 */
+/* ---------------------------------------------------------
+ * 3) peaceful-master — 아보하/평온 마스터 (잠자는 곰)
+ * --------------------------------------------------------- */
+.pixel-icon.peaceful-master{
+  background:#C39953;
   box-shadow:
-    /* 귀 (갈색) */
-    calc(-4*var(--px)) calc(-4*var(--px)) #C39953,
-    calc(-6*var(--px)) calc(-4*var(--px)) #C39953,
-    calc( 4*var(--px)) calc(-4*var(--px)) #C39953,
-    calc( 6*var(--px)) calc(-4*var(--px)) #C39953,
+    /* 귀 */
+    calc(-3*var(--px)) calc(-1*var(--px)) #C39953,
+    calc( 3*var(--px)) calc(-1*var(--px)) #C39953,
 
-    /* 얼굴 윤곽 (갈색) */
-    calc(-8*var(--px)) 0 #C39953,
-    calc( 8*var(--px)) 0 #C39953,
-    calc(-10*var(--px)) calc(2*var(--px)) #C39953,
-    calc( 10*var(--px)) calc(2*var(--px)) #C39953,
-    calc(-10*var(--px)) calc(4*var(--px)) #C39953,
-    calc( 10*var(--px)) calc(4*var(--px)) #C39953,
-    calc(-8*var(--px)) calc(6*var(--px)) #C39953,
-    calc( 8*var(--px)) calc(6*var(--px)) #C39953,
+    /* 얼굴 테두리 */
+    calc(-3*var(--px)) calc(1*var(--px)) #C39953,
+    calc( 3*var(--px)) calc(1*var(--px)) #C39953,
+    calc(-3*var(--px)) calc(2*var(--px)) #C39953,
+    calc( 3*var(--px)) calc(2*var(--px)) #C39953,
 
-    /* 눈 (잠든 모양, 검정) */
-    calc(-4*var(--px)) calc(2*var(--px)) #000,
-    calc(-2*var(--px)) calc(2*var(--px)) #000,
-    calc( 2*var(--px)) calc(2*var(--px)) #000,
-    calc( 4*var(--px)) calc(2*var(--px)) #000,
+    /* 눈(감은 눈) */
+    calc(-2*var(--px)) calc(1*var(--px)) #000,
+    calc(-1*var(--px)) calc(1*var(--px)) #000,
+    calc( 1*var(--px)) calc(1*var(--px)) #000,
+    calc( 2*var(--px)) calc(1*var(--px)) #000,
 
-    /* 입 (핑크/코랄) */
-    0 calc(6*var(--px)) #FFC0CB,
-    calc(-2*var(--px)) calc(8*var(--px)) #FFC0CB,
-    calc( 2*var(--px)) calc(8*var(--px)) #FFC0CB,
+    /* 코/입 (연핑크) */
+    0                  calc(3*var(--px)) #FFC0CB,
+    calc(-1*var(--px)) calc(4*var(--px)) #FFC0CB,
+    calc( 1*var(--px)) calc(4*var(--px)) #FFC0CB,
 
-    /* Zzz (잠 기호, 하양) */
-    calc(10*var(--px)) calc(-2*var(--px)) #FFF,
-    calc(12*var(--px)) calc(-4*var(--px)) #FFF,
-    calc(14*var(--px)) calc(-6*var(--px)) #FFF;
+    /* Zzz 표시 */
+    calc(4*var(--px)) 0                  #FFFFFF,
+    calc(5*var(--px)) calc(-1*var(--px)) #FFFFFF,
+    calc(6*var(--px)) calc(-2*var(--px)) #FFFFFF;
 }
 
-/* =========================================================
- * 3) MEGAPHONE MASTER — 인싸 제조기형 (SOCIAL)
- * ========================================================= */
-/* 인싸 제조기 — 확성기 픽셀아트 */
-.pixel-icon.megaphone-master {
-  background: #FFD700; /* 확성기 금색/노랑 */
+/* ---------------------------------------------------------
+ * 4) megaphone-master — 인싸 제조기 (확성기)
+ * --------------------------------------------------------- */
+.pixel-icon.megaphone-master{
+  background:#FFD700;
   box-shadow:
-    /* 확성기 입구 부분 (원형 느낌) */
-    calc(-8*var(--px)) calc(-4*var(--px)) #FFD700,
-    calc(-6*var(--px)) calc(-6*var(--px)) #FFD700,
-    calc(-4*var(--px)) calc(-8*var(--px)) #FFD700,
-    calc(-2*var(--px)) calc(-8*var(--px)) #FFD700,
-    0               calc(-8*var(--px)) #FFD700,
-    calc( 2*var(--px)) calc(-8*var(--px)) #FFD700,
-    calc( 4*var(--px)) calc(-6*var(--px)) #FFD700,
-    calc( 6*var(--px)) calc(-4*var(--px)) #FFD700,
+    /* 확성기 앞부분(원형) */
+    calc(-3*var(--px)) calc(-1*var(--px)) #FFD700,
+    calc(-2*var(--px)) calc(-2*var(--px)) #FFD700,
+    calc(-1*var(--px)) calc(-3*var(--px)) #FFD700,
+    0                  calc(-3*var(--px)) #FFD700,
+    calc(1*var(--px))  calc(-2*var(--px)) #FFD700,
+    calc(2*var(--px))  calc(-1*var(--px)) #FFD700,
 
-    /* 확성기 몸통 (주황/검정) */
-    calc(-4*var(--px)) 0 #FF8C00,
-    calc(-2*var(--px)) 0 #FF8C00,
-    0                  0 #FF8C00,
-    calc( 2*var(--px)) 0 #FF8C00,
-    calc(-2*var(--px)) calc(2*var(--px)) #FF8C00,
-    0                  calc(2*var(--px)) #FF8C00,
-    calc( 2*var(--px)) calc(2*var(--px)) #FF8C00,
-    0                  calc(4*var(--px)) #000,
+    /* 몸통(주황) */
+    calc(-1*var(--px)) 0                  #FF8C00,
+    0                   0                 #FF8C00,
+    calc(1*var(--px))   0                 #FF8C00,
+    0                  calc(1*var(--px))  #FF8C00,
+    calc(1*var(--px))  calc(1*var(--px))  #FF8C00,
 
-    /* 손잡이 (검정) */
-    calc(4*var(--px))  calc(4*var(--px)) #000,
-    calc(6*var(--px))  calc(6*var(--px)) #000,
-    calc(8*var(--px))  calc(8*var(--px)) #000,
-    calc(4*var(--px))  calc(6*var(--px)) #000,
-    calc(6*var(--px))  calc(8*var(--px)) #000,
+    /* 손잡이(검정) */
+    calc(2*var(--px))  calc(2*var(--px))  #000000,
+    calc(3*var(--px))  calc(3*var(--px))  #000000,
 
-    /* 소리/확산 효과 (흰색) */
-    calc(10*var(--px)) calc(-10*var(--px)) #FFF,
-    calc(12*var(--px)) calc(-8*var(--px))  #FFF,
-    calc(14*var(--px)) calc(-6*var(--px))  #FFF,
-    calc(10*var(--px)) calc(-12*var(--px)) #FFF,
-    calc(12*var(--px)) calc(-10*var(--px)) #FFF,
-    calc(14*var(--px)) calc(-8*var(--px))  #FFF;
+    /* 소리 파동(흰색) */
+    calc(4*var(--px))  calc(-3*var(--px)) #FFFFFF,
+    calc(5*var(--px))  calc(-2*var(--px)) #FFFFFF,
+    calc(4*var(--px))  calc(-1*var(--px)) #FFFFFF;
 }
