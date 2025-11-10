@@ -82,25 +82,54 @@ header{
   transform: translateY(-2px);
 }
 
-/* 스크롤 칩 영역 */
-.scroll-wrap{ display:flex; align-items:center; gap:8px; }
+.scroll-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* 좌우 화살표 버튼은 그대로 */
 .nav-btn{
-  width:34px; height:34px; border-radius:999px; border:1px solid var(--line);
-  background:#fff; box-shadow: var(--shadow);
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  box-shadow: var(--shadow);
 }
+
+/* 🔴 여기가 핵심: 가로 스크롤 컨테이너 */
 .scroll-tests{
-  display:flex; overflow:auto; gap:8px; scroll-behavior:smooth; padding:6px 2px;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  display:flex;
+  flex-wrap:nowrap;         /* 한 줄로만 나열 (줄바꿈 방지) */
+  overflow-x:auto;          /* 가로 스크롤만 허용 */
+  overflow-y:hidden;        /* 세로 스크롤은 막기 */
+  gap:8px;
+  padding:6px 2px;
+
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling: touch;  /* iOS 부드러운 스크롤 */
+  touch-action: pan-x;                /* 손가락을 좌우로 움직였을 때만 가로 스크롤 */
   overscroll-behavior-inline: contain;
-  scrollbar-width: none;
+  scrollbar-width: none;              /* Firefox 스크롤바 숨기기 */
 }
-.scroll-tests::-webkit-scrollbar { display: none; }
+.scroll-tests::-webkit-scrollbar {
+  display: none;                       /* WebKit 스크롤바 숨기기 */
+}
+
+/* 칩(버튼)은 가로로만 늘어나는 아이템 */
 .test-chip{
-  flex:0 0 auto; border:none; border-radius:999px;
-  padding:10px 14px; font-weight:700; background:#fff; color:var(--text-soft);
-  border:1px solid var(--line); box-shadow: var(--shadow);
-  user-select: none; -webkit-user-select: none;
+  flex:0 0 auto;                       /* 줄바꿈 없이 가로로 쭉 나열 */
+  border:none;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:700;
+  background:#fff;
+  color:var(--text-soft);
+  border:1px solid var(--line);
+  box-shadow: var(--shadow);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* 카드 그리드 */
