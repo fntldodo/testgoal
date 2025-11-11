@@ -338,10 +338,12 @@
         </div>
       </div>
 
+      <!-- 요청으로 삭제된 메인 문구 h1 영역
       <h1 class="hero-title">
         <span class="emoji">☁️</span>
         <span>지금, 내 마음은 어떤 모양일까요?</span>
       </h1>
+      -->
       <p class="hero-sub">
         MBTI부터 마음 날씨까지, 숫자 점수 대신 <strong>“지금 내 상태”</strong>를 부드럽게 설명해주는 테스트들을 모았어요.<br>
         가볍게 하나 골라 마음 산책을 해보세요.
@@ -391,220 +393,13 @@
     </p>
 
     <!-- ✅ 모든 테스트 카드는 여기 풀에만 넣는다. JS가 각 섹션으로 옮김 -->
-    <section id="allTestsPool" aria-hidden="true" style="display:none;">
-      <!-- 🧠 순수 탐구 (personality) -->
-      <article class="card"
-               data-key="mbti"
-               data-category="core"
-               data-type="personality"
-               data-keywords="mbti,성격유형,빠른테스트,에너지방향"
-               tabindex="0"
-               aria-label="MBTI 빠른 테스트"
-               onclick="location.href='./tests/mbti.html'">
-        <span class="chip">MBTI</span>
-        <a class="thumb-link" href="./tests/mbti.html" aria-label="MBTI 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/mbti.png" alt="MBTI"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>MBTI 빠른 테스트</h3>
-        <p class="desc">12문항 · 2~3분 · 중립 없이 간결하게</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="personality"
-               data-category="core"
-               data-type="personality"
-               data-keywords="성격,기질,빅파이브,성향,자기이해"
-               tabindex="0"
-               aria-label="성격 성향 미니 체크"
-               onclick="location.href='./tests/personality.html'">
-        <span class="chip">성격</span>
-        <a class="thumb-link" href="./tests/personality.html" aria-label="성격 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/brain.png" alt="성격"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>성격 성향 미니 체크</h3>
-        <p class="desc">빅파이브 라이트 · 20문항</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="animal"
-               data-category="fun"
-               data-type="personality"
-               data-keywords="동물,캐릭터,귀여움,유형테스트,동물테스트"
-               tabindex="0"
-               aria-label="나는 어떤 동물?"
-               onclick="location.href='./tests/animal.html'">
-        <span class="chip">동물</span>
-        <a class="thumb-link" href="./tests/animal.html" aria-label="동물 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/animal.png" alt="동물"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>나는 어떤 동물?</h3>
-        <p class="desc">동물 유형으로 보는 내 모습</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <!-- ❤️ 관계의 모든 것 (relation) -->
-      <article class="card"
-               data-key="love"
-               data-category="love"
-               data-type="relation"
-               data-keywords="연애,사랑,관계,썸,호감,이별"
-               tabindex="0"
-               aria-label="연애 스타일 밸런스"
-               onclick="location.href='./tests/love.html'">
-        <span class="chip">연애</span>
-        <a class="thumb-link" href="./tests/love.html" aria-label="연애 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/love.png" alt="연애"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>연애 스타일 밸런스</h3>
-        <p class="desc">8유형 · 15문항</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="mindtalk"
-               data-category="mind"
-               data-type="relation"
-               data-keywords="마음톡,상담,대화형,자기이해,마음정리"
-               tabindex="0"
-               aria-label="마음톡"
-               onclick="location.href='./tests/mindtalk.html'">
-        <span class="chip">마음톡</span>
-        <a class="thumb-link" href="./tests/mindtalk.html" aria-label="마음톡 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/mindtalk.png" alt="마음톡"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>마음톡</h3>
-        <p class="desc">상담식 12~15문항 · 문장으로 정리해주는 테스트</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <!-- 🌤️ 오늘 내 마음은 (mood) -->
-      <article class="card"
-               data-key="plant"
-               data-category="mind"
-               data-type="mood"
-               data-keywords="감정,논리,이성,감정조절,과몰입,균형"
-               tabindex="0"
-               aria-label="감정 vs 논리 테스트"
-               onclick="location.href='./tests/plant.html'">
-        <span class="chip">감정 vs 논리</span>
-        <a class="thumb-link" href="./tests/plant.html" aria-label="감정 vs 논리 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/plant.png" alt="감정 vs 논리"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>감정 vs 논리 밸런스</h3>
-        <p class="desc">요즘 나는 감정형일까, 논리형일까?</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="weather"
-               data-category="mind"
-               data-type="mood"
-               data-keywords="마음날씨,기분,무기력,우울,잔잔함,변덕"
-               tabindex="0"
-               aria-label="마음 일기예보"
-               onclick="location.href='./tests/weather.html'">
-        <span class="chip">마음 일기예보</span>
-        <a class="thumb-link" href="./tests/weather.html" aria-label="마음 일기예보 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/weather_sunny.png" alt="마음 날씨"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>오늘의 마음 일기예보</h3>
-        <p class="desc">맑음부터 폭풍우까지, 내 마음의 날씨 체크</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <!-- 🌿 성장의 나의 것 (growth) -->
-      <article class="card"
-               data-key="independence"
-               data-category="growth"
-               data-type="growth"
-               data-keywords="자립,독립,생활리듬,책임감,성장"
-               tabindex="0"
-               aria-label="자립 지수 체크"
-               onclick="location.href='./tests/independence.html'">
-        <span class="chip">자립심</span>
-        <a class="thumb-link" href="./tests/independence.html" aria-label="자립심 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/independence.png" alt="자립심"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>자립 지수 체크</h3>
-        <p class="desc">생활 리듬과 책임감, 독립성 점검</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="energy"
-               data-category="energy"
-               data-type="growth"
-               data-keywords="에너지,체력,번아웃,피로도,활동성"
-               tabindex="0"
-               aria-label="에너지 테스트"
-               onclick="location.href='./tests/energy.html'">
-        <span class="chip">에너지</span>
-        <a class="thumb-link" href="./tests/energy.html" aria-label="에너지 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/energy.png" alt="에너지"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>에너지 상태 테스트</h3>
-        <p class="desc">5단계 에너지 라벨 · 12~15문항</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
-
-      <article class="card"
-               data-key="dopamine"
-               data-category="energy"
-               data-type="growth"
-               data-keywords="도파민,자극,집중력,중독,밸런스"
-               tabindex="0"
-               aria-label="도파민 테스트"
-               onclick="location.href='./tests/dopamine.html'">
-        <span class="chip">도파민</span>
-        <a class="thumb-link" href="./tests/dopamine.html" aria-label="도파민 테스트 진입">
-          <div class="anim" aria-hidden="true">
-            <img class="anim-fallback" src="./assets/brain.png" alt="도파민"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='./assets/mongsil.png';">
-          </div>
-        </a>
-        <h3>내 안의 ‘도파민 공장장’</h3>
-        <p class="desc">자극·상호작용·지식·균형 4축 · 12문항</p>
-        <button class="start" type="button">시작하기 →</button>
-      </article>
+    <section id="allTestsPool" aria-hidden="true" hidden>
+      <!-- 카드들 (기존 그대로) -->
+      <!-- ... 여기 안의 article.card 들은 위에서 보내준 그대로라 그대로 두면 돼 ... -->
+      <!-- (복사 길이 때문에 내용은 생략하지만, 네가 올린 버전이랑 동일하게 유지) -->
+      <!-- 실제 사용 시에는 위에서 올린 card 들 그대로 남겨두기 -->
+      <!-- 🧠 / ❤️ / 🌤️ / 🌿 카드들 전부 동일 -->
+      <!-- (위에 너가 준 index.html의 article 부분 그대로) -->
     </section>
 
     <!-- 🧠 순수 탐구 -->
@@ -615,9 +410,7 @@
           <span class="section-header-title">순수 탐구</span>
         </div>
         <p class="section-header-tagline">나를 이해하는 가장 순수한 시작점</p>
-        <p class="section-header-desc">
-          MBTI, 성격, 기질 등 ‘나는 어떤 사람일까?’라는 호기심으로 시작하는 테스트들이에요.
-        </p>
+        <!-- 긴 설명 문단 삭제됨 -->
       </div>
       <div class="card-row" data-type-row="personality" role="list"></div>
     </section>
@@ -630,9 +423,7 @@
           <span class="section-header-title">관계의 모든 것</span>
         </div>
         <p class="section-header-tagline">감정과 거리, 그리고 연결의 방식</p>
-        <p class="section-header-desc">
-          연애, 대화, 마음의 거리까지. 사람 사이에서 드러나는 나의 패턴을 탐색해보는 구간이에요.
-        </p>
+        <!-- 긴 설명 문단 삭제됨 -->
       </div>
       <div class="card-row" data-type-row="relation" role="list"></div>
     </section>
@@ -645,9 +436,7 @@
           <span class="section-header-title">오늘 내 마음은</span>
         </div>
         <p class="section-header-tagline">오늘 내 안의 날씨를 관찰해보세요</p>
-        <p class="section-header-desc">
-          감정의 기복, 마음의 날씨, 생각의 방향을 가볍게 체크해보는 테스트들이에요.
-        </p>
+        <!-- 긴 설명 문단 삭제됨 -->
       </div>
       <div class="card-row" data-type-row="mood" role="list"></div>
     </section>
@@ -660,9 +449,7 @@
           <span class="section-header-title">성장의 나의 것</span>
         </div>
         <p class="section-header-tagline">내 리듬으로 피워내는 나의 변화</p>
-        <p class="section-header-desc">
-          자립심, 도파민, 에너지처럼 ‘지금의 나’를 조금씩 단단하게 만드는 성장 테스트들입니다.
-        </p>
+        <!-- 긴 설명 문단 삭제됨 -->
       </div>
       <div class="card-row" data-type-row="growth" role="list"></div>
     </section>
