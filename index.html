@@ -1,202 +1,686 @@
 <!--
 [코드 절대 규칙]
 1) 기존 합의된 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경.
-2) 기존 코드는 보존하고 '추가'만 수행. 중복 제거는 사전 확인 후.
+2) 기존 코드는 보존하고 '추가'만 수행. 이 파일은 index 전용 v2025-4 제안본입니다.
+3) style.css 내 공통 스타일은 유지하고, 이 파일에서는 '추가 스타일'만 정의합니다.
 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>몽실몽실 심리테스트</title>
+  <title>몽실몽실 심리테스트 - 마음이 머무는 곳</title>
 
-  <!-- AdSense (head 필수, 1회만) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
+  <!-- AdSense (head 필수, 1회) -->
+  <script async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
+    crossorigin="anonymous"></script>
 
-  <!-- 폰트 성능 최적화 -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- 메인 스타일 -->
-  <link rel="stylesheet" href="./css/style.css?v=2025.2">
-  <link rel="stylesheet" href="./css/pixel-icons.css?v=2025.3">
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="./css/style.css?v=2025.3">
 
+  <!-- index 전용 보조 스타일 (공통 코드 훼손 X, 여기서만 추가/오버라이드) -->
+  <style>
+    body.index-page{
+      font-family: "Pretendard Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    /* 메인 레이아웃: 넷플릭스형 섹션 수직, 카드 가로 스크롤 */
+    body.index-page main{
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 12px 12px 40px;
+    }
+
+    /* 히어로 영역 보정 */
+    .hero-wrap{
+      padding: 18px 14px 10px;
+    }
+    .hero-title{
+      font-size: clamp(22px, 6vw, 28px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 4px 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-title span.emoji{
+      font-size: 1.3em;
+    }
+    .hero-sub{
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    /* 검색 영역 */
+    .home-search{
+      margin: 0 2px 4px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: #ffffffee;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .home-search-label{
+      font-size: 0.85rem;
+      color: #8a7a6a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .home-search-label span.emoji{
+      font-size: 1.1rem;
+    }
+    .home-search-input-wrap{
+      position: relative;
+    }
+    #testSearchInput{
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 9px 34px 9px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      background: #faf7f1;
+      color: var(--text-main);
+    }
+    #testSearchInput::placeholder{
+      color: #b0a092;
+    }
+    .search-icon{
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* 카테고리 섹션 및 헤더 */
+    .test-section{
+      margin: 0 2px;
+    }
+    .section-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 0 4px 4px;
+    }
+    .section-header-title{
+      font-size: 1.02rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #5e493d;
+    }
+    .section-header-desc{
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      text-align: right;
+    }
+
+    /* 가로 스크롤 카드 행 */
+    .card-row{
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 2px 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .card-row::-webkit-scrollbar{
+      height: 6px;
+    }
+    .card-row::-webkit-scrollbar-thumb{
+      background: #d4c6b7;
+      border-radius: 999px;
+    }
+
+    /* 카드 폭만 인덱스에서 살짝 조정 (디자인 전용) */
+    body.index-page .card{
+      flex: 0 0 auto;
+      width: 220px;
+      scroll-snap-align: start;
+    }
+
+    /* 검색 결과 없을 때 안내 */
+    .no-result-msg{
+      display: none;
+      margin: 0 4px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      border-radius: 14px;
+      background: #fff7f2;
+      border: 1px dashed #e0b19a;
+      color: #9a5e43;
+    }
+    .no-result-msg.active{
+      display: block;
+    }
+
+    /* 푸터 (정보 패널 버튼 포함) */
+    .site-footer{
+      margin-top: 24px;
+      padding: 16px 12px 28px;
+      border-top: 1px solid var(--line);
+      background: #fdf7f0f2;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+    .site-footer .footer-links{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+    .site-footer .footer-links a{
+      text-decoration: none;
+      color: #8a7a6a;
+      padding: 2px 0;
+    }
+    .site-footer .footer-links a:hover{
+      text-decoration: underline;
+    }
+    .site-footer .footer-copy{
+      color: #a39282;
+    }
+
+    .info-open-btn{
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      color: #7b6a5d;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .info-open-btn:hover{
+      background: #f3e6d9;
+    }
+
+    /* 정보 슬라이드 패널 + 반투명 배경 */
+    .info-drawer,
+    .info-drawer-backdrop{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 40;
+    }
+    .info-drawer-backdrop{
+      background: rgba(0,0,0,0.24);
+    }
+    .info-drawer-inner{
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(320px, 86vw);
+      height: 100%;
+      background: #fdf7f0;
+      border-left: 1px solid var(--line);
+      box-shadow: -4px 0 16px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    /* 열린 상태 */
+    .info-drawer-open .info-drawer{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .info-drawer-open .info-drawer-backdrop{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .info-drawer-open .info-drawer-inner{
+      transform: translateX(0);
+    }
+    .info-drawer-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.95rem;
+      color: #5e493d;
+    }
+    .info-close-btn{
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #8a7a6a;
+    }
+    .info-drawer-body{
+      padding: 12px 14px 20px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+    .info-intro{
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .info-list{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .info-list li{
+      margin-bottom: 6px;
+    }
+    .info-list a{
+      display: inline-block;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: #7b6a5d;
+      font-size: 0.85rem;
+    }
+    .info-list a:hover{
+      background: #f3e6d9;
+    }
+
+    @media (min-width: 960px){
+      body.index-page main{
+        padding: 12px 24px 40px;
+      }
+      body.index-page .card{
+        width: 260px;
+      }
+      .site-footer{
+        padding: 18px 24px 32px;
+      }
+    }
+  </style>
 </head>
-<body>
+<body class="index-page v2025-4">
+  <!-- 상단 고정 메인 버튼 -->
+  <a class="top-main-btn" href="./index.html" aria-label="메인으로">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
+            fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>메인</span>
+  </a>
+
   <header>
-    <div class="logo">
-      <img src="./assets/KakaoTalk_20251020_233535446.png"
-           alt="몽실이 캐릭터"
-           loading="eager"
-           onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-      <span>몽실몽실 심리테스트</span>
-    </div>
-    <p class="subtitle">불안이 찾아와도, 몽실이처럼 포근하게 ☁️</p>
-
-    <button class="cta" id="startAll" type="button" aria-label="카드로 이동">테스트 보러 가기</button>
-
-    <!-- 가로 스크롤 칩 -->
-    <div class="scroll-wrap" aria-label="테스트 카테고리">
-      <button class="nav-btn prev" aria-label="이전" type="button">&#10094;</button>
-      <div class="scroll-tests" id="scrollTests" role="listbox">
-        <button class="test-chip" data-link="mbti" role="option">MBTI</button>
-        <button class="test-chip" data-link="personality" role="option">성격</button>
-        <button class="test-chip" data-link="love" role="option">연애</button>
-        <button class="test-chip" data-link="independence" role="option">자립심</button>
-        <button class="test-chip" data-link="animal" role="option">동물</button>
-        <button class="test-chip" data-link="plant" role="option">감정 vs 논리</button>
-        <button class="test-chip" data-link="weather" role="option">마음 일기예보</button>
-        <button class="test-chip" data-link="mindtalk" role="option">마음톡</button>
-        <button class="test-chip" data-link="energy" role="option">에너지</button>
-        <button class="test-chip" data-link="dopamine" role="option">도파민</button>
+    <div class="hero-wrap">
+      <div class="logo">
+        <img src="./assets/mongsil.png"
+             alt="몽실몽실 로고"
+             loading="lazy"
+             onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+        <div>
+          <span>몽실몽실 심리테스트</span>
+          <p class="subtitle">불안이 찾아와도, 몽실이처럼 포근하게 ☁️</p>
+        </div>
       </div>
-      <button class="nav-btn next" aria-label="다음" type="button">&#10095;</button>
+
+      <h1 class="hero-title">
+        <span class="emoji">☁️</span>
+        <span>지금, 내 마음은 어떤 모양일까요?</span>
+      </h1>
+      <p class="hero-sub">
+        MBTI부터 마음 날씨까지, 숫자 점수 대신 <strong>“지금 내 상태”</strong>를 부드럽게 설명해주는 테스트들을 모았어요.<br>
+        가볍게 하나 골라 마음 산책을 해보세요.
+      </p>
+
+      <button class="cta" id="startAll" type="button" aria-label="테스트 카드로 이동">
+        테스트 보러 가기
+      </button>
+
+      <!-- 기존 가로 스크롤 칩: 구조 유지 -->
+      <div class="scroll-wrap" aria-label="테스트 카테고리">
+        <button class="nav-btn prev" aria-label="이전" type="button">&#10094;</button>
+        <div class="scroll-tests" id="scrollTests" role="listbox">
+          <button class="test-chip" data-link="mbti" role="option">MBTI</button>
+          <button class="test-chip" data-link="personality" role="option">성격</button>
+          <button class="test-chip" data-link="love" role="option">연애</button>
+          <button class="test-chip" data-link="independence" role="option">자립심</button>
+          <button class="test-chip" data-link="animal" role="option">동물</button>
+          <button class="test-chip" data-link="plant" role="option">감정 vs 논리</button>
+          <button class="test-chip" data-link="weather" role="option">마음 일기예보</button>
+          <button class="test-chip" data-link="mindtalk" role="option">마음톡</button>
+          <button class="test-chip" data-link="energy" role="option">에너지</button>
+          <button class="test-chip" data-link="dopamine" role="option">도파민</button>
+        </div>
+        <button class="nav-btn next" aria-label="다음" type="button">&#10095;</button>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- 카드: data-key = tests/{key}.html 로 라우팅 -->
-    <article class="card" data-key="mbti" tabindex="0" aria-label="MBTI 빠른 테스트" onclick="location.href='./tests/mbti.html'">
-      <span class="chip">MBTI</span>
-<a href="./about.html">About 몽실몽실</a>
-      <!-- 추가: 로고를 눌러도 진입되도록 앵커 보강(기존 onClick 보존) -->
-      <a class="thumb-link" href="./tests/mbti.html" aria-label="MBTI 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/mbti.png" alt="MBTI"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>MBTI 빠른 테스트</h3>
-      <p class="desc">12문항 · 2~3분 · 중립 없이 간결하게</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+    <!-- 🔎 검색 -->
+    <section class="home-search" aria-label="테스트 검색">
+      <div class="home-search-label">
+        <span class="emoji">🔍</span>
+        <span>원하는 키워드를 적어보세요. (예: 연애, 동물, 감정, 에너지…)</span>
+      </div>
+      <div class="home-search-input-wrap">
+        <input id="testSearchInput" type="search"
+               placeholder="어떤 마음을 찾고 있나요?"
+               autocomplete="off" />
+        <span class="search-icon">⌕</span>
+      </div>
+    </section>
 
-    <article class="card" data-key="personality" tabindex="0" aria-label="성격 성향 미니 체크" onclick="location.href='./tests/personality.html'">
-      <span class="chip">성격</span>
-      <a class="thumb-link" href="./tests/personality.html" aria-label="성격 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/brain.png" alt="성격"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>성격 성향 미니 체크</h3>
-      <p class="desc">빅파이브 라이트 · 20문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+    <p id="noResultMsg" class="no-result-msg">
+      아직 그 키워드와 딱 맞는 테스트는 없어요. 다른 단어로도 한 번 찾아볼까요? ☁️
+    </p>
 
-    <article class="card" data-key="love" tabindex="0" aria-label="연애 스타일 밸런스" onclick="location.href='./tests/love.html'">
-      <span class="chip">연애</span>
-      <a class="thumb-link" href="./tests/love.html" aria-label="연애 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/love.png" alt="연애"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
+    <!-- 🎬 섹션 1: 오늘의 추천 -->
+    <section class="test-section" data-section="featured">
+      <div class="section-header">
+        <div class="section-header-title">
+          <span>🔥</span><span>오늘의 추천 테스트</span>
         </div>
-      </a>
-      <h3>연애 스타일 밸런스</h3>
-      <p class="desc">8유형 · 15문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+        <p class="section-header-desc">처음 온 몽실 친구들에게 추천하는 대표 테스트들이에요.</p>
+      </div>
+      <div class="card-row" data-row="featured" role="list">
+        <!-- MBTI -->
+        <article class="card"
+                 data-key="mbti"
+                 data-category="core"
+                 data-keywords="mbti,성격유형,빠른테스트,에너지방향"
+                 tabindex="0"
+                 aria-label="MBTI 빠른 테스트"
+                 onclick="location.href='./tests/mbti.html'">
+          <span class="chip">MBTI</span>
+          <a class="thumb-link" href="./tests/mbti.html" aria-label="MBTI 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/mbti.png" alt="MBTI"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>MBTI 빠른 테스트</h3>
+          <p class="desc">12문항 · 2~3분 · 중립 없이 간결하게</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
 
-    <article class="card" data-key="independence" tabindex="0" aria-label="자립 지수 체크" onclick="location.href='./tests/independence.html'">
-      <span class="chip">자립심</span>
-      <a class="thumb-link" href="./tests/independence.html" aria-label="자립심 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/independence.png" alt="자립심"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
+        <!-- 성격 -->
+        <article class="card"
+                 data-key="personality"
+                 data-category="core"
+                 data-keywords="성격,기질,빅파이브,성향,자기이해"
+                 tabindex="0"
+                 aria-label="성격 성향 미니 체크"
+                 onclick="location.href='./tests/personality.html'">
+          <span class="chip">성격</span>
+          <a class="thumb-link" href="./tests/personality.html" aria-label="성격 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/brain.png" alt="성격"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>성격 성향 미니 체크</h3>
+          <p class="desc">빅파이브 라이트 · 20문항</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+
+        <!-- 연애 -->
+        <article class="card"
+                 data-key="love"
+                 data-category="love"
+                 data-keywords="연애,사랑,관계,썸,호감,이별"
+                 tabindex="0"
+                 aria-label="연애 스타일 밸런스"
+                 onclick="location.href='./tests/love.html'">
+          <span class="chip">연애</span>
+          <a class="thumb-link" href="./tests/love.html" aria-label="연애 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/love.png" alt="연애"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>연애 스타일 밸런스</h3>
+          <p class="desc">8유형 · 15문항</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+
+        <!-- 동물 -->
+        <article class="card"
+                 data-key="animal"
+                 data-category="fun"
+                 data-keywords="동물,캐릭터,귀여움,유형테스트,동물테스트"
+                 tabindex="0"
+                 aria-label="나는 어떤 동물?"
+                 onclick="location.href='./tests/animal.html'">
+          <span class="chip">동물</span>
+          <a class="thumb-link" href="./tests/animal.html" aria-label="동물 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/animal.png" alt="동물"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>나는 어떤 동물?</h3>
+          <p class="desc">동물 유형으로 보는 내 모습</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- 🌿 섹션 2: 마음 상태 -->
+    <section class="test-section" data-section="mind">
+      <div class="section-header">
+        <div class="section-header-title">
+          <span>🌿</span><span>마음 상태 둘러보기</span>
         </div>
-      </a>
-      <h3>자립 지수 체크</h3>
-      <p class="desc">루틴·결정·평온 · 15문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+        <p class="section-header-desc">감정과 생각, 그리고 요즘 마음 날씨를 살펴보고 싶을 때.</p>
+      </div>
+      <div class="card-row" data-row="mind" role="list">
+        <!-- 감정 vs 논리 -->
+        <article class="card"
+                 data-key="plant"
+                 data-category="mind"
+                 data-keywords="감정,논리,이성,감정조절,과몰입,균형"
+                 tabindex="0"
+                 aria-label="감정 vs 논리 테스트"
+                 onclick="location.href='./tests/plant.html'">
+          <span class="chip">감정 vs 논리</span>
+          <a class="thumb-link" href="./tests/plant.html" aria-label="감정 vs 논리 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/plant.png" alt="감정 vs 논리"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>감정 vs 논리 밸런스</h3>
+          <p class="desc">요즘 나는 감정형일까, 논리형일까?</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
 
-    <article class="card" data-key="animal" tabindex="0" aria-label="나는 어떤 동물?" onclick="location.href='./tests/animal.html'">
-      <span class="chip">동물</span>
-      <a class="thumb-link" href="./tests/animal.html" aria-label="동물 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/animal.png" alt="동물"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
+        <!-- 마음 일기예보 -->
+        <article class="card"
+                 data-key="weather"
+                 data-category="mind"
+                 data-keywords="마음날씨,기분,무기력,우울,잔잔함,변덕"
+                 tabindex="0"
+                 aria-label="마음 일기예보"
+                 onclick="location.href='./tests/weather.html'">
+          <span class="chip">마음 일기예보</span>
+          <a class="thumb-link" href="./tests/weather.html" aria-label="마음 일기예보 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/weather_sunny.png" alt="마음 날씨"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>오늘의 마음 일기예보</h3>
+          <p class="desc">맑음부터 폭풍우까지, 내 마음의 날씨 체크</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+
+        <!-- 마음톡 -->
+        <article class="card"
+                 data-key="mindtalk"
+                 data-category="mind"
+                 data-keywords="마음톡,상담,대화형,자기이해,마음정리"
+                 tabindex="0"
+                 aria-label="마음톡"
+                 onclick="location.href='./tests/mindtalk.html'">
+          <span class="chip">마음톡</span>
+          <a class="thumb-link" href="./tests/mindtalk.html" aria-label="마음톡 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/mindtalk.png" alt="마음톡"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>마음톡</h3>
+          <p class="desc">상담식 12~15문항 · 문장으로 정리해주는 테스트</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- ⚡ 섹션 3: 에너지와 자립 -->
+    <section class="test-section" data-section="energy">
+      <div class="section-header">
+        <div class="section-header-title">
+          <span>⚡</span><span>에너지와 자립</span>
         </div>
-      </a>
-      <h3>나는 어떤 동물?</h3>
-      <p class="desc">6유형 · 16문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+        <p class="section-header-desc">요즘 나의 체력, 정신력, 자립감이 어느 정도인지 살펴보기.</p>
+      </div>
+      <div class="card-row" data-row="energy" role="list">
+        <!-- 자립심 -->
+        <article class="card"
+                 data-key="independence"
+                 data-category="growth"
+                 data-keywords="자립,독립,생활리듬,책임감,성장"
+                 tabindex="0"
+                 aria-label="자립 지수 체크"
+                 onclick="location.href='./tests/independence.html'">
+          <span class="chip">자립심</span>
+          <a class="thumb-link" href="./tests/independence.html" aria-label="자립심 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/independence.png" alt="자립심"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>자립 지수 체크</h3>
+          <p class="desc">생활 리듬과 책임감, 독립성 점검</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
 
-    <article class="card" data-key="plant" tabindex="0" aria-label="감정 vs 논리 밸런스" onclick="location.href='./tests/plant.html'">
-      <span class="chip">감정 vs 논리</span>
-      <a class="thumb-link" href="./tests/plant.html" aria-label="감정 vs 논리 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/plant.png" alt="감정 vs 논리"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>감정 vs 논리 밸런스</h3>
-      <p class="desc">조화 탐색 · 15문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
+        <!-- 에너지 -->
+        <article class="card"
+                 data-key="energy"
+                 data-category="energy"
+                 data-keywords="에너지,체력,번아웃,피로도,활동성"
+                 tabindex="0"
+                 aria-label="에너지 테스트"
+                 onclick="location.href='./tests/energy.html'">
+          <span class="chip">에너지</span>
+          <a class="thumb-link" href="./tests/energy.html" aria-label="에너지 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/energy.png" alt="에너지"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>에너지 상태 테스트</h3>
+          <p class="desc">5단계 에너지 라벨 · 12~15문항</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
 
-    <article class="card" data-key="weather" tabindex="0" aria-label="마음 일기예보" onclick="location.href='./tests/weather.html'">
-      <span class="chip">마음 일기예보</span>
-      <a class="thumb-link" href="./tests/weather.html" aria-label="마음 일기예보 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/weather/weather_sunny.png" alt="마음 일기예보"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>마음 일기예보</h3>
-      <p class="desc">6가지 날씨 메타포 · 15문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
-
-    <article class="card" data-key="mindtalk" tabindex="0" aria-label="마음톡" onclick="location.href='./tests/mindtalk.html'">
-      <span class="chip">마음톡</span>
-      <a class="thumb-link" href="./tests/mindtalk.html" aria-label="마음톡 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/mindtalk.png" alt="마음톡"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>마음톡</h3>
-      <p class="desc">상담식 12~15문항 · 문장 생성</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
-
-    <article class="card" data-key="energy" tabindex="0" aria-label="에너지 테스트" onclick="location.href='./tests/energy.html'">
-      <span class="chip">에너지</span>
-      <a class="thumb-link" href="./tests/energy.html" aria-label="에너지 테스트 진입">
-        <div class="anim" aria-hidden="true">
-          <img class="anim-fallback" src="./assets/energy.png" alt="에너지"
-               loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-        </div>
-      </a>
-      <h3>에너지 테스트</h3>
-      <p class="desc">5단계 상태 라벨 · 12~15문항</p>
-      <button class="start" type="button">시작하기 →</button>
-    </article>
-<article class="card" data-key="dopamine" tabindex="0"
-         aria-label="도파민 테스트"
-         onclick="location.href='./tests/dopamine.html'">
-  <span class="chip">도파민</span>
-  <a class="thumb-link" href="./tests/dopamine.html" aria-label="도파민 테스트 진입">
-    <div class="anim" aria-hidden="true">
-      <img class="anim-fallback" src="./assets/brain.png" alt="도파민"
-           loading="lazy" onerror="this.onerror=null; this.src='./assets/mongsil.png'">
-    </div>
-  </a>
-  <h3>내 안의 ‘도파민 공장장’</h3>
-  <p class="desc">자극·상호작용·지식·균형 4축 · 12문항</p>
-  <button class="start" type="button">시작하기 →</button>
-</article>
-
-    
+        <!-- 도파민 -->
+        <article class="card"
+                 data-key="dopamine"
+                 data-category="energy"
+                 data-keywords="도파민,자극,집중력,중독,밸런스"
+                 tabindex="0"
+                 aria-label="도파민 테스트"
+                 onclick="location.href='./tests/dopamine.html'">
+          <span class="chip">도파민</span>
+          <a class="thumb-link" href="./tests/dopamine.html" aria-label="도파민 테스트 진입">
+            <div class="anim" aria-hidden="true">
+              <img class="anim-fallback" src="./assets/brain.png" alt="도파민"
+                   loading="lazy"
+                   onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+            </div>
+          </a>
+          <h3>내 안의 ‘도파민 공장장’</h3>
+          <p class="desc">자극·상호작용·지식·균형 4축 · 12문항</p>
+          <button class="start" type="button">시작하기 →</button>
+        </article>
+      </div>
+    </section>
   </main>
 
-  <footer>© 2025 몽실몽실 심리연구소 ☁️</footer>
+  <!-- 푸터 + 정보 패널 버튼 -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <!-- 정보 패널 열기 버튼 -->
+      <button type="button" class="info-open-btn">
+        ℹ️ 몽실 정보 / 정책 보기
+      </button>
 
-  <!-- 스크립트 -->
-  <script src="./js/main.js?v=2025.2" defer></script>
+      <!-- 직접 이동 링크도 함께 배치 (원하면 숨겨도 됨) -->
+      <a href="./about.html">About</a>
+      <a href="./archive.html">내 마음 아카이브</a>
+      <a href="./privacy.html">개인정보</a>
+      <a href="./terms.html">이용약관</a>
+      <a href="./contact.html">문의</a>
+    </div>
+    <div class="footer-copy">
+      © 2025 몽실몽실 심리연구소 ☁️
+    </div>
+  </footer>
+
+  <!-- 정보 슬라이드 패널 -->
+  <div class="info-drawer" aria-hidden="true">
+    <div class="info-drawer-inner">
+      <div class="info-drawer-header">
+        <span>몽실몽실 정보</span>
+        <button type="button" class="info-close-btn" aria-label="닫기">✕</button>
+      </div>
+      <div class="info-drawer-body">
+        <p class="info-intro">
+          몽실몽실이 어떤 곳인지, 그리고 개인정보·이용 안내를 한 번에 모아두었어요.
+          페이지를 옮기지 않고도 간단히 살펴볼 수 있습니다.
+        </p>
+        <ul class="info-list">
+          <li><a href="./about.html">About 몽실몽실</a></li>
+          <li><a href="./privacy.html">개인정보 처리방침</a></li>
+          <li><a href="./terms.html">이용약관</a></li>
+          <li><a href="./contact.html">문의 / 피드백</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="info-drawer-backdrop"></div>
+
+  <!-- 기존 메인 스크립트 + 검색/패널 스크립트 + 에러 방지 -->
+  <script src="./js/main.js?v=2025.3" defer></script>
+  <script src="./js/home-search.js?v=2025.3" defer></script>
   <script src="./js/error-proof.js?v=2025.2" defer></script>
 </body>
 </html>
