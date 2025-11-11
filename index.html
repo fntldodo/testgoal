@@ -731,23 +731,34 @@
   <script src="./js/home-search.js?v=2025.4" defer></script>
   <script src="./js/error-proof.js?v=2025.2" defer></script>
 
-  <!-- 정보 패널 열기/닫기 보강 스크립트 -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // 정보 패널 열기 (상단 더보기 포함)
-      document.querySelectorAll('.info-open-btn').forEach(function(btn){
-        btn.addEventListener('click', function () {
-          document.body.classList.add('info-drawer-open');
-        });
-      });
 
-      // 닫기 (X 버튼 + 배경 클릭)
-      document.querySelectorAll('.info-close-btn, .info-drawer-backdrop').forEach(function(el){
-        el.addEventListener('click', function () {
-          document.body.classList.remove('info-drawer-open');
-        });
-      });
+
+
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 기존 info 패널 열기/닫기 코드 유지
+  document.querySelectorAll('.info-open-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>document.body.classList.add('info-drawer-open'));
+  });
+  document.querySelectorAll('.info-close-btn, .info-drawer-backdrop').forEach(el=>{
+    el.addEventListener('click',()=>{
+      document.body.classList.remove('info-drawer-open');
+      window.location.href = './index.html'; // 메인으로 이동
     });
-  </script>
+  });
+
+  // ✅ 새 추가 로직: info 패널 내부 클릭 감지
+  const drawer = document.querySelector('.info-drawer-inner');
+  drawer.addEventListener('click', function(e){
+    // 클릭된 요소가 내부 링크(a)면 이동 허용
+    if(e.target.tagName.toLowerCase() === 'a'){
+      return; // 기본 동작 유지 (페이지 이동)
+    }
+    // 링크 외 클릭 시 슬라이드 닫고 메인으로 복귀
+    document.body.classList.remove('info-drawer-open');
+    window.location.href = './index.html';
+  });
+});
+</script>
 </body>
 </html>
