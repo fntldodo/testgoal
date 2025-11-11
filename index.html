@@ -1,7 +1,7 @@
 <!--
 [코드 절대 규칙]
 1) 기존 합의된 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경.
-2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-7 제안본입니다.
+2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-8 제안본입니다.
 3) style.css 내 공통 스타일은 유지하고, 이 파일에서는 '추가 스타일'만 정의합니다.
 -->
 <!DOCTYPE html>
@@ -40,6 +40,7 @@
     .hero-wrap{
       padding: 18px 14px 10px;
     }
+
     .hero-sub{
       color: var(--text-soft);
       font-size: 0.92rem;
@@ -47,39 +48,21 @@
       margin: 8px 0 10px;
     }
 
-    /* 상단 몽실 정보 줄 */
-    .hero-info-row{
-      margin-bottom: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .hero-info-row .info-open-btn{
-      border-radius: 999px;
+    /* 상단 햄버거 정보 버튼 (메인 바로 아래) */
+    .top-info-btn{
+      position: fixed;
+      top: 60px; /* 메인 버튼 바로 아래 높이 */
+      right: 12px;
+      background: #fff;
       border: 1px solid var(--line);
-      background: #ffffff;
-      padding: 4px 10px;
-      font-size: 0.8rem;
-      color: #7b6a5d;
+      border-radius: 12px;
+      padding: 6px 8px;
+      box-shadow: var(--shadow);
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      z-index: 100;
     }
-    .hero-info-row .info-open-btn:hover{
+    .top-info-btn:hover{
       background: #f3e6d9;
-    }
-    .hero-info-link{
-      border-radius: 999px;
-      border: 1px solid transparent;
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      color: #8a7a6a;
-      text-decoration: none;
-    }
-    .hero-info-link:hover{
-      border-color: var(--line);
-      background: #f7efe5;
     }
 
     /* 검색 영역 */
@@ -142,6 +125,31 @@
     }
     .no-result-msg.active{
       display: block;
+    }
+
+    /* 헤더 카테고리 칩 가로 스크롤 복구 */
+    .hero-wrap .scroll-wrap{
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hero-wrap .scroll-tests{
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .hero-wrap .scroll-tests::-webkit-scrollbar{
+      height: 4px;
+    }
+    .hero-wrap .scroll-tests::-webkit-scrollbar-thumb{
+      background: #d4c6b7;
+      border-radius: 999px;
     }
 
     /* 섹션 공통 */
@@ -318,7 +326,7 @@
     }
   </style>
 </head>
-<body class="index-page v2025-7">
+<body class="index-page v2025-8">
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="./index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -327,6 +335,16 @@
     </svg>
     <span>메인</span>
   </a>
+
+  <!-- 상단 더보기(정보) 버튼 -->
+  <button type="button"
+          class="top-info-btn info-open-btn"
+          aria-label="정보 더보기">
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16"
+            fill="none" stroke="#5e493d" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </button>
 
   <header>
     <div class="hero-wrap">
@@ -341,29 +359,22 @@
         </div>
       </div>
 
-      <!-- 큰 h1 문구 제거, 설명만 유지 -->
+      <!-- 요청으로 삭제된 메인 h1 문구 (지금, 내 마음은 어떤 모양일까요?) -->
+
       <p class="hero-sub">
         MBTI부터 마음 날씨까지, 숫자 점수 대신 <strong>“지금 내 상태”</strong>를 부드럽게 설명해주는 테스트들을 모았어요.<br>
         가볍게 하나 골라 마음 산책을 해보세요.
       </p>
 
-      <!-- 🔹 몽실 정보 / 정책 버튼을 여기로 올림 -->
-      <div class="hero-info-row">
-        <button type="button" class="info-open-btn">
-          ℹ️ 몽실 정보 / 정책 보기
-        </button>
-        <a class="hero-info-link" href="./about.html">About</a>
-        <a class="hero-info-link" href="./archive.html">내 마음 아카이브</a>
-        <a class="hero-info-link" href="./privacy.html">개인정보</a>
-        <a class="hero-info-link" href="./terms.html">이용약관</a>
-        <a class="hero-info-link" href="./contact.html">문의</a>
-      </div>
-
-      <button class="cta" id="startAll" type="button" aria-label="테스트 카드로 이동">
+      <!-- 테스트 보러 가기 버튼: 기능 보호를 위해 DOM은 유지, 화면에서는 숨김 -->
+      <button class="cta" id="startAll"
+              type="button"
+              aria-label="테스트 카드로 이동"
+              style="display:none;">
         테스트 보러 가기
       </button>
 
-      <!-- 기존 칩 네비게이션 유지 -->
+      <!-- 카테고리 칩 네비게이션 -->
       <div class="scroll-wrap" aria-label="테스트 카테고리">
         <button class="nav-btn prev" aria-label="이전" type="button">&#10094;</button>
         <div class="scroll-tests" id="scrollTests" role="listbox">
@@ -627,6 +638,7 @@
           <span class="section-header-title">순수 탐구</span>
         </div>
         <p class="section-header-tagline">나를 이해하는 가장 순수한 시작점</p>
+        <!-- 긴 설명 문단 제거 -->
       </div>
       <div class="card-row" data-type-row="personality" role="list"></div>
     </section>
@@ -662,7 +674,7 @@
           <span>🌿</span>
           <span class="section-header-title">성장의 나의 것</span>
         </div>
-      <p class="section-header-tagline">내 리듬으로 피워내는 나의 변화</p>
+        <p class="section-header-tagline">내 리듬으로 피워내는 나의 변화</p>
       </div>
       <div class="card-row" data-type-row="growth" role="list"></div>
     </section>
@@ -681,7 +693,7 @@
     </div>
   </footer>
 
-  <!-- 정보 슬라이드 패널 (기존 그대로) -->
+  <!-- 정보 슬라이드 패널 -->
   <div class="info-drawer" aria-hidden="true">
     <div class="info-drawer-inner">
       <div class="info-drawer-header">
@@ -708,5 +720,24 @@
   <script src="./js/main.js?v=2025.3" defer></script>
   <script src="./js/home-search.js?v=2025.4" defer></script>
   <script src="./js/error-proof.js?v=2025.2" defer></script>
+
+  <!-- 정보 패널 열기/닫기 보강 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 정보 패널 열기 (상단 더보기 포함)
+      document.querySelectorAll('.info-open-btn').forEach(function(btn){
+        btn.addEventListener('click', function () {
+          document.body.classList.add('info-drawer-open');
+        });
+      });
+
+      // 닫기 (X 버튼 + 배경 클릭)
+      document.querySelectorAll('.info-close-btn, .info-drawer-backdrop').forEach(function(el){
+        el.addEventListener('click', function () {
+          document.body.classList.remove('info-drawer-open');
+        });
+      });
+    });
+  </script>
 </body>
 </html>
