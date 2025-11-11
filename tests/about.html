@@ -1,0 +1,361 @@
+<!--
+[코드 절대 규칙]
+1) 기존 합의된 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경.
+2) 기존 코드는 보존하고 '추가'만 수행. 이 파일은 신규 about 페이지입니다.
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>몽실몽실 소개 - 마음에 잠시 머무는 테스트들</title>
+
+  <!-- AdSense (head 필수, 1회) -->
+  <script async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424"
+    crossorigin="anonymous"></script>
+
+  <!-- Pretendard -->
+  <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
+
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="./css/style.css?v=2025.2">
+
+  <!-- About 전용 보조 스타일 (공통 코드 훼손 없이 추가) -->
+  <style>
+    body.about-page {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text-main);
+      padding-top: 64px; /* 상단 메인 버튼 여유 */
+    }
+
+    .about-wrap{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+
+    .about-hero{
+      margin-bottom: 28px;
+    }
+
+    .about-hero-title{
+      font-size: clamp(24px, 6vw, 30px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .about-hero-title span.emoji{
+      font-size: 1.2em;
+    }
+
+    .about-hero-sub{
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .about-tagline{
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffffcc;
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: #5e493d;
+      box-shadow: var(--shadow);
+    }
+
+    .about-section{
+      margin-top: 28px;
+      padding: 18px 16px;
+      border-radius: 20px;
+      background: #ffffffee;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .about-section-title{
+      font-size: 1.02rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      color:#5e493d;
+    }
+
+    .about-section p{
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text-soft);
+      margin: 4px 0;
+    }
+
+    .about-list{
+      margin: 8px 0 4px;
+      padding-left: 1.1rem;
+      font-size: 0.92rem;
+      color: var(--text-soft);
+    }
+
+    .about-list li{
+      margin-bottom: 4px;
+    }
+
+    .about-pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .about-pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f6f2eb;
+      border: 1px solid var(--line);
+      font-size: 0.8rem;
+      color:#6b5b50;
+      white-space: nowrap;
+    }
+
+    .about-grid{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    @media (min-width: 720px){
+      .about-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .about-card{
+      padding: 12px 12px 14px;
+      border-radius: 18px;
+      background: #faf7f1;
+      border: 1px solid var(--line);
+    }
+
+    .about-card strong{
+      display:block;
+      margin-bottom: 4px;
+      font-size: 0.92rem;
+      color:#5e493d;
+    }
+
+    .about-muted{
+      font-size: 0.8rem;
+      color:#9a8777;
+      margin-top: 8px;
+    }
+
+    .about-callout{
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #edf7ff;
+      border: 1px dashed var(--sky-300);
+      font-size: 0.9rem;
+      color:#46505a;
+    }
+
+    .about-callout strong{
+      font-weight: 700;
+      color:#35516b;
+    }
+
+    .about-footer-note{
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      text-align: center;
+    }
+
+    /* footer 간격 보정 */
+    footer{
+      padding-bottom: 32px;
+    }
+  </style>
+</head>
+
+<body class="about-page v2025-3">
+  <!-- 상단 고정 메인 버튼 -->
+  <a class="top-main-btn" href="./index.html" aria-label="메인으로">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
+            fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>메인으로</span>
+  </a>
+
+  <div class="about-wrap">
+    <header>
+      <div class="logo">
+        <img src="./assets/mongsil.png"
+             alt="몽실몽실 로고"
+             onerror="this.onerror=null; this.src='./assets/mongsil.png';">
+        <div>
+          <span>몽실몽실 심리테스트</span>
+          <p class="subtitle">당신의 마음이 잠시 쉬어가는, 부드러운 구름 한 조각 ☁️</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- 히어로 영역 -->
+      <section class="about-hero" aria-labelledby="aboutHeroTitle">
+        <h1 id="aboutHeroTitle" class="about-hero-title">
+          <span class="emoji">☁️</span>
+          <span>몽실몽실은 어떤 공간인가요?</span>
+        </h1>
+        <p class="about-hero-sub">
+          몽실몽실 심리테스트는<br />
+          <strong>숫자 점수 대신, 지금 내 마음의 상태를 부드럽게 설명해주는 테스트들</strong>을 모아둔 작은 심리 연구소입니다.
+          결과를 보고 “맞네/틀리네”를 따지기보다,<br />
+          <strong>“아, 요즘 나는 이런 마음이었구나”</strong>를 알아차릴 수 있도록 설계했어요.
+        </p>
+        <div class="about-tagline">
+          <span>💡</span>
+          <span>진단이 아닌, <strong>마음 리마인드</strong>를 위한 테스트들이에요.</span>
+        </div>
+      </section>
+
+      <!-- 섹션 1: 무엇을 할 수 있나요? -->
+      <section class="about-section" aria-labelledby="aboutWhatTitle">
+        <h2 id="aboutWhatTitle" class="about-section-title">
+          <span>🧩</span>
+          <span>여기서 무엇을 할 수 있나요?</span>
+        </h2>
+        <p>
+          몽실몽실에는 하나의 성격만 보는 테스트가 아니라,<br />
+          <strong>여러 방향에서 나를 바라볼 수 있는 테스트들</strong>이 준비되어 있어요.
+        </p>
+
+        <ul class="about-list">
+          <li>・ <strong>MBTI / 성격</strong> — 나의 기질과 에너지 방향이 궁금할 때</li>
+          <li>・ <strong>연애/관계</strong> — 사랑할 때의 나는 어떤 모습인지 알고 싶을 때</li>
+          <li>・ <strong>자립/에너지</strong> — 지금 내 생활 리듬과 자립 감각을 확인하고 싶을 때</li>
+          <li>・ <strong>동물/취향형 테스트</strong> — 가볍게 웃으면서 나를 비춰보고 싶을 때</li>
+          <li>・ <strong>감정 vs 논리 / 마음 날씨</strong> — 요즘 마음의 온도와 구름 상태를 체크하고 싶을 때</li>
+        </ul>
+
+        <div class="about-pill-row" aria-label="테스트 예시">
+          <div class="about-pill">MBTI 빠른 체크</div>
+          <div class="about-pill">나는 어떤 동물?</div>
+          <div class="about-pill">감정 vs 논리 밸런스</div>
+          <div class="about-pill">마음 일기예보</div>
+          <div class="about-pill">연애할 때의 나</div>
+        </div>
+      </section>
+
+      <!-- 섹션 2: 어떻게 설계되었나요? (디자인 + 구조 설명) -->
+      <section class="about-section" aria-labelledby="aboutHowTitle">
+        <h2 id="aboutHowTitle" class="about-section-title">
+          <span>⚙️</span>
+          <span>어떻게 설계되어 있나요?</span>
+        </h2>
+        <p>
+          몽실몽실의 모든 테스트는 <strong>“감성 + 구조”</strong>를 함께 바라보며 만들고 있어요.
+          디자인, 질문 구조, 결과 문장 하나까지 다음과 같은 원칙을 따라갑니다.
+        </p>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <strong>1. 숫자 점수보다 “상태 설명”</strong>
+            <p>점수나 등급 대신, 지금의 나를 표현하는 <strong>짧은 문장과 정서 요약</strong>에 집중합니다.</p>
+            <p>“불안 80점”이 아니라, “요즘은 새로운 걸 시작할 때 조금 더 조심스러운 시기예요”처럼요.</p>
+          </div>
+          <div class="about-card">
+            <strong>2. 5지선다 & 부드러운 편차</strong>
+            <p>모든 테스트는 기본적으로 <strong>5지선다(0~4)</strong> 구조를 사용하고,
+               중립에만 머무르지 않도록 <strong>살짝 가중치</strong>를 줍니다.</p>
+            <p>“나는 잘 모르겠어”라고 답해도, 그 안에서의 작은 방향성을 찾아보려 해요.</p>
+          </div>
+          <div class="about-card">
+            <strong>3. 마음 리마인드</strong>
+            <p>결과 마지막에는 항상 <strong>“마음 리마인드”</strong>가 포함됩니다.</p>
+            <p>스스로를 혼내는 문장이 아니라,
+               “이런 마음도 괜찮다”는 <strong>작은 허용과 휴식</strong>을 건네는 문장으로요.</p>
+          </div>
+          <div class="about-card">
+            <strong>4. 파스텔 & 둥근 모서리</strong>
+            <p>시각적으로는 눈이 피로하지 않도록, <strong>파스텔 톤과 둥근 카드</strong>를 기본으로 합니다.</p>
+            <p>테스트를 푸는 시간이 부담이 아니라, <strong>잠깐의 산책처럼 느껴지길 바라면서요.</strong></p>
+          </div>
+        </div>
+
+        <p class="about-muted">
+          ※ 기술적으로는 HTML, CSS, JavaScript(바닐라)를 기반으로 만들어진 정적 사이트이며,<br />
+          추후에는 테스트 기록을 모아 보는 “마음 아카이브” 기능도 준비 중입니다.
+        </p>
+      </section>
+
+      <!-- 섹션 3: 어떻게 활용하면 좋나요? (사용자 관점) -->
+      <section class="about-section" aria-labelledby="aboutUseTitle">
+        <h2 id="aboutUseTitle" class="about-section-title">
+          <span>🌿</span>
+          <span>이 테스트들을 어떻게 활용하면 좋을까요?</span>
+        </h2>
+        <p>
+          몽실몽실의 심리테스트들은 <strong>“정답을 찾는 용도”</strong>가 아니라,
+          <strong>“내 마음을 관찰하는 도구”</strong>에 더 가깝습니다.
+        </p>
+
+        <ul class="about-list">
+          <li>1. 요즘 마음이 어떤지 막연할 때, 테스트 하나를 골라 천천히 읽어보기</li>
+          <li>2. 결과를 캡처하거나 메모해 두고, 나중에 다시 봤을 때 어떤 점이 달라졌는지 비교해보기</li>
+          <li>3. 친구와 함께 풀고 서로의 결과를 공유하면서, 서로의 마음을 다정하게 이해해보기</li>
+          <li>4. 너무 힘든 날에는 “정확한 진단”보다, “이런 마음도 괜찮다”는 문장 하나만 챙겨가기</li>
+        </ul>
+
+        <div class="about-callout">
+          <strong>중요한 한 가지.</strong><br />
+          몽실몽실의 모든 테스트와 결과는 <strong>심리 진단이나 의료 상담을 대신할 수 없습니다.</strong><br />
+          우울감이나 불안이 일상생활에 큰 영향을 줄 정도로 힘들다면,<br />
+          가까운 전문가(상담센터, 정신건강의학과 등)의 도움을 함께 받아보는 것을 권장드려요.
+        </div>
+      </section>
+
+      <!-- 섹션 4: 앞으로의 계획 -->
+      <section class="about-section" aria-labelledby="aboutFutureTitle">
+        <h2 id="aboutFutureTitle" class="about-section-title">
+          <span>🚀</span>
+          <span>앞으로는 이런 것들을 준비하고 있어요</span>
+        </h2>
+        <p>
+          몽실몽실은 아직 “시즌 1”을 채워가는 중이에요.  
+          테스트가 하나씩 늘어날수록, 여러분의 마음 데이터를 더 부드럽게 정리할 수 있게 됩니다.
+        </p>
+
+        <ul class="about-list">
+          <li>・ 테스트 48가지 완성 및 카테고리별 넷플릭스형 홈 레이아웃</li>
+          <li>・ “내 마음 아카이브” 페이지 — 내가 했던 테스트 결과를 한눈에 보는 기록장</li>
+          <li>・ (추후) 가벼운 로그인/저장 기능 — 여러 기기에서 이어 보기</li>
+        </ul>
+
+        <p class="about-footer-note">
+          천천히, 그러나 꾸준히. ☁️<br />
+          이곳이 여러분의 하루에 작은 숨 구멍이 되었으면 합니다.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      © 2025 몽실몽실 심리연구소 ☁️
+    </footer>
+  </div>
+
+  <!-- 공통 스크립트 -->
+  <script src="./js/error-proof.js?v=2025.2" defer></script>
+</body>
+</html>
