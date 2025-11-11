@@ -1,7 +1,7 @@
 <!--
 [코드 절대 규칙]
 1) 기존 합의된 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경.
-2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-9 제안본입니다.
+2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-10 제안본입니다.
 3) style.css 내 공통 스타일은 유지하고, 이 파일에서는 '추가 스타일'만 정의합니다.
 -->
 <!DOCTYPE html>
@@ -240,7 +240,7 @@
 
     /* 배경은 살짝만 어둡게 + 패널보다 아래 */
     .info-drawer-backdrop{
-      background: rgba(0,0,0,0.08); /* 기존 0.24 → 0.08 */
+      background: rgba(0,0,0,0.08);
       z-index: 40;
     }
 
@@ -262,7 +262,7 @@
       transition: transform 0.25s ease;
       display: flex;
       flex-direction: column;
-      touch-action: pan-y; /* 세로 스크롤만 허용해서 터치 충돌 방지 */
+      touch-action: pan-y;
     }
 
     .info-drawer-open .info-drawer{
@@ -337,7 +337,7 @@
     }
   </style>
 </head>
-<body class="index-page v2025-9">
+<body class="index-page v2025-10">
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="./index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -370,14 +370,14 @@
         </div>
       </div>
 
-      <!-- 요청으로 삭제된 메인 h1 문구 (지금, 내 마음은 어떤 모양일까요?) -->
+      <!-- h1 문구는 요청으로 삭제됨 -->
 
       <p class="hero-sub">
         MBTI부터 마음 날씨까지, 숫자 점수 대신 <strong>“지금 내 상태”</strong>를 부드럽게 설명해주는 테스트들을 모았어요.<br>
         가볍게 하나 골라 마음 산책을 해보세요.
       </p>
 
-      <!-- 테스트 보러 가기 버튼: 기능 보호를 위해 DOM은 유지, 화면에서는 숨김 -->
+      <!-- 테스트 보러 가기 버튼: 기능 보호용, 화면에서는 숨김 -->
       <button class="cta" id="startAll"
               type="button"
               aria-label="테스트 카드로 이동"
@@ -693,7 +693,7 @@
   <footer class="site-footer">
     <div class="footer-links">
       <a href="./about.html">About</a>
-      <a href="./archive.html">내 마음 아카이브</a>
+      <a href="./album.html">내 마음 앨범</a>
       <a href="./privacy.html">개인정보</a>
       <a href="./terms.html">이용약관</a>
       <a href="./contact.html">문의</a>
@@ -731,34 +731,36 @@
   <script src="./js/home-search.js?v=2025.4" defer></script>
   <script src="./js/error-proof.js?v=2025.2" defer></script>
 
-
-
-
+  <!-- 정보 패널 열기/닫기 + 메인 복귀 스크립트 -->
   <script>
-document.addEventListener('DOMContentLoaded', function () {
-  // 기존 info 패널 열기/닫기 코드 유지
-  document.querySelectorAll('.info-open-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>document.body.classList.add('info-drawer-open'));
-  });
-  document.querySelectorAll('.info-close-btn, .info-drawer-backdrop').forEach(el=>{
-    el.addEventListener('click',()=>{
-      document.body.classList.remove('info-drawer-open');
-      window.location.href = './index.html'; // 메인으로 이동
-    });
-  });
+    document.addEventListener('DOMContentLoaded', function () {
+      // 정보 패널 열기 (상단 더보기 포함)
+      document.querySelectorAll('.info-open-btn').forEach(function(btn){
+        btn.addEventListener('click', function () {
+          document.body.classList.add('info-drawer-open');
+        });
+      });
 
-  // ✅ 새 추가 로직: info 패널 내부 클릭 감지
-  const drawer = document.querySelector('.info-drawer-inner');
-  drawer.addEventListener('click', function(e){
-    // 클릭된 요소가 내부 링크(a)면 이동 허용
-    if(e.target.tagName.toLowerCase() === 'a'){
-      return; // 기본 동작 유지 (페이지 이동)
-    }
-    // 링크 외 클릭 시 슬라이드 닫고 메인으로 복귀
-    document.body.classList.remove('info-drawer-open');
-    window.location.href = './index.html';
-  });
-});
-</script>
+      // 닫기 (X 버튼 + 배경 클릭 → 메인으로)
+      document.querySelectorAll('.info-close-btn, .info-drawer-backdrop').forEach(function(el){
+        el.addEventListener('click', function () {
+          document.body.classList.remove('info-drawer-open');
+          window.location.href = './index.html';
+        });
+      });
+
+      // 패널 내부 클릭 처리: 링크(a)는 그대로 이동, 나머지는 닫고 메인
+      const drawer = document.querySelector('.info-drawer-inner');
+      if (drawer) {
+        drawer.addEventListener('click', function(e){
+          if (e.target.tagName && e.target.tagName.toLowerCase() === 'a') {
+            return; // 링크는 기본 이동
+          }
+          document.body.classList.remove('info-drawer-open');
+          window.location.href = './index.html';
+        });
+      }
+    });
+  </script>
 </body>
 </html>
