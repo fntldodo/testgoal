@@ -1,7 +1,7 @@
 <!--
 [코드 절대 규칙]
 1) 기존 합의된 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경.
-2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-8 제안본입니다.
+2) 기존 코드는 보존하고 '추가/구조화'만 수행. 이 파일은 index 전용 v2025-9 제안본입니다.
 3) style.css 내 공통 스타일은 유지하고, 이 파일에서는 '추가 스타일'만 정의합니다.
 -->
 <!DOCTYPE html>
@@ -127,7 +127,7 @@
       display: block;
     }
 
-    /* 헤더 카테고리 칩 가로 스크롤 복구 */
+    /* 헤더 카테고리 칩 가로 스크롤 */
     .hero-wrap .scroll-wrap{
       margin-top: 12px;
       display: flex;
@@ -228,7 +228,7 @@
       color: #a39282;
     }
 
-    /* 정보 슬라이드 패널 (기존 유지) */
+    /* 정보 슬라이드 패널 z-index/밝기 수정 버전 */
     .info-drawer,
     .info-drawer-backdrop{
       position: fixed;
@@ -236,11 +236,19 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.25s ease;
+    }
+
+    /* 배경은 살짝만 어둡게 + 패널보다 아래 */
+    .info-drawer-backdrop{
+      background: rgba(0,0,0,0.08); /* 기존 0.24 → 0.08 */
       z-index: 40;
     }
-    .info-drawer-backdrop{
-      background: rgba(0,0,0,0.24);
+
+    /* 실제 패널은 배경보다 위에 */
+    .info-drawer{
+      z-index: 50;
     }
+
     .info-drawer-inner{
       position: absolute;
       top: 0;
@@ -254,7 +262,9 @@
       transition: transform 0.25s ease;
       display: flex;
       flex-direction: column;
+      touch-action: pan-y; /* 세로 스크롤만 허용해서 터치 충돌 방지 */
     }
+
     .info-drawer-open .info-drawer{
       opacity: 1;
       pointer-events: auto;
@@ -266,6 +276,7 @@
     .info-drawer-open .info-drawer-inner{
       transform: translateX(0);
     }
+
     .info-drawer-header{
       display: flex;
       justify-content: space-between;
@@ -326,7 +337,7 @@
     }
   </style>
 </head>
-<body class="index-page v2025-8">
+<body class="index-page v2025-9">
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="./index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -638,7 +649,6 @@
           <span class="section-header-title">순수 탐구</span>
         </div>
         <p class="section-header-tagline">나를 이해하는 가장 순수한 시작점</p>
-        <!-- 긴 설명 문단 제거 -->
       </div>
       <div class="card-row" data-type-row="personality" role="list"></div>
     </section>
