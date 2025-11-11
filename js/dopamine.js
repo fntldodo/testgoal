@@ -1,10 +1,9 @@
 /* =========================================================
- * 내 안의 ‘도파민 공장장’ — 몽실몽실 v2025.3b (픽셀아이콘 제거 버전)
+ * 내 안의 ‘도파민 공장장’ — 몽실몽실 v2025.4 (PNG 아이콘 버전)
  * - 카테고리: hobby
  * - 12문항 / 5지선다(0~4) + 반응시간 보조(±20%, 선택 우선)
  * - 결과 4종: 롤러코스터 / 지식 부자 / 인싸 제조기 / 아보하 마스터
- * - 기존 dot-hero(큰 도트 패턴) · PNG 로고 기능은 그대로 유지
- * - .pixel-icon 기반 CSS 픽셀아트만 전부 제거
+ * - dot-hero / 픽셀아이콘 / PNG 저장 기능 전부 제거
  * ========================================================= */
 (function bootstrapDopamine(){
   if (window.__dopamine_booted) return;
@@ -68,7 +67,7 @@
           <button class="choice" data-s="2" type="button">보통이다</button>
           <button class="choice ghost" data-s="1" type="button">아니다</button>
           <button class="choice ghost" data-s="0" type="button">전혀 아니다</button>
-        `;
+       `;
 
         const prevSel = ans[idx];
         if (prevSel !== undefined){
@@ -109,7 +108,7 @@
       prevBtn?.addEventListener("click", ()=>{
         if (window.__prevBusy) return;
         window.__prevBusy = true;
-        setTimeout(()=>window.__prevBusy=false, 120);
+        setTimeout(()=>window.__prevBusy = false, 120);
 
         if (idx === 0) return;
         idx--;
@@ -148,10 +147,11 @@
 
       // ---------- 분류(4종 + 근소차 하이브리드 표시) ----------
       const TYPE = {
-        ROLLER: {title:"🎢 롤러코스터", key:"dandelion"},
-        KNOW:   {title:"📚 지식 부자",   key:"pine"},
-        SOCIAL: {title:"🎉 인싸 제조기", key:"rose"},
-        AVOHA:  {title:"🥑 아보하 마스터", key:"bamboo"},
+        // icon 경로는 프로젝트에 맞게 PNG 파일만 만들어주면 됨
+        ROLLER: {title:"🎢 롤러코스터",    icon:"../assets/dopamine/roller.png"},
+        KNOW:   {title:"📚 지식 부자",      icon:"../assets/dopamine/knowledge.png"},
+        SOCIAL: {title:"🎉 인싸 제조기",    icon:"../assets/dopamine/social.png"},
+        AVOHA:  {title:"🥑 아보하 마스터",  icon:"../assets/dopamine/avoha.png"},
       };
 
       function classify4(n){
@@ -205,6 +205,7 @@
              : '아주 낮음';
       }
 
+      // ---------- 결과 렌더 ----------
       function finish(){
         card.style.display  = "none";
         barFill.style.width = "100%";
@@ -215,13 +216,14 @@
         const info   = COPY[key];
         const meta   = TYPE[key];
         const hybrid = result.hybrid;
-        const dotKey = TYPE[key].key;
+
+        const iconSrc = meta.icon || "../assets/brain.png";
 
         resultBox.innerHTML = `
           <div class="result-card hobby">
             <div class="result-hero">
-              <img src="../assets/brain.png" alt="${meta.title}"
-                   onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+              <img src="${iconSrc}" alt="${meta.title}"
+                   onerror="this.onerror=null; this.src='../assets/brain.png'">
               <div>
                 <div class="result-title">
                   ${meta.title}${hybrid ? ' · ' + TYPE[hybrid].title.replace(/^[^ ]+ /,'') : ''}
@@ -267,17 +269,6 @@
         `;
 
         resultBox.style.display = "block";
-
-        // 결과 도트 그래픽 삽입 (기존 dot-hero 로직 그대로)
-        if (window.MongsilDot?.mount){
-          const seed = `N:${Math.round(n.N*100)};S:${Math.round(n.S*100)};K:${Math.round(n.K*100)};B:${Math.round(n.B*100)}`;
-          window.MongsilDot.mount({
-            key: dotKey,
-            seed,
-            mode: 'replace',
-            container: '.result-hero'
-          });
-        }
       }
 
       // ---------- 시작 ----------
