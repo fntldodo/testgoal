@@ -19,15 +19,6 @@
 
   <!-- 프로젝트 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css?v=2025.3">
-
-  <!-- [추가] 픽셀 아이콘 공통 스타일 (롤러코스터 등) -->
-  <link rel="stylesheet" href="../css/pixel-icons.css?v=2025.3">
-
-  <!-- 도트 히어로(결과 썸네일용) -->
-  <link rel="stylesheet" href="../css/dot-hero.css?v=2025.3">
-
-  <!-- 도트 로고(헤더용) -->
-  <link rel="stylesheet" href="../css/dot-logo.css?v=2025.3">
 </head>
 <body class="v2025-3" id="dopamine-app">
   <a class="top-main-btn" href="../index.html">☁️ 메인으로</a>
@@ -35,7 +26,7 @@
   <section class="test">
     <header>
       <div class="logo">
-        <!-- PNG 로고(폴백용). 도트 로고 모듈이 켜지면 숨김 처리됨 -->
+        <!-- 헤더 로고는 고정 PNG 사용 -->
         <img src="../assets/brain.png" alt="도파민"
              onerror="this.onerror=null; this.src='../assets/mongsil.png'">
         <span>내 안의 ‘도파민 공장장’</span>
@@ -68,16 +59,7 @@
   <!-- 공통 에러 보호 -->
   <script defer src="../js/error-proof.js?v=2025.3"></script>
 
-  <!-- 도트 히어로(결과 그래픽) 엔진 -->
-  <script defer src="../js/dot-hero.js?v=2025.3"></script>
-
-  <!-- 도파민 테스트 본 로직 (안전 부트스트랩 포함) -->
-  <script defer src="../js/dopamine.js?v=2025.3a"></script>
-
-  <!-- 도트 그래픽 UI/저장 버튼 보강(추가형) -->
-  <script defer src="../js/dopamine-dotui.js?v=2025.3"></script>
-
-  <!-- 헤더 로고를 도트로 출력(추가형) -->
-  <script defer src="../js/dopamine-logo.js?v=2025.3"></script>
+  <!-- 도파민 테스트 본 로직 (PNG 아이콘 버전) -->
+  <script defer src="../js/dopamine.js?v=2025.4-png"></script>
 </body>
 </html>
