@@ -1,115 +1,121 @@
-// v2025.6 — 5지선다 + 응답시간 ±20% 가중치(선택 우선) + 타이브레이커 + 중립치 보정 + 상태설명 4줄
-(() => {
+/* 관계/가스라이팅 ‘하는 쪽’ 가능성 v2025.8 — ScoreKit 템플릿 */
+(function(){
+  if (window.__rl_gaslighter__) return; window.__rl_gaslighter__=true;
+
+  // 축: C(통제·조종), E(공감/배려), T(투명/정직), B(타인의 경계 존중)
   const Q = [
-    "상대가 불편하다고 말하면 ‘그건 네가 예민해서 그래’라는 생각이 든다.",
-    "내가 옳다는 확신이 있을 때, 상대의 기억/느낌을 교정하려 든다.",
-    "상대가 나를 비판하면, 대개 ‘네가 오해한 거야’로 되받아친다.",
-    "내가 원하는 방향으로 상대의 선택을 유도하는 편이다.",
-    "내 말이 상대에게 상처였다는 말을 들으면, 먼저 ‘그건 네 해석’이라 여긴다.",
-    "상대의 과거 실수를 근거로 현재의 감정을 무효화한 적이 있다.",
-    "대화 중 내가 더 논리적/현명하다고 느끼며 주도하려 한다.",
-    "사소한 농담이나 비꼼을 ‘장난’으로 처리해 왔다.",
-    "상대의 감정보다 ‘사실’이 우선이라 생각해 감정을 잘 다루지 않는다.",
-    "상대의 경계(그만/싫어)를 내가 보기엔 과하다고 느끼곤 한다.",
-    "상대의 지인·정보를 통제하면 관계가 더 건강해질 거라 믿는다.",
-    "상대의 자존감이 낮을수록 내 도움(지도)이 필요하다고 느낀다.",
-    "내 사과는 ‘그렇게 느꼈다면 미안’처럼 조건이 붙는 편이다.",
-    "내가 맞다고 확신하면, 사과 대신 설명으로 설득하려 한다.",
-    "갈등 후 ‘결국 내 말이 맞았지?’라고 정리하고 싶다."
+    {pos:'C', neg:'E', q:'상대가 내 의도대로 움직이도록 말의 방향을 설계한다.'},
+    {pos:'C', neg:'B', q:'상대의 선택지가 적어 보이게 말해 본 적이 있다.'},
+    {pos:'C', neg:'T', q:'상황에 따라 사실 일부만 말해 유리하게 만든 적이 있다.'},
+    {pos:'C', neg:'E', q:'상대의 감정보다 결과를 우선해 설득을 밀어붙인다.'},
+    {pos:'C', neg:'B', q:'상대의 약점을 기억해 두었다가 결정적 순간에 사용한다.'},
+
+    {pos:'T', neg:'C', q:'불리해도 사실을 명확히 밝히려 한다.'},
+    {pos:'E', neg:'C', q:'상대의 해석이 다르면 한 번 더 공감으로 되묻는다.'},
+    {pos:'B', neg:'C', q:'상대의 경계선(휴식/공간/속도)을 존중하려 노력한다.'},
+
+    {pos:'C', neg:'T', q:'말을 바꿔도 상대가 기억 못 하게 흐림 처리를 한다.'},
+    {pos:'C', neg:'E', q:'상대의 자존을 낮추는 농담/비유를 사용한 적이 있다.'},
+    {pos:'C', neg:'B', q:'“네가 기억을 잘못한 거야” 식으로 회유해본 적이 있다.'},
+
+    {pos:'T', neg:'C', q:'증거/근거로 대화의 기준을 맞추려 한다.'},
+    {pos:'E', neg:'C', q:'상대의 감정 요약(“그래서 속상했구나”)을 시도한다.'},
+    {pos:'B', neg:'C', q:'동의하지 않아도 상대의 선택을 수용하고 끝낸다.'},
+
+    {pos:'C', neg:'E', q:'상대가 의심을 보이면 죄책감을 느끼게 만드는 편이다.'},
   ];
-  const LABELS = ["전혀 아니다","거의 아니다","보통","그런 편이다","매우 그렇다"];
 
-  let idx = 0, startedAt = Date.now();
-  const answers = Array(Q.length).fill(null);
+  const TYPE = {
+    HIGH : {title:'🚨 가스라이팅 가능성 높음', emoji:'🚨'},
+    MID  : {title:'⚠️ 주의 필요',         emoji:'⚠️'},
+    LOW  : {title:'🙂 낮음',               emoji:'🙂'},
+  };
 
-  const $ = id => document.getElementById(id);
-  const counter=$("counter"), bar=$("bar"), qbox=$("qbox"), choices=$("choices");
-  const btnPrev=$("btnPrev"), btnSkip=$("btnSkip");
-  const result=$("result"), rTitle=$("rTitle"), rQuote=$("rQuote"), rFill=$("rFill"),
-        rLabel=$("rLabel"), rDesc=$("rDesc"), rMind=$("rMind"), retryBtn=$("retryBtn");
+  const COPY = {
+    HIGH:{
+      quote:'설득이 통제가 되는 순간, 관계는 손상된다.',
+      desc:'통제/조종(C)이 공감(E)·경계(B)·투명성(T)을 앞설 가능성이 높습니다.',
+      summary:['통제 경향 높음','사실 왜곡 위험','타경계 침범 우려'],
+      remind:['대화 기준: 사실·느낌 분리','검증 질문 후 결론','사과/회수 문장 준비'],
+    },
+    MID:{
+      quote:'설득과 존중의 경계선 위.',
+      desc:'상황에 따라 통제적 전략이 섞입니다. 공감/투명성을 의식적으로 끌어올려 균형을 맞추세요.',
+      summary:['상황가변적','설득 강도 조절 필요','검증·회수 훈련'],
+      remind:['요약 후 확인(“맞아?”)','결정 전 상대 속도 묻기','농담의 경계 점검'],
+    },
+    LOW:{
+      quote:'설득보다 관계의 안전이 먼저.',
+      desc:'공감·투명·경계 존중이 우세합니다. 드물게 통제가 섞일 때만 스스로 점검하면 충분합니다.',
+      summary:['공감 우세','투명 대화','경계 존중'],
+      remind:['근거-감정-요청 순서','상대 기억에 의존 금지','권한·선택지 명시'],
+    },
+  };
 
-  const tW = s => s<=1.2?+0.2 : s<=2.5?+0.1 : s<=6?0 : s<=10?-0.1 : -0.2;
-  const apply = (c,s)=> Math.min(4, Math.max(0, c + (c-2)*tW(s)));
-  const avg = a => a.reduce((x,y)=>x+y,0)/a.length;
+  const scorer = ScoreKit.createScorer({ NEG_WEIGHT: 0.6 });
+  const $=id=>document.getElementById(id);
+  let idx=0, startedAt=Date.now();
 
   function render(){
-    counter.textContent=`문항 ${idx+1} / ${Q.length}`;
-    bar.style.width=`${(idx/Q.length)*100}%`;
-    qbox.textContent=Q[idx];
-    choices.innerHTML="";
-    LABELS.forEach((lab,i)=>{
-      const row=document.createElement("div"); row.className="choice";
-      const btn=document.createElement("button"); btn.type="button"; btn.textContent=lab;
-      btn.addEventListener("click",()=>select(i));
-      row.addEventListener("click",(e)=>{ if(e.target.tagName!=="BUTTON") btn.click(); });
-      row.appendChild(btn); choices.appendChild(row);
+    $('stepLabel').textContent=`문항 ${idx+1} / ${Q.length}`;
+    $('bar').style.width=`${(idx/Q.length)*100}%`;
+    $('qText').textContent=Q[idx].q;
+    const wrap=$('choiceWrap');
+    wrap.innerHTML=[4,3,2,1,0].map(s=>{
+      const label=s===4?'매우 그렇다':s===3?'그렇다':s===2?'보통이다':s===1?'아니다':'전혀 아니다';
+      const ghost = s<=1?' ghost':'';
+      return `<div class="choice"><button class="btn${ghost}" data-s="${s}">${label}</button></div>`;
+    }).join('');
+    wrap.querySelectorAll('.btn').forEach(b=>{
+      b.addEventListener('click',()=>{
+        wrap.querySelectorAll('.btn').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected');
+        setTimeout(()=>choose(Number(b.dataset.s)),120);
+      },{passive:true});
     });
-    btnPrev.disabled = idx===0;
-    startedAt = Date.now();
+    startedAt=Date.now();
   }
 
-  function select(i){
+  function choose(s){
     const sec=(Date.now()-startedAt)/1000;
-    const w=apply(i,sec);
-    answers[idx]={v:i,t:sec,w};
-    if(idx<Q.length-1){ idx++; render(); } else { finish(); }
+    scorer.apply(s, Q[idx], sec);
+    if(++idx<Q.length) render(); else finish();
   }
-
-  btnPrev.addEventListener("click", ()=>{ if(idx>0){ idx--; render(); }});
-  btnSkip.addEventListener("click", ()=>{ if(idx<Q.length-1){ idx++; render(); } else { finish(); }});
-  retryBtn.addEventListener("click", ()=>{ idx=0; answers.fill(null); result.hidden=true; document.querySelector(".test-card").hidden=false; render(); });
-
-  function tie(prob){
-    const rec=answers.slice(-3).filter(Boolean);
-    if(!rec.length) return prob;
-    const mean=avg(answers.filter(Boolean).map(a=>a.w));
-    if(mean>=1.9 && mean<=2.1){
-      const tilt = rec.reduce((s,a)=> s + (a.w-2), 0);
-      if(tilt>0.01) return Math.min(100, prob+5);
-      if(tilt<-0.01) return Math.max(0,   prob-5);
-    }
-    return prob;
-  }
-
-  function buildStateLines(prob){
-    if (prob >= 70) return [
-      "대화를 ‘설득/교정의 경기’처럼 진행하는 습관이 감지돼요.",
-      "“그건 네가 예민해서 그래” 같은 감정 무효화 표현을 점검해요.",
-      "먼저 감정을 있는 그대로 인정한 뒤, 사실·의견을 나중에 제시해요.",
-      "장난·비꼼은 즉시 회수 문장으로 정리하세요."
-    ];
-    if (prob >= 40) return [
-      "상황에 따라 교정 말투가 올라오는 구간이에요.",
-      "반박 전 “네가 그렇게 느낄 수 있어” 한 문장을 먼저 둡니다.",
-      "사과는 조건 없이 짧게(“미안해, 그런 의도는 아니었어”).",
-      "무엇이 불편했는지 질문으로 확인하고 해결을 함께 정리하세요."
-    ];
-    return [
-      "대체로 존중 중심 대화를 유지하는 편이에요.",
-      "감정 확인 → 사실 정리 → 요청 제안의 루틴을 계속 가져가요.",
-      "예민한 이슈일수록 속도를 늦추고 요약으로 확인해요.",
-      "결론은 승패보다 회복(둘의 안전)을 기준으로 마무리하세요."
-    ];
-  }
+  $('prev')?.addEventListener('click',()=>{ if(idx===0)return; idx--; scorer.state.score={}; scorer.state.count={}; for(let i=0;i<idx;i++) scorer.apply(2,Q[i],3); render(); });
+  $('skip')?.addEventListener('click',()=>{ scorer.apply(2,Q[idx],3); if(++idx<Q.length) render(); else finish(); });
 
   function finish(){
-    const valid=answers.filter(Boolean);
-    const mean=valid.length ? avg(valid.map(a=>a.w)) : 0;
-    let prob=Math.round((mean/4)*100);
-    prob = tie(prob);
+    $('bar').style.width='100%';
+    document.getElementById('card').style.display='none';
 
-    document.querySelector(".test-card").hidden = true;
-    result.hidden = false;
+    const n = scorer.normalize();
+    // 위험지표: C 높고(E,B,T 낮음)일수록 ↑
+    const risk = (n.C || 0) - ((n.E||0)+(n.B||0)+(n.T||0))/3;
+    let key = risk >= 0.18 ? 'HIGH' : risk >= 0.04 ? 'MID' : 'LOW';
 
-    rTitle.textContent = "가스라이팅 성향 지수";
-    rQuote.textContent = "높을수록 ‘상대의 감정·기억을 교정/무효화’하려는 경향이 강한 상태예요.";
-    rFill.style.width = prob + "%";
-    rLabel.textContent = `예상 확률 — ${prob}%`;
+    const meta=TYPE[key], info=COPY[key];
+    document.getElementById('rEmoji').textContent = meta.emoji;
+    document.getElementById('rTitle').textContent = meta.title;
+    document.getElementById('rQuote').textContent = `“${info.quote}”`;
+    document.getElementById('rDesc').textContent  = info.desc;
+    document.getElementById('res-summary').innerHTML = info.summary.map(t=>`<span class="pill">${t}</span>`).join('');
 
-    const lines = buildStateLines(prob);
-    rDesc.innerHTML = `<ul class="state-list">${lines.map(li=>`<li>${li}</li>`).join("")}</ul>`;
-    rMind.textContent = "마음 리마인드 — 정답보다 존중이 먼저.";
+    const triples = [
+      ['통제/조종(C)', n.C||0],
+      ['공감(E)',      n.E||0],
+      ['경계 존중(B)', n.B||0],
+      ['투명/정직(T)', n.T||0],
+    ].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([label,v])=>{
+      const pct=Math.round(v*100);
+      const tag = pct>=76?'매우 높음':pct>=56?'높음':pct>=36?'보통':pct>=21?'낮음':'아주 낮음';
+      return `<div class="row"><span><b>${label}</b></span><div class="bar"><span class="fill" style="width:${pct}%"></span></div><span class="meter-label">${tag} (${pct}%)</span></div>`;
+    }).join('');
+    document.getElementById('rMeter').innerHTML = triples;
+
+    document.getElementById('rMind').innerHTML = info.remind.map(t=>`<div>${t}</div>`).join('');
+    document.getElementById('result').hidden=false;
   }
 
-  render();
+  if (document.readyState!=='loading') render();
+  else document.addEventListener('DOMContentLoaded', render);
 })();
