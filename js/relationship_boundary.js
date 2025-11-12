@@ -1,117 +1,113 @@
-// v2025.1 — 관계 경계 점검 (관계 속 나의 경계는 단단할까?)
-document.addEventListener('DOMContentLoaded', () => {
-  // 15문항: '경계가 흔들리는 신호' 중심 (높을수록 경계 취약도 ↑)
+// v2025.6 — 응답시간 가중치/타이브레이커/중립치 보정 + 몽실 톤 결과(상태설명 4줄)
+(() => {
   const Q = [
-    "그 사람과 대화 후 내 판단이 틀린 것 같다는 생각이 든다.",
-    "‘내가 너무 예민한가?’라는 의심이 자주 든다.",
-    "사소한 문제도 내 탓 같아 사과부터 하게 된다.",
-    "불편함을 말하면 분위기가 더 나빠질까 걱정된다.",
-    "그 사람의 기분이 내 하루 컨디션을 좌우한다.",
-    "내가 본 사실보다 그 사람의 말이 더 맞는 것처럼 느껴진다.",
-    "경계를 말로 표현해도 잘 지켜지지 않는다.",
-    "중요한 결정에서 내 의견이 일관되게 묵살된 경험이 있다.",
-    "대화를 마치면 이유 없이 기운이 빠지거나 배가 고프다.",
-    "과거 상처가 그 사람 앞에서 더 크게 살아난다.",
-    "불편함을 말하면 ‘너가 과장한다’는 반응을 들었다.",
-    "내가 느낀 감정·해석을 스스로 자주 의심한다.",
-    "관계가 깨질까 봐 ‘싫다’는 말을 보류한다.",
-    "도움/배려 뒤에 은근한 빚짐 느낌이 남는다.",
-    "그 사람 앞에서 말투/표정이 평소와 많이 달라진다."
+    "그 사람 앞에서 싫다는 말을 꺼내기 어렵다.",
+    "거절 후 죄책감이 커져 결국 다시 들어주는 편이다.",
+    "내가 느낀 불편을 설명하면 ‘그건 네가 예민한 것’이라는 반응을 종종 듣는다.",
+    "대화를 시작하려면 눈치를 꽤 봐야 한다.",
+    "연락/만남의 빈도나 시간대를 상대가 정하는 편이다.",
+    "나의 사적인 정보/지인을 제한하려는 뉘앙스를 느낀 적이 있다.",
+    "나의 성과/기쁨을 축소시키는 말을 자주 듣는다.",
+    "사과가 ‘네가 그렇게 느꼈다면 미안’ 식으로 조건이 붙는다.",
+    "상대의 기분이 나쁘면 당장 해결해야 할 의무감을 느낀다.",
+    "최근 나의 수면/식사/일과에 영향을 받을 만큼 신경이 쓰인다.",
+    "내가 겪은 일을 얘기하면 대화가 곧바로 그 사람 이야기로 넘어간다.",
+    "싫었던 일을 다시 말하면 ‘그 얘긴 그만하자’로 종결되는 편이다.",
+    "만나고 나면 마음이 잔뜩 쪼그라든 느낌이 든다.",
+    "그 사람 앞에서 나의 기준/가치를 자주 수정하게 된다.",
+    "헤어진 뒤에도 ‘혹시 내가 잘못했나’라는 생각이 길게 남는다."
   ];
+  const LABELS = ["전혀 아니다","거의 아니다","보통","그런 편이다","매우 그렇다"];
 
-  const CHOICES = [
-    {v:0, t:"전혀 아니다"},
-    {v:1, t:"거의 아니다"},
-    {v:2, t:"보통"},
-    {v:3, t:"그런 편이다"},
-    {v:4, t:"매우 그렇다"}
-  ];
+  let idx=0, startedAt=Date.now(); const answers = Array(Q.length).fill(null);
+  const $=id=>document.getElementById(id);
+  const counter=$("counter"), bar=$("bar"), qbox=$("qbox"), choices=$("choices");
+  const btnPrev=$("btnPrev"), btnSkip=$("btnSkip");
+  const res=$("result"), rTitle=$("rTitle"), rQuote=$("rQuote"), rFill=$("rFill"),
+        rLabel=$("rLabel"), rDesc=$("rDesc"), rMind=$("rMind"), retryBtn=$("retryBtn");
 
-  const qText = document.getElementById('qText');
-  const choicesEl = document.getElementById('choices');
-  const qNow = document.getElementById('qNow');
-  const pg = document.getElementById('pg');
+  const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  const tW=s=> s<=1.2?+0.2 : s<=2.5?+0.1 : s<=6?0 : s<=10?-0.1 : -0.2;
+  const apply=(c,s)=> Math.min(4, Math.max(0, c + (c-2)*tW(s)));
 
-  const result = document.getElementById('result');
-  const percentEl = document.getElementById('percent');
-  const labelEl = document.getElementById('label');
-  const fill = document.getElementById('fill');
-  const desc = document.getElementById('desc');
-  const pills = document.getElementById('pills');
-
-  let idx = 0;
-  let answers = [];
-
-  function renderQ(){
-    qText.textContent = Q[idx];
-    qNow.textContent = (idx+1);
-    pg.style.width = `${((idx)/Q.length)*100}%`;
-
-    choicesEl.innerHTML = '';
-    CHOICES.forEach(c => {
-      const row = document.createElement('div');
-      row.className = 'choice';
-      row.innerHTML = `<span>${c.t}</span><button type="button">선택</button><small>${c.v}</small>`;
-      const t0 = performance.now();
-      row.querySelector('button').addEventListener('click', () => {
-        const rt = Math.max(100, performance.now() - t0); // ms
-        answers.push({v:c.v, rt});
-        idx++;
-        if (idx < Q.length) renderQ(); else finish();
-      });
-      choicesEl.appendChild(row);
+  function render(){
+    counter.textContent=`문항 ${idx+1} / ${Q.length}`;
+    bar.style.width=`${(idx/Q.length)*100}%`;
+    qbox.textContent=Q[idx];
+    choices.innerHTML="";
+    LABELS.forEach((lab,i)=>{
+      const row=document.createElement("div"); row.className="choice";
+      const btn=document.createElement("button"); btn.type="button"; btn.textContent=lab;
+      btn.addEventListener("click",()=>select(i));
+      row.addEventListener("click",(e)=>{ if(e.target.tagName!=='BUTTON') btn.click(); });
+      row.appendChild(btn); choices.appendChild(row);
     });
+    btnPrev.disabled = idx===0;
+    startedAt = Date.now();
+  }
+
+  function select(i){
+    const sec=(Date.now()-startedAt)/1000;
+    const w=apply(i,sec);
+    answers[idx]={v:i,t:sec,w};
+    if(idx<Q.length-1){ idx++; render(); } else { finish(); }
+  }
+
+  btnPrev.addEventListener("click", ()=>{ if(idx>0){ idx--; render(); }});
+  btnSkip.addEventListener("click", ()=>{ if(idx<Q.length-1){ idx++; render(); } else { finish(); }});
+  retryBtn.addEventListener("click", ()=>{ idx=0; answers.fill(null); res.hidden=true; document.querySelector(".test-card").hidden=false; render(); });
+
+  function tie(prob){
+    const rec=answers.slice(-3).filter(Boolean);
+    if(!rec.length) return prob;
+    const mean=avg(answers.filter(Boolean).map(a=>a.w));
+    if(mean>=1.9 && mean<=2.1){
+      const tilt = rec.reduce((s,a)=> s + (a.w-2), 0);
+      if(tilt>0.01) return Math.min(100, prob+5);
+      if(tilt<-0.01) return Math.max(0,   prob-5);
+    }
+    return prob;
+  }
+
+  function lines(prob){
+    if (prob >= 70) return [
+      "누군가의 부탁에 ‘아니요’가 잘 안 나올 수 있어요.",
+      "상대를 배려하느라 내 감정을 미루는 패턴이 보입니다.",
+      "나의 피곤함을 솔직히 말하는 것도 관계의 일부예요.",
+      "“지금은 힘들어요, 여기까지만.”을 연습해요."
+    ];
+    if (prob >= 40) return [
+      "사람/상황에 따라 경계가 흐려질 수 있어요.",
+      "요청은 짧고 구체적으로 한 가지씩 말해요.",
+      "중요한 결정은 메모/서면으로 남겨두어요.",
+      "불편이 느껴지면 즉시 ‘멈춤표’를 찍어요."
+    ];
+    return [
+      "관계 속에서도 나를 잘 돌보는 편이에요.",
+      "‘거절’과 ‘수용’의 균형을 알고 있어요.",
+      "새로운 관계일수록 속도를 천천히 해보세요.",
+      "건강한 경계는 서로를 더 자유롭게 합니다."
+    ];
   }
 
   function finish(){
-    pg.style.width = `100%`;
-    // 응답시간 가중치 ±20% (빠르면 가산, 느리면 감산) — 캡핑
-    const avgRt = answers.reduce((a,b)=>a+b.rt,0)/answers.length;
-    const weighted = answers.map(a => {
-      const bias = Math.max(0.8, Math.min(1.2, avgRt ? (avgRt / a.rt) : 1));
-      return a.v * bias;
-    });
+    const valid=answers.filter(Boolean);
+    const mean=valid.length? avg(valid.map(a=>a.w)) : 0;
+    let prob=Math.round((mean/4)*100); // 경계 취약 확률
+    prob = tie(prob);
 
-    // 확률(%) — 높을수록 경계가 흔들리는 경향 ↑
-    const raw = weighted.reduce((a,b)=>a+b,0) / (4 * Q.length); // 0~1
-    const pct = Math.round(raw * 100); // 0~100
+    document.querySelector(".test-card").hidden = true;
+    res.hidden = false;
 
-    // 라벨 · 설명 · 팁
-    let label, text, tips;
-    if (pct >= 75){
-      label = "경계 취약 (주의)";
-      text = "관계 안전지대가 좁아져 있습니다. 감정·기억을 다시 확인하고, 작은 경계부터 회복하세요.";
-      tips = ["감정-사실-해석 분리 메모", "경계 문장 연습(“지금은 힘들어요”)", "신뢰 인물과 기록 공유"];
-    } else if (pct >= 50){
-      label = "혼합 단계";
-      text = "흔들리는 순간이 보입니다. 불편 신호를 놓치지 말고, 작고 구체적인 요청부터 시작하세요.";
-      tips = ["대화 후 감정체크 3문장", "요청은 구체·짧게", "중요 결정 서면 확인"];
-    } else if (pct >= 30){
-      label = "회복 진행";
-      text = "감정과 경계를 구분하려는 시도가 보입니다. 지속적으로 ‘싫어요/잠시 멈춰요’를 연습해보세요.";
-      tips = ["싫어요 연습(짧고 분명하게)", "피곤할 땐 대화 보류", "경계가 지켜지면 감사 피드백"];
-    } else {
-      label = "안정";
-      text = "자기감정 신뢰가 분명합니다. 경계를 잘 지키고 있으며, 초기에 이상 신호를 점검하는 습관을 유지하세요.";
-      tips = ["초기 신호 체크리스트", "경계가 지켜진 경험 기록", "지속 가능한 지지망 유지"];
-    }
+    rTitle.textContent = "관계 경계 점검";
+    rQuote.textContent = "나는 지금, 관계 안에서 나의 마음을 잘 지키고 있을까?";
+    rFill.style.width = prob + "%";
+    rLabel.textContent = `경계 취약 확률 — ${prob}%`;
 
-    percentEl.textContent = pct;
-    labelEl.textContent = label;
-    fill.style.width = `${pct}%`;
-    desc.textContent = text;
-
-    pills.innerHTML = '';
-    [...tips, "마음 리마인드: ‘내 감정도 사실’", "불편함은 경계의 지도"].forEach(t=>{
-      const p = document.createElement('span');
-      p.className = 'result-pill';
-      p.textContent = t;
-      pills.appendChild(p);
-    });
-
-    document.querySelector('.test-card').style.display = 'none';
-    result.style.display = '';
+    const l = lines(prob);
+    rDesc.innerHTML = `<ul class="state-list">${l.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+    rMind.textContent = "마음 리마인드 — 내 마음의 울타리는, 내가 세운다.";
   }
 
-  renderQ();
-});
+  render();
+})();
