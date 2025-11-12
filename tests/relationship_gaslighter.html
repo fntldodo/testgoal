@@ -1,98 +1,73 @@
 <!DOCTYPE html>
-<html lang="ko" class="no-js">
+<html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>가스라이팅 성향 지수 - 몽실몽실</title>
-
-  <!-- AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
-
-  <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
-
-  <!-- 공통 스타일 -->
-  <link rel="stylesheet" href="../css/style.css?v=2025.6">
-
-  <!-- 페이지 보정 -->
+  <link rel="stylesheet" href="../css/style.css?v=2025.8">
   <style>
     body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg)}
-    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 72px}
+    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 80px}
     .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px}
-    .intro{margin-bottom:12px;color:#6f6155;line-height:1.6}
+    .subtitle{color:#6f6155}
     .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden}
-    .progressbar>div{height:100%;width:0;background:#cfe7db;transition:width .2s ease}
-    .test-q{font-weight:800;color:#5e493d;letter-spacing:-.01em;margin:14px 2px 12px;font-size:1.08rem}
+    .progressbar>div{height:100%;width:0;background:var(--brand);transition:width .2s ease}
+    .test-q{font-weight:800;color:#5e493d;margin:14px 2px 12px;font-size:1.08rem}
     .choices{display:flex;flex-direction:column;gap:12px}
-    .choice button{width:100%;padding:16px 18px;border-radius:16px;border:1px solid #d8e8de;background:#eaf7f0;color:#3b5847;font-weight:800}
-    .nav-row{display:flex;gap:12px;margin-top:16px}
-    .nav-row button{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff}
+    .choice .btn{width:100%;padding:16px 18px;border-radius:16px;border:1px solid var(--line);background:var(--brand-soft);color:#5e2f3a;font-weight:800}
+    .choice .btn.ghost{background:#fff;color:#5e493d}
+    .choice .btn.selected{outline:2px solid var(--brand)}
+    .navs{display:flex;gap:12px;margin-top:16px}
+    .navs .ghost{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff}
     .result-wrap{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
-    .result-gauge{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden;margin:6px 0 4px}
-    .result-gauge .fill{height:100%;width:0;background:linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a)}
-    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#faf7f1;color:#6b5b50;margin:6px 6px 0 0}
-    .state-list{margin:10px 0 4px;padding-left:1.1em}
-    .state-list li{margin:4px 0;line-height:1.6}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--brand-soft);color:#6b5b50;margin:6px 6px 0 0}
+    .state-meter .row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin:6px 0}
+    .state-meter .bar{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden}
+    .state-meter .fill{height:100%;display:block;background:linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a)}
   </style>
 </head>
-<body class="test-page">
-  <!-- 상단 고정 메인 버튼 -->
+<body class="test-page theme-relation" id="relationship-gaslighter-app">
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
-        fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>메인으로</span>
   </a>
 
   <main class="test-layout">
     <header class="hero-wrap">
       <div class="logo">
-        <img src="../assets/plant.png" alt="관계" onerror="this.onerror=null;this.src='../assets/mongsil.png'">
+        <img src="../assets/relationship.png" alt="관계" onerror="this.onerror=null;this.src='../assets/mongsil.png'">
         <div>
           <span>관계의 모든 것</span>
-          <p class="subtitle">나는 가스라이팅을 ‘하고 있을’ 가능성은?</p>
+          <p class="subtitle">설득과 통제의 경계, 나는 어디쯤일까?</p>
         </div>
       </div>
     </header>
 
-    <section class="test-card">
-      <div class="intro">
-        <strong>가스라이팅이란?</strong> 상대의 감정·기억·판단을 “네가 잘못 느낀 거야”처럼 교묘히 흔들어
-        <strong>스스로를 의심하게 만드는 심리적 통제</strong>예요.  
-        이 테스트는 ‘내가 무심코 그런 패턴을 쓰고 있지는 않은지’를 돌아보도록 돕습니다.
-        정답은 없고, 배움만 있어요. 결과는 비난이 아니라 <em>대화 습관을 조정하는 힌트</em>로 사용해주세요. ☁️
-      </div>
-
+    <section class="test-card" id="card" style="display:block">
       <div class="progress-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span id="counter">문항 1 / 15</span>
-        <div class="progressbar" aria-hidden="true" style="flex:1;margin-left:10px;"><div id="bar"></div></div>
+        <span id="stepLabel">문항 1 / 15</span>
+        <div class="progressbar" style="flex:1;margin-left:10px;"><div id="bar"></div></div>
       </div>
-
-      <div id="qbox" class="test-q">질문이 들어갑니다.</div>
-      <div id="choices" class="choices"></div>
-
-      <div class="nav-row">
-        <button id="btnPrev" type="button">← 이전</button>
-        <button id="btnSkip" type="button">건너뛰기</button>
-      </div>
+      <div id="qText" class="test-q">문항이 로드되는 중...</div>
+      <div id="choiceWrap" class="choices"></div>
+      <div class="navs"><button id="prev" class="ghost" type="button">← 이전</button><button id="skip" class="ghost" type="button">건너뛰기</button></div>
     </section>
 
     <section id="result" class="result-wrap" hidden>
-      <h2 id="rTitle" style="margin:0 0 6px;">가스라이팅 성향 지수</h2>
-      <p id="rQuote" style="margin:0 0 10px;color:#8a7a6a;">높을수록 ‘상대의 감정·기억을 교정/무효화’하려는 경향이 강한 상태예요.</p>
-      <div class="result-gauge" aria-label="지수 게이지"><div class="fill" id="rFill"></div></div>
-      <p id="rLabel" class="pill"></p>
-      <div id="rDesc"></div>
-      <p id="rMind" class="pill"></p>
-      <div style="margin-top:12px;display:flex;gap:8px;">
-        <a class="pill" href="../index.html">메인으로</a>
-        <button class="pill" id="retryBtn" type="button">다시 하기</button>
-      </div>
+      <h2 id="rTitle">가스라이팅 성향 지수</h2>
+      <p id="rQuote" style="color:#8a7a6a">“설득이 통제가 되는 순간, 관계는 손상된다.”</p>
+      <div class="state-meter" id="rMeter"></div>
+      <div id="res-summary" style="margin:6px 0 10px"></div>
+      <p id="rDesc" style="margin:8px 0"></p>
+      <div class="mind-remind"><b>🌿 마음 리마인드</b><div id="rMind" style="margin-top:6px"></div></div>
+      <div style="margin-top:12px;display:flex;gap:8px;"><a class="pill" href="../index.html">메인으로</a><button class="pill" type="button" onclick="location.reload()">다시 하기</button></div>
     </section>
   </main>
 
-  <script src="../js/relationship_gaslighter.js?v=2025.6" defer></script>
-  <script src="../js/error-proof.js?v=2025.2" defer></script>
+  <script defer src="../js/error-proof.js?v=2025.8"></script>
+  <script defer src="../js/scorekit.js?v=2025.8"></script>
+  <script defer src="../js/relationship_gaslighter.js?v=2025.8"></script>
 </body>
 </html>
