@@ -12,13 +12,14 @@
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
   <!-- 공통 스타일 -->
-  <link rel="stylesheet" href="../css/style.css?v=2025.5">
+  <link rel="stylesheet" href="../css/style.css?v=2025.6">
 
-  <!-- 페이지 전용(기존 룩 통일용 작은 보정) -->
+  <!-- 페이지 보정 -->
   <style>
-    body.test-page{font-family:"Pretendard Variable",system-ui; background:var(--bg);}
-    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 72px;}
-    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px;}
+    body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg)}
+    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 72px}
+    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px}
+    .intro{margin-bottom:12px;color:#6f6155;line-height:1.6}
     .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden}
     .progressbar>div{height:100%;width:0;background:#cfe7db;transition:width .2s ease}
     .test-q{font-weight:800;color:#5e493d;letter-spacing:-.01em;margin:14px 2px 12px;font-size:1.08rem}
@@ -27,9 +28,11 @@
     .nav-row{display:flex;gap:12px;margin-top:16px}
     .nav-row button{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff}
     .result-wrap{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
-    .result-gauge{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden}
+    .result-gauge{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden;margin:6px 0 4px}
     .result-gauge .fill{height:100%;width:0;background:linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a)}
     .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#faf7f1;color:#6b5b50;margin:6px 6px 0 0}
+    .state-list{margin:10px 0 4px;padding-left:1.1em}
+    .state-list li{margin:4px 0;line-height:1.6}
   </style>
 </head>
 <body class="test-page">
@@ -54,6 +57,13 @@
     </header>
 
     <section class="test-card">
+      <div class="intro">
+        <strong>가스라이팅이란?</strong> 상대의 감정·기억·판단을 “네가 잘못 느낀 거야”처럼 교묘히 흔들어
+        <strong>스스로를 의심하게 만드는 심리적 통제</strong>예요.  
+        이 테스트는 ‘내가 무심코 그런 패턴을 쓰고 있지는 않은지’를 돌아보도록 돕습니다.
+        정답은 없고, 배움만 있어요. 결과는 비난이 아니라 <em>대화 습관을 조정하는 힌트</em>로 사용해주세요. ☁️
+      </div>
+
       <div class="progress-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span id="counter">문항 1 / 15</span>
         <div class="progressbar" aria-hidden="true" style="flex:1;margin-left:10px;"><div id="bar"></div></div>
@@ -70,10 +80,10 @@
 
     <section id="result" class="result-wrap" hidden>
       <h2 id="rTitle" style="margin:0 0 6px;">가스라이팅 성향 지수</h2>
-      <p id="rQuote" style="margin:0 0 10px;color:#8a7a6a;"></p>
+      <p id="rQuote" style="margin:0 0 10px;color:#8a7a6a;">높을수록 ‘상대의 감정·기억을 교정/무효화’하려는 경향이 강한 상태예요.</p>
       <div class="result-gauge" aria-label="지수 게이지"><div class="fill" id="rFill"></div></div>
       <p id="rLabel" class="pill"></p>
-      <p id="rDesc" style="margin-top:10px;"></p>
+      <div id="rDesc"></div>
       <p id="rMind" class="pill"></p>
       <div style="margin-top:12px;display:flex;gap:8px;">
         <a class="pill" href="../index.html">메인으로</a>
@@ -82,7 +92,7 @@
     </section>
   </main>
 
-  <script src="../js/relationship_gaslighter.js?v=2025.5" defer></script>
+  <script src="../js/relationship_gaslighter.js?v=2025.6" defer></script>
   <script src="../js/error-proof.js?v=2025.2" defer></script>
 </body>
 </html>
