@@ -1,63 +1,36 @@
-<!--
-[코드 절대 규칙]
-1) 기존 합의 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경
-2) 기존 코드는 보존하고 '추가'만 수행 (중복 제거는 사전 확인 후)
-3) 페이지는 항상 전체 완전본 제공
--->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>관계 경계 점검 - 몽실몽실</title>
-
-  <!-- AdSense (head 필수) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5160457410437424" crossorigin="anonymous"></script>
-
-  <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
-
-  <!-- 프로젝트 공통 스타일 -->
   <link rel="stylesheet" href="../css/style.css?v=2025.8">
-
-  <!-- 이 페이지 보조 스타일 (필요 최소한) -->
   <style>
-    body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg);}
-    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 80px;}
-    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px;}
-    .subtitle{color:#6f6155;}
-    .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden;}
-    .progressbar>div{height:100%;width:0;background:#cfe7db;transition:width .2s ease;}
-    .test-q{font-weight:800;color:#5e493d;letter-spacing:-.01em;margin:14px 2px 12px;font-size:1.08rem;}
+    body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg)}
+    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 80px}
+    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px}
+    .subtitle{color:#6f6155}
+    .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden}
+    .progressbar>div{height:100%;width:0;background:var(--brand);transition:width .2s ease}
+    .test-q{font-weight:800;color:#5e493d;margin:14px 2px 12px;font-size:1.08rem}
     .choices{display:flex;flex-direction:column;gap:12px}
-    .choice .btn{width:100%;padding:16px 18px;border-radius:16px;border:1px solid #d8e8de;background:#eaf7f0;color:#3b5847;font-weight:800}
+    .choice .btn{width:100%;padding:16px 18px;border-radius:16px;border:1px solid var(--line);background:var(--brand-soft);color:#5e2f3a;font-weight:800}
     .choice .btn.ghost{background:#fff;color:#5e493d}
-    .choice .btn.selected{outline:2px solid #8ad1a7}
+    .choice .btn.selected{outline:2px solid var(--brand)}
     .navs{display:flex;gap:12px;margin-top:16px}
     .navs .ghost{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff}
-
     .result-wrap{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
-    .result-hero{display:flex;gap:12px;align-items:center}
-    .emoji-icon{font-size:64px;line-height:1;text-align:center}
-    .result-title{font-weight:800;color:#5e493d}
-    .result-desc{color:#8a7a6a}
-    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#faf7f1;color:#6b5b50;margin:6px 6px 0 0}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--brand-soft);color:#6b5b50;margin:6px 6px 0 0}
     .state-meter .row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin:6px 0}
     .state-meter .bar{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden}
     .state-meter .fill{height:100%;display:block;background:linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a)}
-    .result-actions{display:flex;gap:8px;margin-top:12px}
-
-    @media (min-width:768px){ .emoji-icon{font-size:80px} }
-    @media (min-width:960px){ main.test-layout{padding:96px 24px 96px} }
   </style>
 </head>
-<body class="test-page" id="relationship-boundary-app">
-  <!-- 상단 고정 메인 버튼 -->
+<body class="test-page theme-relation" id="relationship-boundary-app">
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"
-        fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none" stroke="#5e493d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>메인으로</span>
   </a>
 
@@ -72,55 +45,29 @@
       </div>
     </header>
 
-    <!-- 테스트 카드 -->
     <section class="test-card" id="card" style="display:block">
       <div class="progress-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span id="stepLabel">문항 1 / 15</span>
         <div class="progressbar" style="flex:1;margin-left:10px;"><div id="bar"></div></div>
       </div>
-
       <div id="qText" class="test-q">문항이 로드되는 중...</div>
       <div id="choiceWrap" class="choices"></div>
-
-      <div class="navs">
-        <button id="prev" class="ghost" type="button">← 이전</button>
-        <button id="skip" class="ghost" type="button">건너뛰기</button>
-      </div>
+      <div class="navs"><button id="prev" class="ghost" type="button">← 이전</button><button id="skip" class="ghost" type="button">건너뛰기</button></div>
     </section>
 
-    <!-- 결과 -->
     <section id="result" class="result-wrap" hidden>
-      <div class="result-hero">
-        <div id="rEmoji" class="emoji-icon" aria-hidden="true">🛡️</div>
-        <div>
-          <div id="rTitle" class="result-title">결과 제목</div>
-          <div id="rQuote" class="result-desc">“한 줄 인용문”</div>
-        </div>
-      </div>
-
-      <p id="rDesc" style="margin:8px 0">설명문</p>
-
-      <div id="res-summary" style="margin:6px 0 10px"></div>
-
+      <h2 id="rTitle">관계 경계 점검</h2>
+      <p id="rQuote" style="color:#8a7a6a">“존중은 관계의 기본 보안장치.”</p>
       <div class="state-meter" id="rMeter"></div>
-
-      <div class="mind-remind" style="margin-top:10px">
-        <b>🌿 마음 리마인드</b>
-        <div id="rMind" style="margin-top:6px"></div>
-      </div>
-
-      <div class="result-actions">
-        <a class="pill" href="../index.html">메인으로</a>
-        <button class="pill" type="button" onclick="location.reload()">다시 테스트</button>
-      </div>
+      <div id="res-summary" style="margin:6px 0 10px"></div>
+      <p id="rDesc" style="margin:8px 0"></p>
+      <div class="mind-remind"><b>🌿 마음 리마인드</b><div id="rMind" style="margin-top:6px"></div></div>
+      <div style="margin-top:12px;display:flex;gap:8px;"><a class="pill" href="../index.html">메인으로</a><button class="pill" type="button" onclick="location.reload()">다시 하기</button></div>
     </section>
   </main>
 
-  <!-- (1) 공통 에러 보호 -->
   <script defer src="../js/error-proof.js?v=2025.8"></script>
-  <!-- (2) 공용 점수 엔진 -->
   <script defer src="../js/scorekit.js?v=2025.8"></script>
-  <!-- (3) 이 테스트 전용 로직 -->
   <script defer src="../js/relationship_boundary.js?v=2025.8"></script>
 </body>
 </html>
