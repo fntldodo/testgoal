@@ -1,13 +1,8 @@
-<!--
-[코드 절대 규칙]
-1) 기존 합의 기능 삭제/덮어쓰기/생략 금지 — 사용자 요청 시에만 변경
-2) 기존 코드는 보존하고 '추가'만 수행 (중복 제거는 사전 확인 후)
-3) 페이지는 항상 전체 완전본 제공
--->
+<!-- [코드 절대 규칙] 기존 기능 삭제 금지 / 추가형 확장만 / 완전본 제공 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>내 안의 도파민 공장장 - 몽실몽실</title>
 
@@ -17,42 +12,37 @@
   <!-- Pretendard -->
   <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
 
-  <!-- 프로젝트 공통 스타일 -->
-  <link rel="stylesheet" href="../css/style.css?v=2025.6">
-
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="../css/style.css?v=2025.8">
   <style>
-    /* 이 페이지 보조 스타일 (공통 style.css는 유지) */
-    body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg);}
-    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 80px;}
-    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px;}
-    .subtitle{color:#6f6155;}
-    .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden;}
-    .progressbar>div{height:100%;width:0;background:#cfe7db;transition:width .2s ease;}
-    .test-q{font-weight:800;color:#5e493d;letter-spacing:-.01em;margin:14px 2px 12px;font-size:1.08rem;}
+    /* 페이지 보조 스타일(공통 유지) */
+    body.test-page{font-family:"Pretendard Variable",system-ui;background:var(--bg)}
+    main.test-layout{max-width:720px;margin:0 auto;padding:84px 16px 80px}
+    .test-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-soft);padding:14px}
+    .subtitle{color:#6f6155}
+    .progressbar{height:6px;background:#efeae3;border-radius:999px;overflow:hidden}
+    .progressbar>div{height:100%;width:0;background:var(--brand,#cfe7db);transition:width .2s ease}
+    .test-q{font-weight:800;color:#5e493d;letter-spacing:-.01em;margin:14px 2px 12px;font-size:1.08rem}
     .choices{display:flex;flex-direction:column;gap:12px}
-    .choice{display:block}
-    .choice .btn{width:100%;padding:16px 18px;border-radius:16px;border:1px solid #d8e8de;background:#eaf7f0;color:#3b5847;font-weight:800}
+    .choice .btn{width:100%;padding:16px 18px;border-radius:16px;border:1px solid #d8e8de;background:var(--brand-soft,#f3ecff);color:#3b3055;font-weight:800}
     .choice .btn.ghost{background:#fff;color:#5e493d}
-    .choice .btn.selected{outline:2px solid #8ad1a7}
+    .choice .btn.selected{outline:2px solid var(--brand,#c29bff)}
     .navs{display:flex;gap:12px;margin-top:16px}
     .navs .ghost{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff}
-
     .result-wrap{margin-top:16px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
     .result-hero{display:flex;gap:12px;align-items:center}
-    .emoji-icon{font-size:64px;line-height:1;text-align:center}
+    .emoji-icon{font-size:72px;line-height:1;text-align:center}
     .result-title{font-weight:800;color:#5e493d}
     .result-desc{color:#8a7a6a}
-    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#faf7f1;color:#6b5b50;margin:6px 6px 0 0}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--brand-soft,#f3ecff);color:#6b5b50;margin:6px 6px 0 0}
     .state-meter .row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin:6px 0}
     .state-meter .bar{height:10px;background:#f4ede5;border-radius:999px;overflow:hidden}
     .state-meter .fill{height:100%;display:block;background:linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a)}
     .result-actions{display:flex;gap:8px;margin-top:12px}
-
-    @media (min-width:768px){ .emoji-icon{font-size:80px} }
-    @media (min-width:960px){ main.test-layout{padding:96px 24px 96px} }
+    @media (min-width:960px){ main.test-layout{padding:96px 24px 96px} .emoji-icon{font-size:84px} }
   </style>
 </head>
-<body class="test-page" id="dopamine-app">
+<body class="test-page theme-energy" id="dopamine-app">
   <!-- 상단 고정 메인 버튼 -->
   <a class="top-main-btn" href="../index.html" aria-label="메인으로">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -65,10 +55,10 @@
   <main class="test-layout">
     <header class="hero-wrap">
       <div class="logo">
-        <img src="../assets/brain.png" alt="도파민" onerror="this.onerror=null; this.src='../assets/mongsil.png'">
+        <img src="../assets/energy.png" alt="도파민" onerror="this.onerror=null;this.src='../assets/mongsil.png'">
         <div>
           <span>성장의 나의 것</span>
-          <p class="subtitle">내 안의 ‘도파민 공장장’ — 자극과 평온, 그 사이의 밸런스를 찾아요.</p>
+          <p class="subtitle">내 안의 ‘도파민 공장장’ — 자극과 평온, 그 사이의 밸런스.</p>
         </div>
       </div>
     </header>
@@ -100,9 +90,7 @@
       </div>
 
       <p id="rDesc" style="margin:8px 0">설명문</p>
-
       <div id="res-summary" style="margin:6px 0 10px"></div>
-
       <div class="state-meter" id="rMeter"></div>
 
       <div class="mind-remind" style="margin-top:10px">
@@ -117,10 +105,9 @@
     </section>
   </main>
 
-  <!-- 공통 에러 보호 -->
-  <script defer src="../js/error-proof.js?v=2025.6"></script>
-
-  <!-- 도파민 테스트 본 로직 (이모티콘 버전) -->
-  <script defer src="../js/dopamine.js?v=2025.7-emoji"></script>
+  <!-- 스크립트 순서 고정 -->
+  <script defer src="../js/error-proof.js?v=2025.8"></script>
+  <script defer src="../js/scorekit.js?v=2025.8"></script>
+  <script defer src="../js/dopamine.js?v=2025.8-emoji"></script>
 </body>
 </html>
