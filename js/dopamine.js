@@ -1,9 +1,9 @@
 /* =========================================================
- * 내 안의 ‘도파민 공장장’ — 몽실몽실 v2025.7 (Emoji 버전)
- * - 카테고리: growth
+ * 내 안의 ‘도파민 공장장’ — 몽실몽실 v2025.8 (Emoji + 양극성 득점)
  * - 12문항 / 5지선다(0~4) + 반응시간 보조(±20%, 선택 우선)
- * - 분류 4종: ROLLER / SOCIAL / KNOW / AVOHA (+ 근소차 하이브리드 제한)
- * - 결과 아이콘: PNG 대신 Emoji (로딩 빠름, 반응형 선명)
+ * - 문항별 긍정/부정 축을 명시 → 부정 시 반대 축(B)을 가산 (NEG_WEIGHT=0.6)
+ * - 분류 4종: ROLLER / SOCIAL / KNOW / AVOHA
+ * - 하이브리드: 진짜 근소차일 때만 제한적으로 표시
  * ========================================================= */
 (function bootstrapDopamine(){
   if (window.__dopamine_booted) return;
@@ -11,20 +11,21 @@
 
   const boot = () => {
     try {
-      // ---------- 문항(12) ----------
+      // ---------- 문항(12) : 긍정 pos / 부정 neg 지정 ----------
+      // k는 주축(설명용), pos=동의 가산 축, neg=부동의 가산 축
       const Q = [
-        {k:"N", q:"새로운 장소·경험을 찾아 나서는 편이다."},
-        {k:"N", q:"지루하면 즉시 자극적인 것을 찾는다(영상·게임·간식 등)."},
-        {k:"S", q:"사람들과의 상호작용이 기분 좋은 에너지를 준다."},
-        {k:"S", q:"‘좋아요/댓글/메시지’ 알림이 오면 바로 확인한다."},
-        {k:"K", q:"궁금한 건 끝까지 파고들어 지식으로 쌓는다."},
-        {k:"K", q:"정보 정리나 아카이빙을 습관처럼 한다."},
-        {k:"B", q:"루틴(수면·식사·운동)을 유지하려 노력한다."},
-        {k:"B", q:"즉흥적 충동이 와도 한 번 멈추고 선택하려 한다."},
-        {k:"N", q:"즉석 결정을 즐기는 편이다."},
-        {k:"S", q:"모임·행사·네트워킹이 기대된다."},
-        {k:"K", q:"새 개념을 이해했을 때 쾌감이 크다."},
-        {k:"B", q:"작은 보상(차·산책·스트레칭)으로 스스로를 달랜다."}
+        {k:"N", pos:"N", neg:"B", q:"새로운 장소·경험을 찾아 나서는 편이다."},
+        {k:"N", pos:"N", neg:"B", q:"지루하면 즉시 자극적인 것을 찾는다(영상·게임·간식 등)."},
+        {k:"S", pos:"S", neg:"B", q:"사람들과의 상호작용이 기분 좋은 에너지를 준다."},
+        {k:"S", pos:"S", neg:"B", q:"‘좋아요/댓글/메시지’ 알림이 오면 바로 확인한다."},
+        {k:"K", pos:"K", neg:"B", q:"궁금한 건 끝까지 파고들어 지식으로 쌓는다."},
+        {k:"K", pos:"K", neg:"B", q:"정보 정리나 아카이빙을 습관처럼 한다."},
+        {k:"B", pos:"B", neg:"N", q:"루틴(수면·식사·운동)을 유지하려 노력한다."},
+        {k:"B", pos:"B", neg:"N", q:"즉흥적 충동이 와도 한 번 멈추고 선택하려 한다."},
+        {k:"N", pos:"N", neg:"B", q:"즉석 결정을 즐기는 편이다."},
+        {k:"S", pos:"S", neg:"B", q:"모임·행사·네트워킹이 기대된다."},
+        {k:"K", pos:"K", neg:"B", q:"새 개념을 이해했을 때 쾌감이 크다."},
+        {k:"B", pos:"B", neg:"N", q:"작은 보상(차·산책·스트레칭)으로 스스로를 달랜다."}
       ];
 
       // ---------- 상태 ----------
@@ -43,7 +44,7 @@
       const prevBtn = $("prev"), skipBtn = $("skip");
 
       if (!stepLabel || !bar || !qText || !wrap || !card || !result) {
-        console.warn('[dopamine] 필수 DOM이 아직 없음. DOM 준비 후 재시도');
+        console.warn('[dopamine] 필수 DOM 없음. DOM 준비 후 재시도');
         return;
       }
 
@@ -54,6 +55,7 @@
         if (sec < 8) return 1.15;
         return 1.10;
       }
+      const NEG_WEIGHT = 0.6; // 부정시 반대 축 가중치
 
       function render(){
         stepLabel.textContent = `문항 ${idx+1} / ${Q.length}`;
@@ -86,14 +88,33 @@
         startedAt = Date.now();
       }
 
+      function applyScore(s, q, sec){
+        // s: 0~4, q:{pos,neg}, sec: 응답시간
+        const w = tWeight(sec);
+        const pos = q.pos;  // 동의 축
+        const neg = q.neg;  // 부동의 축
+
+        // 동의 기여 (선택값 s)
+        const posAdj = s + (s * (w - 1) * 0.2);
+
+        // 부동의 기여 (4-s), NEG_WEIGHT로 축소
+        const inv = 4 - s;
+        const negAdj = (inv + (inv * (w - 1) * 0.2)) * NEG_WEIGHT;
+
+        // 합산
+        score[pos] += posAdj;
+        score[neg] += negAdj;
+
+        // 카운트(정규화 분모). 동·부 합쳐서 동일하게 1카운트로 취급
+        count[pos] += 1;
+        count[neg] += 1;
+      }
+
       function choose(s){
         const sec = (Date.now() - startedAt) / 1000;
-        const w   = tWeight(sec);
-        const k   = Q[idx].k;
+        const q   = Q[idx];
 
-        const adj = s + (s * (w - 1) * 0.2); // 보조 가중(선택을 뒤엎지 않음)
-        score[k] += adj;
-        count[k] += 1;
+        applyScore(s, q, sec);
 
         ans[idx]   = s;
         times[idx] = sec;
@@ -111,18 +132,18 @@
         count.N = count.S = count.K = count.B = 0;
         for (let i=0; i<idx; i++){
           const s = ans[i] ?? 0;
-          const k = Q[i].k;
-          const w = tWeight(times[i] ?? 3);
-          const adj = s + (s * (w - 1) * 0.2);
-          score[k] += adj;
-          count[k] += 1;
+          const sec = times[i] ?? 3;
+          applyScore(s, Q[i], sec);
         }
         render();
       });
 
       skipBtn?.addEventListener("click", ()=>{
-        ans[idx]   = 0;
-        times[idx] = (Date.now() - startedAt)/1000;
+        // 스킵은 중립(2)로 처리하여 양극성 균형
+        const sec = (Date.now() - startedAt)/1000;
+        applyScore(2, Q[idx], sec);
+        ans[idx]   = 2;
+        times[idx] = sec;
         if (++idx < Q.length) render(); else finish();
       });
 
@@ -137,48 +158,47 @@
         };
       }
 
-      // ---------- 타입 메타 & 카피 (Emoji 사용) ----------
+      // ---------- 타입 메타 & 카피 (Emoji, 명칭 개선) ----------
       const TYPE = {
-        ROLLER:{title:"🎢 롤러코스터",    emoji:"🎢"},
-        KNOW:  {title:"📚 지식 부자",      emoji:"📚"},
-        SOCIAL:{title:"🎉 인싸 제조기",    emoji:"🎉"},
-        AVOHA: {title:"🥑 아보하 마스터",  emoji:"🥑"},
+        ROLLER:{title:"🎢 롤러코스터",      emoji:"🎢"},
+        KNOW:  {title:"📚 지식 부자",        emoji:"📚"},
+        SOCIAL:{title:"🎉 인싸 제조기",      emoji:"🎉"},
+        AVOHA: {title:"🧘 현자 · 안전주의",  emoji:"🧘"},
       };
       const COPY = {
         ROLLER: {
           quote:'오늘의 재미는 오늘 만든다!',
-          desc:'새로움과 강한 자극에 반응하는 유형이에요. 계획보다 실행, 안정보다 재미에 먼저 반응하죠. 단, 과열되기 전에 스스로를 식히는 버튼이 필요해요.',
+          desc:'새로움과 강한 자극에 빠르게 반응하는 유형. 계획보다 실행이 앞서요. 과열되기 전 스스로 식히는 버튼이 필요해요.',
           summary:['자극 선호','즉흥 실행','새로움 탐색'],
-          remind:['15분만 즐기고 멈춰보기','설탕/카페인은 낮 시간대 최소화'],
+          remind:['15분 즐기고 멈추기','낮 시간 설탕/카페인 최소화'],
         },
         KNOW: {
           quote:'이해의 순간, 보상은 터진다.',
-          desc:'지식을 쌓고 연결할 때 가장 큰 쾌감을 느껴요. 집중력이 강점이지만 과몰입으로 리듬이 깨지지 않도록 휴식 타이밍을 설계해요.',
+          desc:'지식을 쌓고 연결할 때 큰 보상. 과몰입으로 리듬이 깨지지 않게 휴식 타이밍을 설계해요.',
           summary:['지식 보상 큼','정리/아카이빙 선호','깊은 집중'],
-          remind:['50/10 리듬(집중/휴식)','새로 배운 1가지 기록'],
+          remind:['50/10(집중/휴식)','오늘 배운 1가지 기록'],
         },
         SOCIAL: {
           quote:'사람 사이를 잇는 도파민.',
-          desc:'상호작용, 인정, 함께함에서 에너지가 솟아요. 네트워킹이 동력인 만큼, 알림과 감정 리듬을 주기적으로 정돈해두면 더 오래 갑니다.',
+          desc:'상호작용·인정·함께함에서 에너지가 솟아요. 알림과 감정 리듬을 주기적으로 정돈해두면 더 오래 갑니다.',
           summary:['상호작용 보상','인정 민감','네트워킹 동력'],
-          remind:['알림 묶음 확인(시간 지정)','오늘 대화 1건 성의 있게'],
+          remind:['알림 묶음 확인','오늘 대화 1건 성의 있게'],
         },
         AVOHA: {
           quote:'작은 행복을 꾸준히.',
-          desc:'루틴과 소소한 보상으로 안정적으로 달리는 타입. 큰 파동은 적지만 오래 가는 에너지예요. 가끔은 의도적 새로움으로 활력을 더해보세요.',
+          desc:'루틴·안정·절제가 도파민 밸런스를 잡아주는 유형. 의도적인 새로움을 가끔 섞어 활력을 보강해요.',
           summary:['루틴 보상','안정 추구','지속성 강점'],
-          remind:['산책 10분 + 물 1컵','루틴에 “새로움 1개” 얹기'],
+          remind:['산책 10분 + 물 1컵','루틴에 “새로움 1개”'],
         },
       };
-      const dimToType = d => d==='N'?'ROLLER':d==='S'?'SOCIAL':d==='K'?'KNOW':'AVOHA';
 
       // ---------- 하이브리드/타이브레이커 보강 ----------
       function recentCategoryPreference(Q, answers){
-        // 최근 6문항에서 평균 점수가 큰 차원
+        // 최근 6문항에서 평균 점수가 큰 차원(동의 점수 기준)
         const recent = [];
         for (let i = answers.length-1; i >= 0 && recent.length < 6; i--){
           const s = answers[i];
-          if (typeof s === 'number') recent.push({dim: Q[i].k, s});
+          if (typeof s === 'number') recent.push({dim: Q[i].pos, s}); // 긍정 축 기준
         }
         if (!recent.length) return null;
         const agg = {N:0,S:0,K:0,B:0, cN:0,cS:0,cK:0,cB:0};
@@ -218,7 +238,10 @@
           let main = rawRanks[0].k;
           if (Math.abs(rawRanks[0].raw - rawRanks[1].raw) < 0.05) {
             const prefDim = recentCategoryPreference(Q, answers);
-            if (prefDim) main = dimToType(prefDim);
+            if (prefDim) {
+              // 최근 경향 우선
+              main = (prefDim==='N')?'ROLLER':(prefDim==='S')?'SOCIAL':(prefDim==='K')?'KNOW':'AVOHA';
+            }
           }
           return { main, hybrid: null, n: norm };
         }
@@ -227,10 +250,10 @@
         const allowHybrid = (gap < 0.06) && (top.v >= 0.45) && (second.v >= 0.45);
         if (!allowHybrid) return { main: top.k, hybrid: null, n: norm };
 
-        // (C) 근소차 구간이어도 최근 경향이 뚜렷하면 단일 타입
-        const pref = recentCategoryPreference(Q, answers);
-        if (pref) {
-          const prefType = dimToType(pref);
+        // (C) 근소차여도 최근 경향이 뚜렷하면 단일 타입
+        const prefDim = recentCategoryPreference(Q, answers);
+        if (prefDim) {
+          const prefType = (prefDim==='N')?'ROLLER':(prefDim==='S')?'SOCIAL':(prefDim==='K')?'KNOW':'AVOHA';
           if (prefType === top.k || prefType === second.k) {
             return { main: prefType, hybrid: null, n: norm };
           }
@@ -250,7 +273,6 @@
 
       // ---------- 결과 렌더 ----------
       function finish(){
-        // 마지막 진행 표시 보정
         bar.style.width = "100%";
         card.style.display = "none";
 
