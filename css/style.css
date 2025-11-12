@@ -630,3 +630,87 @@ body.v2025-4 { /* 스코프 토큰 */ }
 @media (min-width: 960px){
   .test-layout{ max-width: 900px; margin: 0 auto; }
 }
+/* ===== relation-tests compat v2025.5 — 기존 단일 컬럼 UI로 정렬 ===== */
+.test-page .top-main-btn { top: 12px; left: 12px; }
+
+.test-page main.test-layout{
+  max-width: 720px;        /* 기존 테스트 폭과 유사 */
+  margin: 0 auto;
+  padding: 84px 16px 72px;
+}
+
+.test-page .hero-wrap .logo img { width: 40px; height: 40px; }
+.test-page .hero-wrap .subtitle { color: #8a7a6a; }
+
+.test-page .test-card{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.test-page .progress-row{ gap: 10px; margin-bottom: 8px; }
+.test-page .progress-row > span{ color:#8a7a6a; font-size: .95rem; }
+.test-page .progressbar{ height: 6px; background:#efeae3; border-radius: 999px; overflow: hidden; }
+.test-page .progressbar > div{ background:#cfe7db; } /* 민트계열 */
+
+.test-page .test-q{
+  font-size: 1.08rem;
+  line-height: 1.7;
+  font-weight: 800;
+  margin: 14px 2px 12px;
+  color:#5e493d;
+  letter-spacing:-0.01em;
+}
+
+.test-page .choices{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.test-page .choice{
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.test-page .choice button{
+  width: 100%;
+  display: block;
+  text-align: center;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid #d8e8de;
+  background: #eaf7f0;          /* 기존 파스텔 민트 */
+  color: #3b5847;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+
+.test-page .choice button:active { transform: translateY(1px); }
+.test-page .choice small{ display: none; } /* 점수 숫자 숨김 — 기존 규칙 유지 */
+
+/* 결과 카드도 기존 톤으로 */
+.test-page .result-wrap{
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+.test-page .result-badge{
+  background:#fff; border:1px solid var(--line); color:#5e493d;
+}
+.test-page .result-gauge{ height: 10px; background:#f4ede5; }
+.test-page .result-gauge .fill{
+  background: linear-gradient(90deg,#69d27a,#ffd34f 50%,#ff7a7a);
+}
+.test-page .result-pill{
+  background:#faf7f1; border-color:#e8ddd1; color:#6b5b50;
+}
+
+/* 큰 화면에서도 단일 컬럼 유지 */
+@media (min-width:1024px){
+  .test-page main.test-layout{ max-width: 760px; }
+}
