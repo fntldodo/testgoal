@@ -22,12 +22,11 @@
   ];
 
   const TYPE = {
-    DETECT:{title:'🔎 정밀 디텍터', emoji:'🔎'},
-    BAL   :{title:'🌿 균형형',       emoji:'🌿'},
-    OVER  :{title:'🌫️ 추측 과다',   emoji:'🌫️'},
-    LOW   :{title:'🐢 신호 저감',   emoji:'🐢'},
+    DETECT:{title:'🔎 정밀 디텍터'},
+    BAL   :{title:'🌿 균형형'},
+    OVER  :{title:'🌫️ 추측 과다'},
+    LOW   :{title:'🐢 신호 저감'},
   };
-
   const COPY = {
     DETECT:{quote:'감지 — 확인 — 조정의 선순환.',
       desc:'신호(S)와 근거(K)가 높고 검증(B)으로 속도를 조절합니다.',
@@ -81,7 +80,6 @@
   function finish(){
     $('bar').style.width='100%';
     document.getElementById('card').style.display='none';
-
     const n = scorer.normalize();
     const k=n.K||0, s=n.S||0, b=n.B||0, nn=n.N||0;
     let key;
@@ -101,8 +99,7 @@
       ['검증/회수(B)', b],
       ['성급/추측(N)', nn],
     ].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([label,v])=>{
-      const pct=Math.round(v*100);
-      const tag=pct>=76?'매우 높음':pct>=56?'높음':pct>=36?'보통':pct>=21?'낮음':'아주 낮음';
+      const pct=Math.round(v*100), tag=pct>=76?'매우 높음':pct>=56?'높음':pct>=36?'보통':pct>=21?'낮음':'아주 낮음';
       return `<div class="row"><span><b>${label}</b></span><div class="bar"><span class="fill" style="width:${pct}%"></span></div><span class="meter-label">${tag} (${pct}%)</span></div>`;
     }).join('');
     document.getElementById('rMeter').innerHTML = rows;
