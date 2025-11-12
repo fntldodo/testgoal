@@ -557,3 +557,76 @@ body.v2025-3 {
 #plant-app .choices .choice:hover{ background:#fffdf7; border-color:#e1d8cf; }
 /* style.css 맨 아래 */
 @import url('theme.css?v=2025.3');
+
+
+/* ===== relation 3종 공통 보조 스타일 — 추가형 확장 (v2025.4) ===== */
+body.v2025-4 { /* 스코프 토큰 */ }
+
+.result-wrap{
+  margin:16px 0 10px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fffefb;
+  box-shadow:var(--shadow);
+}
+
+.result-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  background:#fff; border:1px solid var(--line); font-weight:700;
+  color:#5e493d; font-size:.9rem;
+}
+
+.result-gauge{
+  margin-top:10px; height:12px; border-radius:999px; background:#f1e8dd; overflow:hidden; position:relative;
+}
+.result-gauge .fill{
+  position:absolute; top:0; left:0; height:100%; width:0%;
+  background: linear-gradient(90deg, #69d27a, #ffd34f 50%, #ff7a7a);
+  transition: width .5s ease;
+}
+
+.result-quote{
+  margin:10px 0 6px; font-style:italic; color:#6a5a4f;
+}
+.result-desc{ color:var(--text-soft); line-height:1.7; }
+
+.result-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+.result-pill{
+  padding:6px 10px; border:1px solid var(--line); border-radius:999px;
+  background:#faf7f1; font-size:.8rem; color:#6b5b50; white-space:nowrap;
+}
+
+.result-actions{ display:flex; gap:8px; margin-top:12px; }
+.result-actions .btn{
+  border:none; border-radius:999px; padding:8px 14px; cursor:pointer;
+  background:#f3e6d9; color:#5e493d; font-weight:600;
+}
+.result-actions .btn:hover{ filter:brightness(0.98); }
+
+/* 질문 카드 */
+.test-card{
+  background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px;
+  box-shadow:var(--shadow); margin:10px 0;
+}
+.test-q{ font-weight:700; color:#4a3c33; margin-bottom:8px; }
+.choices{ display:grid; gap:8px; }
+.choice{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:#fff; border:1px solid #e9e6e2; border-radius:14px; padding:10px 12px;
+}
+.choice button{
+  border:none; border-radius:999px; padding:6px 10px; background:#f6f2eb; color:#5e493d; cursor:pointer;
+}
+.choice button:active{ transform:translateY(1px); }
+.choice small{ color:#8a7a6a; }
+
+.progress-row{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; color:#8a7a6a; }
+.progressbar{ height:8px; border-radius:999px; background:#efe9e1; overflow:hidden;}
+.progressbar > div{ height:100%; width:0%; background:#cfdce8; transition: width .3s ease; }
+
+/* 반응형 */
+@media (min-width: 960px){
+  .test-layout{ max-width: 900px; margin: 0 auto; }
+}
